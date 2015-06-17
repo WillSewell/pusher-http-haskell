@@ -3,6 +3,7 @@ module Main where
 import Control.Monad.Error (ErrorT, runErrorT)
 import Control.Monad.Reader (ReaderT, runReaderT)
 
+import qualified Data.HashSet as HS
 import qualified Pusher as P
 
 type PusherM a = ReaderT P.Pusher (ErrorT String IO) a
@@ -19,7 +20,8 @@ pusher = P.Pusher
 
 main :: IO ()
 main = do
-  x <- runErrorT (runReaderT (P.trigger ["c"] "e" "d" Nothing) pusher)
+--  x <- runErrorT (runReaderT (P.trigger ["c"] "e" "d" Nothing) pusher)
+  x <- runErrorT (runReaderT (P.channels "" (P.ChannelInfoQuery (HS.singleton P.UserCount))) pusher)
   case x of
-    Right _ -> return ()
+    Right r -> print r
     Left e -> print e
