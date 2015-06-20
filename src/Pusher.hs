@@ -147,7 +147,9 @@ channels prefix attributes = do
   qs <- makeQS
     "GET"
     ("/apps/" <> T.pack (show appID) <> "/channels")
-    [("info", encodeUtf8 $ toURLParam attributes)]
+    [ ("info", encodeUtf8 $ toURLParam attributes)
+    , ("filter_by_prefix", encodeUtf8 prefix)
+    ]
     ""
   liftIO $ print qs
   params <- either
