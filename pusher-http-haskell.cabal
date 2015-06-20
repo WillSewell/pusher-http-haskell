@@ -28,7 +28,8 @@ executable example
   default-extensions: OverloadedStrings
   hs-source-dirs:     example
   main-is:            Main.hs
-  build-depends:      base ==4.7.*,
-                      mtl ==2.1.*,
+  build-depends:      base,
+                      mtl,
                       pusher-http-haskell,
-                      unordered-containers ==0.2.*
+                      unordered-containers,
+                      yaml

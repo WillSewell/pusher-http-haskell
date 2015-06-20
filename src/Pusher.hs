@@ -10,7 +10,7 @@ import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
 import Data.Time.Clock.POSIX (POSIXTime, getPOSIXTime)
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), (<*>))
 import Control.Lens ((&), (^.), (.~))
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -43,6 +43,13 @@ data Credentials = Credentials
   , credentials'appKey :: B.ByteString
   , credentials'appSecret :: B.ByteString
   }
+
+instance A.FromJSON Credentials where
+  parseJSON (A.Object v) = Credentials
+    <$> v .: "app-id"
+    <*> (encodeUtf8 <$> v .: "app-key")
+    <*> (encodeUtf8 <$> v .: "app-secret")
+  parseJSON v2 = failExpectObj v2
 
 class ToURLParam a where
   toURLParam :: a -> T.Text
