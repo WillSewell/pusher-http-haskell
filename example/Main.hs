@@ -6,6 +6,7 @@ import Control.Monad.Reader (ReaderT, runReaderT)
 import qualified Data.HashSet as HS
 import qualified Data.Yaml as Y
 import qualified Pusher as P
+import qualified Pusher.Protocol as P
 
 type PusherM a = ReaderT P.Pusher (ErrorT String IO) a
 

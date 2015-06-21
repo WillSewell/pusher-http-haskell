@@ -4,8 +4,7 @@
 
 module Pusher where
 
-import Data.Aeson ((.:), (.:?))
-import Data.Hashable (Hashable, hashWithSalt)
+import Data.Aeson ((.:))
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
@@ -17,21 +16,19 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Error (MonadError, throwError)
 import Control.Monad.Reader (MonadReader, ReaderT, asks)
 import GHC.Exts (sortWith)
-import GHC.Generics (Generic)
 import qualified Data.Aeson as A
-import qualified Data.Aeson.Types as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Base16 as B16
-import qualified Data.HashMap.Strict as HM
-import qualified Data.HashSet as HS
 import qualified Data.Text as T
-import qualified Data.Traversable as Traversable
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Crypto.MAC.HMAC as HMAC
 import qualified Network.Wreq as W
+
+import Pusher.Protocol (ChannelInfoQuery, ChannelsInfo, toURLParam)
+import Pusher.Util (failExpectObj)
 
 data Pusher = Pusher
   { pusher'endpoint :: T.Text
@@ -51,56 +48,7 @@ instance A.FromJSON Credentials where
     <*> (encodeUtf8 <$> v .: "app-secret")
   parseJSON v2 = failExpectObj v2
 
-class ToURLParam a where
-  toURLParam :: a -> T.Text
-
-data ChannelInfoAttributes = UserCount deriving Generic
-
-instance ToURLParam ChannelInfoAttributes where
-  toURLParam UserCount = "user_count"
-
-instance Hashable ChannelInfoAttributes
-
-newtype ChannelInfoQuery = ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
-
-instance ToURLParam ChannelInfoQuery where
-  toURLParam (ChannelInfoQuery q) = T.concat $ toURLParam <$> HS.toList q
-
-newtype ChannelsInfo =
-  ChannelsInfo (HM.HashMap T.Text ChannelInfo)
-  deriving Show
-
-instance A.FromJSON ChannelsInfo where
-  parseJSON (A.Object v) = do
-    chansV <- (v .: "channels")
-    case chansV of
-      A.Object cs ->
-        ChannelsInfo <$> Traversable.sequence (HM.map A.parseJSON cs)
-      v1 -> failExpectObj v1
-  parseJSON v2 = failExpectObj v2
-
-newtype ChannelInfo =
-  ChannelInfo (HS.HashSet ChannelInfoAttributeResp)
-  deriving Show
-
-instance A.FromJSON ChannelInfo where
-  parseJSON (A.Object v) = do
-    maybeUserCount <- v .:? "user_count"
-    return $ ChannelInfo $ maybe
-      HS.empty
-      (HS.singleton . UserCountResp)
-      maybeUserCount
-  parseJSON v = failExpectObj v
-
-data ChannelInfoAttributeResp = UserCountResp Int deriving Show
-
-instance Hashable ChannelInfoAttributeResp where
-  hashWithSalt salt (UserCountResp count) = hashWithSalt salt count
-
 type PusherT = ReaderT Pusher IO
-
-failExpectObj :: A.Value -> A.Parser a
-failExpectObj = fail . ("Expected JSON object, got " ++) . show
 
 trigger
   :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
