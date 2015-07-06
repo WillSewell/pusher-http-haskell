@@ -1,7 +1,6 @@
 module Main where
 
-import Control.Monad.Error (runErrorT)
-import Control.Monad.Reader (runReaderT)
+import Control.Monad.Pusher (runPusherT)
 import Data.Monoid ((<>))
 import qualified Data.HashSet as HS
 import qualified Data.Pusher as P
@@ -27,8 +26,7 @@ main = do
   case eitherCred of
     Right cred -> do
       let pusher = getPusher cred
-      x <- runErrorT $
-        runReaderT
+      x <- runPusherT
           (P.channel
             "test_channel"
             (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount)))
