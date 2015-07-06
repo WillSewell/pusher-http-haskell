@@ -1,7 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TupleSections #-}
 
-module Pusher where
+module Pusher
+  ( Pusher(..)
+  , Credentials(..)
+  , trigger
+  , channels
+  , channel
+  ) where
 
 import Data.Aeson ((.:))
 import Data.Maybe (maybeToList)

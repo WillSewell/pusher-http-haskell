@@ -1,4 +1,5 @@
-module Pusher.Util where
+module Pusher.Util
+ (failExpectObj) where
 
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Types as A

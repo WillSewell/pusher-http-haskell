@@ -1,7 +1,15 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Pusher.Protocol where
+module Pusher.Protocol
+  ( ChannelInfo(..)
+  , ChannelInfoAttributes(..)
+  , ChannelInfoQuery(..)
+  , ChannelsInfo(..)
+  , ChannelsInfoQuery(..)
+  , ChannelsInfoAttributes(..)
+  , toURLParam
+  ) where
 
 import Data.Aeson ((.:), (.:?))
 import Data.Hashable (Hashable, hashWithSalt)
