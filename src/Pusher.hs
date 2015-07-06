@@ -66,12 +66,7 @@ channels prefix attributes = do
   get ep qs
 
 channel
-  ::
-    ( Functor m
-    , MonadError String m
-    , MonadIO m
-    , MonadReader Pusher m
-    )
+  :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
   => T.Text -> ChannelInfoQuery -> m ChannelInfo
 channel channelName attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
