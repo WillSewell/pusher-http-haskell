@@ -5,7 +5,11 @@ cabal-version:        >=1.20
 tested-with:          GHC == 7.8.3
 
 library
-  exposed-modules:    Pusher,
+  exposed-modules:    Control.Monad.Pusher,
+                      Data.Pusher,
+                      Pusher,
+                      Pusher.Auth,
+                      Pusher.HTTP,
                       Pusher.Protocol,
                       Pusher.Util
   default-language:   Haskell2010

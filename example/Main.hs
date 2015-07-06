@@ -1,15 +1,14 @@
 module Main where
 
-import Control.Monad.Error (ErrorT, runErrorT)
-import Control.Monad.Reader (ReaderT, runReaderT)
+import Control.Monad.Error (runErrorT)
+import Control.Monad.Reader (runReaderT)
 import Data.Monoid ((<>))
 import qualified Data.HashSet as HS
-import qualified Data.Yaml as Y
+import qualified Data.Pusher as P
 import qualified Data.Text as T
+import qualified Data.Yaml as Y
 import qualified Pusher as P
 import qualified Pusher.Protocol as P
-
-type PusherM a = ReaderT P.Pusher (ErrorT String IO) a
 
 getPusher :: P.Credentials -> P.Pusher
 getPusher cred =
