@@ -32,7 +32,6 @@ import Pusher.Protocol
   , ChannelInfoQuery
   , ChannelsInfo
   , ChannelsInfoQuery
-  , ToURLParam
   , toURLParam
   )
 import Pusher.Util (failExpectObj)
