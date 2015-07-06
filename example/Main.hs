@@ -26,10 +26,14 @@ main = do
   case eitherCred of
     Right cred -> do
       let pusher = getPusher cred
+--       x <- runPusherT
+--           (P.channel
+--             "test_channel"
+--             (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount)))
+--           pusher
       x <- runPusherT
-          (P.channel
-            "test_channel"
-            (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount)))
+          (P.users
+            "presence-test")
           pusher
       case x of
         Right r -> print r

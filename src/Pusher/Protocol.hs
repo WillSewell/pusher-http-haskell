@@ -8,6 +8,7 @@ module Pusher.Protocol
   , ChannelsInfo(..)
   , ChannelsInfoQuery(..)
   , ChannelsInfoAttributes(..)
+  , Users
   , toURLParam
   ) where
 
@@ -87,3 +88,18 @@ data ChannelInfoAttributeResp = UserCountResp Int deriving Show
 
 instance Hashable ChannelInfoAttributeResp where
   hashWithSalt salt (UserCountResp count) = hashWithSalt salt count
+
+
+newtype Users = Users [User] deriving Show
+
+instance A.FromJSON Users where
+  parseJSON (A.Object v) = do
+    users <- v .: "users"
+    Users <$> A.parseJSON users
+  parseJSON v = failExpectObj v
+
+data User = User { user'id :: Int } deriving Show
+
+instance A.FromJSON User where
+  parseJSON (A.Object v) = User <$> v .: "id"
+  parseJSON v = failExpectObj v

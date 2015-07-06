@@ -4,6 +4,7 @@ module Pusher
   ( trigger
   , channels
   , channel
+  , users
   ) where
 
 import Data.Maybe (maybeToList)
@@ -26,6 +27,7 @@ import Pusher.Protocol
   , ChannelInfoQuery
   , ChannelsInfo
   , ChannelsInfoQuery
+  , Users
   , toURLParam
   )
 
@@ -72,6 +74,14 @@ channel channelName attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
   (ep, path) <- getEndpoint $ "channels/" <> channelName
   qs <- makeQS "GET" path params ""
+  get ep qs
+
+users
+ :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
+ => T.Text -> m Users
+users channelName = do
+  (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"
+  qs <- makeQS "GET" path [] ""
   get ep qs
 
 getEndpoint :: (MonadReader Pusher m) => T.Text -> m (T.Text, T.Text)
