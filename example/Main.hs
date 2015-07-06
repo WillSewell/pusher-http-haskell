@@ -15,7 +15,7 @@ getPusher :: P.Credentials -> P.Pusher
 getPusher cred =
   let path = "/apps/" <> T.pack (show $ P.credentials'appID cred) <> "/" in
   P.Pusher
-    { P.pusher'endpoint = "http://api.pusherapp.com" <> path
+    { P.pusher'host = "http://api.pusherapp.com"
     , P.pusher'path = path
     , P.pusher'credentials = cred
     }

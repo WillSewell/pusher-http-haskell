@@ -38,7 +38,7 @@ import Pusher.Protocol
 import Pusher.Util (failExpectObj)
 
 data Pusher = Pusher
-  { pusher'endpoint :: T.Text
+  { pusher'host :: T.Text
   , pusher'path :: T.Text
   , pusher'credentials :: Credentials
   }
@@ -65,8 +65,7 @@ trigger channelNames event dat socketId = do
   when
     (length channelNames > 10)
     (throwError "Must be less than 10 channels")
-  ep <- asks pusher'endpoint
-  appID <- asks (credentials'appID . pusher'credentials)
+
   let
     body = A.object $
       [ ("name", A.String event)
@@ -77,27 +76,23 @@ trigger channelNames event dat socketId = do
   when
     (B.length bodyBS > 10000)
     (throwError "Body must be less than 10000KB")
-  qs <- makeQS
-    "POST"
-    ("/apps/" <> T.pack (show appID) <> "/events")
-    []
-    bodyBS
-  post (ep <> "events") qs body
+
+  (ep, path) <- getEndpoint "events"
+  qs <- makeQS "POST" path [] bodyBS
+  post ep qs body
 
 channels
   :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
   => T.Text -> ChannelsInfoQuery -> m ChannelsInfo
 channels prefix attributes = do
-  ep <- asks pusher'endpoint
-  appID <- asks (credentials'appID . pusher'credentials)
-  qs <- makeQS
-    "GET"
-    ("/apps/" <> T.pack (show appID) <> "/channels")
-    [ ("info", encodeUtf8 $ toURLParam attributes)
-    , ("filter_by_prefix", encodeUtf8 prefix)
-    ]
-    ""
-  get (ep <> "channels") qs
+  let
+    params =
+      [ ("info", encodeUtf8 $ toURLParam attributes)
+      , ("filter_by_prefix", encodeUtf8 prefix)
+      ]
+  (ep, path) <- getEndpoint "channels"
+  qs <- makeQS "GET" path params ""
+  get ep qs
 
 channel
   ::
@@ -108,18 +103,19 @@ channel
     )
   => T.Text -> ChannelInfoQuery -> m ChannelInfo
 channel channelName attributes = do
-  ep <- asks pusher'endpoint
+  let params = [("info", encodeUtf8 $ toURLParam attributes)]
+  (ep, path) <- getEndpoint $ "channels/" <> channelName
+  qs <- makeQS "GET" path params ""
+  get ep qs
+
+getEndpoint :: (MonadReader Pusher m) => T.Text -> m (T.Text, T.Text)
+getEndpoint subPath = do
+  host <- asks pusher'host
   path <- asks pusher'path
   let
-    subPath = "channels/" <> channelName
     fullPath = path <> subPath
-  qs <- makeQS
-    "GET"
-    fullPath
-    [("info", encodeUtf8 $ toURLParam attributes)]
-    ""
-  liftIO $ print qs
-  get (ep <> subPath) qs
+    endpoint = host <> fullPath
+  return (endpoint, fullPath)
 
 makeQS
   :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
