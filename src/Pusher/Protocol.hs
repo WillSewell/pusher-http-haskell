@@ -25,7 +25,8 @@ instance ToURLParam ChannelsInfoAttributes where
 
 instance Hashable ChannelsInfoAttributes
 
-newtype ChannelsInfoQuery = ChannelsInfoQuery (HS.HashSet ChannelsInfoAttributes)
+newtype ChannelsInfoQuery =
+  ChannelsInfoQuery (HS.HashSet ChannelsInfoAttributes)
   deriving ToURLParam
 
 

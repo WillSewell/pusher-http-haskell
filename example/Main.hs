@@ -22,13 +22,18 @@ getPusher cred =
 
 main :: IO ()
 main = do
---  x <- runErrorT (runReaderT (P.trigger ["c"] "e" "d" Nothing) pusher)
+-- x <- runErrorT (runReaderT (P.trigger ["c"] "e" "d" Nothing) pusher)
 -- x <- runErrorT (runReaderT (P.channels "presence-" (P.ChannelInfoQuery (HS.singleton P.UserCount))) pusher)
   eitherCred <- Y.decodeFileEither "example/credentials.yaml"
   case eitherCred of
     Right cred -> do
       let pusher = getPusher cred
-      x <- runErrorT (runReaderT (P.channel "test_channel" (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount))) pusher)
+      x <- runErrorT $
+        runReaderT
+          (P.channel
+            "test_channel"
+            (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount)))
+          pusher
       case x of
         Right r -> print r
         Left e -> print e

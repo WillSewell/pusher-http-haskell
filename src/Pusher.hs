@@ -119,7 +119,11 @@ getEndpoint subPath = do
 
 makeQS
   :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
-  => T.Text -> T.Text -> [(T.Text, B.ByteString)] -> B.ByteString -> m [(T.Text, B.ByteString)]
+  => T.Text
+  -> T.Text
+  -> [(T.Text, B.ByteString)]
+  -> B.ByteString
+  -> m [(T.Text, B.ByteString)]
 makeQS method path params body = do
   cred <- asks pusher'credentials
   ts <- BC.pack . show . (round :: POSIXTime -> Integer) <$> liftIO getPOSIXTime
@@ -145,7 +149,11 @@ authSignature :: Credentials -> B.ByteString -> B.ByteString
 authSignature cred authString =
   B16.encode (HMAC.hmac SHA256.hash 64 (credentials'appSecret cred) authString)
 
-get :: (A.FromJSON a, MonadError String m, MonadIO m) => T.Text -> [(T.Text, B.ByteString)] -> m a
+get
+  :: (A.FromJSON a, MonadError String m, MonadIO m)
+  => T.Text
+  -> [(T.Text, B.ByteString)]
+  -> m a
 get ep qs  = do
   params <- either
     (throwError . show)
@@ -160,7 +168,12 @@ get ep qs  = do
   else
      throwError $ show $ status ^. W.statusMessage
 
-post :: (WT.Postable a, MonadError String m, MonadIO m) => T.Text -> [(T.Text, B.ByteString)] -> a -> m ()
+post
+  :: (WT.Postable a, MonadError String m, MonadIO m)
+  => T.Text
+  -> [(T.Text, B.ByteString)]
+  -> a
+  -> m ()
 post ep qs body = do
   params <- either
     (throwError . show)
