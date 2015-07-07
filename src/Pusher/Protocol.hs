@@ -98,7 +98,7 @@ instance A.FromJSON Users where
     Users <$> A.parseJSON users
   parseJSON v = failExpectObj v
 
-data User = User { user'id :: Int } deriving Show
+data User = User { user'id :: T.Text } deriving Show
 
 instance A.FromJSON User where
   parseJSON (A.Object v) = User <$> v .: "id"

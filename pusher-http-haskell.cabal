@@ -29,14 +29,32 @@ library
                       unordered-containers ==0.2.*,
                       wreq ==0.3.*
 
-executable example
+executable api-example
   default-language:   Haskell2010
   default-extensions: OverloadedStrings
-  hs-source-dirs:     example
+  hs-source-dirs:     example/api
   main-is:            Main.hs
   build-depends:      base,
                       mtl,
                       pusher-http-haskell,
                       text,
+                      unordered-containers,
+                      yaml
+
+executable auth-example
+  default-language:   Haskell2010
+  default-extensions: OverloadedStrings
+  hs-source-dirs:     example/auth
+  main-is:            Main.hs
+  build-depends:      aeson,
+                      base,
+                      bytestring,
+                      containers,
+                      mtl,
+                      pusher-http-haskell,
+                      snap-core,
+                      snap-server,
+                      text,
+                      transformers,
                       unordered-containers,
                       yaml

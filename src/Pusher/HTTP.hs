@@ -28,8 +28,7 @@ get ep qs  = do
   let opts = W.defaults & W.params .~ params
   r <- liftIO $ W.getWith opts (T.unpack ep)
   let status = r ^. W.responseStatus
-  if status ^. W.statusCode == 200 then do
-     liftIO $ print (r ^. W.responseBody)
+  if status ^. W.statusCode == 200 then
      either throwError return (A.eitherDecode $ r ^. W.responseBody)
   else
      throwError $ show $ status ^. W.statusMessage

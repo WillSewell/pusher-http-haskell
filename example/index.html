@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Pusher + Haskell Example</title>
+</head>
+<body>
+<div class="col-md-6">
+  <h1>Message receiver</h1>
+  <div id="history"></div>
+</div>
+</body>
+
+<script src="http://js.pusher.com/2.2/pusher.min.js"></script>
+<script>
+  Pusher.log = console.log.bind(console);
+  var pusher = new Pusher("7435d7e5de69a077ebe0", { // TODO: don't hardcode
+    'authEndpoint': "http://0.0.0.0:8000/",
+    'authTransport': "jsonp"
+  });
+</script>
+
+<script src="http://code.jquery.com/jquery.js"></script>
+<script>
+  var chan = pusher.subscribe('presence-messages');
+  chan.bind('some_event', function(event) {
+    console.log('event', event);
+    $('#history').append('some_event: ' + JSON.stringify(event) + '<br>');
+  });
+</script>
+</html>

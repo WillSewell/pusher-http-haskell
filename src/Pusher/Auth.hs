@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Pusher.Auth (makeQS) where
+module Pusher.Auth (authenticate, makeQS) where
 
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
@@ -10,9 +10,11 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Error (MonadError)
 import Control.Monad.Reader (MonadReader, asks)
 import GHC.Exts (sortWith)
+import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Base16 as B16
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Crypto.Hash.SHA256 as SHA256
@@ -51,3 +53,13 @@ formQueryString =
 authSignature :: Credentials -> B.ByteString -> B.ByteString
 authSignature cred authString =
   B16.encode (HMAC.hmac SHA256.hash 64 (credentials'appSecret cred) authString)
+
+authenticate
+  :: A.ToJSON a
+  => Credentials -> B.ByteString -> B.ByteString -> a -> B.ByteString
+authenticate cred socketID channelName userData =
+  let
+    sig = authSignature cred
+      (socketID <> ":" <> channelName <> ":" <> BL.toStrict (A.encode userData))
+  in
+    credentials'appKey cred <> ":" <> sig
