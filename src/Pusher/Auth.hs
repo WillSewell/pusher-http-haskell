@@ -1,6 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Pusher.Auth (authenticate, makeQS) where
+module Pusher.Auth
+  ( authenticatePresence
+  , authenticatePresenceWithEncoder
+  , authenticatePrivate, makeQS
+  ) where
 
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
@@ -50,12 +54,35 @@ authSignature :: Credentials -> B.ByteString -> B.ByteString
 authSignature cred authString =
   B16.encode (HMAC.hmac SHA256.hash 64 (credentials'appSecret cred) authString)
 
-authenticate
-  :: A.ToJSON a
-  => Credentials -> B.ByteString -> B.ByteString -> a -> B.ByteString
-authenticate cred socketID channelName userData =
+authenticatePrivate
+  :: Credentials -> B.ByteString -> B.ByteString -> B.ByteString
+authenticatePrivate cred socketID channelName =
   let
-    sig = authSignature cred
-      (socketID <> ":" <> channelName <> ":" <> BL.toStrict (A.encode userData))
+    sig = authSignature cred (socketID <> ":" <> channelName)
   in
     credentials'appKey cred <> ":" <> sig
+
+authenticatePresence
+  :: A.ToJSON a
+  => Credentials -> B.ByteString -> B.ByteString -> a -> B.ByteString
+authenticatePresence =
+  authenticatePresenceWithEncoder (BL.toStrict . A.encode)
+
+authenticatePresenceWithEncoder
+  :: A.ToJSON a
+  => (a -> B.ByteString)
+  -> Credentials
+  -> B.ByteString
+  -> B.ByteString
+  -> a
+  -> B.ByteString
+authenticatePresenceWithEncoder userEncoder cred socketID channelName userData =
+  let
+    sig = authSignature cred
+      ( socketID <> ":"
+      <> channelName <> ":"
+      <> userEncoder userData
+      )
+  in
+    credentials'appKey cred <> ":" <> sig
+
