@@ -7,13 +7,13 @@ module Pusher
   , users
   ) where
 
-import Data.Maybe (maybeToList)
-import Data.Monoid ((<>))
-import Data.Text.Encoding (encodeUtf8)
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Error (MonadError, throwError)
 import Control.Monad.Reader (MonadReader, asks)
+import Data.Maybe (maybeToList)
+import Data.Monoid ((<>))
+import Data.Text.Encoding (encodeUtf8)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -30,6 +30,7 @@ import Pusher.Protocol
   , Users
   , toURLParam
   )
+import Pusher.Util (getIntPOSIXTime)
 
 trigger
   :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
@@ -51,7 +52,7 @@ trigger channelNames event dat socketId = do
     (throwError "Body must be less than 10000KB")
 
   (ep, path) <- getEndpoint "events"
-  qs <- makeQS "POST" path [] bodyBS
+  qs <- makeQSWithTS "POST" path [] bodyBS
   post ep qs body
 
 channels
@@ -64,7 +65,7 @@ channels prefix attributes = do
       , ("filter_by_prefix", encodeUtf8 prefix)
       ]
   (ep, path) <- getEndpoint "channels"
-  qs <- makeQS "GET" path params ""
+  qs <- makeQSWithTS "GET" path params ""
   get ep qs
 
 channel
@@ -73,7 +74,7 @@ channel
 channel channelName attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
   (ep, path) <- getEndpoint $ "channels/" <> channelName
-  qs <- makeQS "GET" path params ""
+  qs <- makeQSWithTS "GET" path params ""
   get ep qs
 
 users
@@ -81,7 +82,7 @@ users
  => T.Text -> m Users
 users channelName = do
   (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"
-  qs <- makeQS "GET" path [] ""
+  qs <- makeQSWithTS "GET" path [] ""
   get ep qs
 
 getEndpoint :: (MonadReader Pusher m) => T.Text -> m (T.Text, T.Text)
@@ -92,3 +93,13 @@ getEndpoint subPath = do
     fullPath = path <> subPath
     endpoint = host <> fullPath
   return (endpoint, fullPath)
+
+makeQSWithTS
+  :: (MonadReader Pusher m, MonadIO m)
+  => T.Text
+  -> T.Text
+  -> [(T.Text, B.ByteString)]
+  -> B.ByteString
+  -> m [(T.Text, B.ByteString)]
+makeQSWithTS method path params body =
+  makeQS method path params body =<< getIntPOSIXTime

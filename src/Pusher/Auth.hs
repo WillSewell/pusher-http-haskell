@@ -4,10 +4,6 @@ module Pusher.Auth (authenticate, makeQS) where
 
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
-import Data.Time.Clock.POSIX (POSIXTime, getPOSIXTime)
-import Control.Applicative ((<$>))
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.Error (MonadError)
 import Control.Monad.Reader (MonadReader, asks)
 import GHC.Exts (sortWith)
 import qualified Data.Aeson as A
@@ -23,19 +19,19 @@ import qualified Crypto.MAC.HMAC as HMAC
 import Data.Pusher (Pusher(..), Credentials(..))
 
 makeQS
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
+  :: MonadReader Pusher m
   => T.Text
   -> T.Text
   -> [(T.Text, B.ByteString)]
   -> B.ByteString
+  -> Int
   -> m [(T.Text, B.ByteString)]
-makeQS method path params body = do
+makeQS method path params body ts = do
   cred <- asks pusher'credentials
-  ts <- BC.pack . show . (round :: POSIXTime -> Integer) <$> liftIO getPOSIXTime
   let
     allParams = sortWith fst $ params ++
       [ ("auth_key", credentials'appKey cred)
-      , ("auth_timestamp", ts)
+      , ("auth_timestamp", BC.pack $ show ts)
       , ("auth_version", "1.0")
       , ("body_md5", B16.encode (MD5.hash body))
       ]
