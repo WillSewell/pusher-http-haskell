@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TupleSections #-}
 
-module Pusher.HTTP (get, post) where
+module Pusher.HTTP (MonadHTTP(..), get, post) where
 
 import Data.Text.Encoding (decodeUtf8')
 import Control.Applicative ((<$>))
 import Control.Lens ((&), (^.), (.~))
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.Error (MonadError, throwError)
+import Control.Monad.Error (Error, ErrorT, MonadError, throwError)
+import Control.Monad.Reader (ReaderT)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -15,14 +15,30 @@ import qualified Data.Text as T
 import qualified Network.Wreq as W
 import qualified Network.Wreq.Types as WT
 
+class Monad m => MonadHTTP m where
+  getWith :: W.Options -> String -> m (W.Response BL.ByteString)
+  postWith :: WT.Postable a => W.Options -> String -> a -> m (W.Response BL.ByteString)
+
+instance MonadHTTP IO where
+  getWith = W.getWith
+  postWith = W.postWith
+
+instance MonadHTTP m => MonadHTTP (ReaderT r m) where
+  getWith = getWith
+  postWith = postWith
+
+instance (Error e, MonadHTTP m) => MonadHTTP (ErrorT e m) where
+  getWith = getWith
+  postWith = postWith
+
 get
-  :: (A.FromJSON a, Functor m, MonadError String m, MonadIO m)
+  :: (A.FromJSON a, Functor m, MonadError String m, MonadHTTP m)
   => T.Text
   -> [(T.Text, B.ByteString)]
   -> m a
 get ep qs  = do
   opts <- paramOpts <$> decodeParams qs
-  r <- liftIO $ W.getWith opts (T.unpack ep)
+  r <- getWith opts (T.unpack ep)
   when200 r $
     either
       throwError
@@ -30,14 +46,14 @@ get ep qs  = do
       (A.eitherDecode $ r ^. W.responseBody)
 
 post
-  :: (WT.Postable a, Functor m, MonadError String m, MonadIO m)
+  :: (WT.Postable a, Functor m, MonadError String m, MonadHTTP m)
   => T.Text
   -> [(T.Text, B.ByteString)]
   -> a
   -> m ()
 post ep qs body = do
   opts <- paramOpts <$> decodeParams qs
-  r <- liftIO $ W.postWith opts (T.unpack ep) body
+  r <- postWith opts (T.unpack ep) body
   errorOn200 r
 
 decodeParams

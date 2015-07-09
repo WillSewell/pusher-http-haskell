@@ -21,7 +21,7 @@ import qualified Data.Text as T
 
 import Data.Pusher (Pusher(..))
 import Pusher.Auth (makeQS)
-import Pusher.HTTP (get, post)
+import Pusher.HTTP (MonadHTTP, get, post)
 import Pusher.Protocol
   ( ChannelInfo
   , ChannelInfoQuery
@@ -33,7 +33,7 @@ import Pusher.Protocol
 import Pusher.Util (getIntPOSIXTime)
 
 trigger
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
+  :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
   => [T.Text] -> T.Text -> T.Text -> Maybe T.Text -> m ()
 trigger channelNames event dat socketId = do
   when
@@ -56,7 +56,7 @@ trigger channelNames event dat socketId = do
   post ep qs body
 
 channels
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
+  :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
   => T.Text -> ChannelsInfoQuery -> m ChannelsInfo
 channels prefix attributes = do
   let
@@ -69,7 +69,7 @@ channels prefix attributes = do
   get ep qs
 
 channel
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
+  :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
   => T.Text -> ChannelInfoQuery -> m ChannelInfo
 channel channelName attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
@@ -78,7 +78,7 @@ channel channelName attributes = do
   get ep qs
 
 users
- :: (MonadError String m, MonadReader Pusher m, MonadIO m, Functor m)
+ :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
  => T.Text -> m Users
 users channelName = do
   (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"
@@ -95,7 +95,7 @@ getEndpoint subPath = do
   return (endpoint, fullPath)
 
 makeQSWithTS
-  :: (MonadReader Pusher m, MonadIO m)
+  :: (MonadReader Pusher m, MonadIO m, MonadHTTP m)
   => T.Text
   -> T.Text
   -> [(T.Text, B.ByteString)]

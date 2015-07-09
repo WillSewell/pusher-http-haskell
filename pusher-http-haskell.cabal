@@ -65,7 +65,15 @@ test-suite tests
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
   hs-source-dirs:     test
-  build-depends:      base,
+  build-depends:      aeson,
+                      base,
+                      bytestring,
                       hspec,
+                      http-client,
+                      http-types,
                       mtl,
-                      pusher-http-haskell
+                      pusher-http-haskell,
+                      text,
+                      transformers,
+                      unordered-containers,
+                      wreq
