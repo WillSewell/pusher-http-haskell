@@ -1,29 +1,18 @@
 module Main where
 
 import Control.Monad.Pusher (PusherT, runPusherT)
-import Data.Monoid ((<>))
 import qualified Data.HashSet as HS
 import qualified Data.Pusher as P
-import qualified Data.Text as T
 import qualified Data.Yaml as Y
 import qualified Pusher as P
 import qualified Pusher.Protocol as P
-
-getPusher :: P.Credentials -> P.Pusher
-getPusher cred =
-  let path = "/apps/" <> T.pack (show $ P.credentials'appID cred) <> "/" in
-  P.Pusher
-    { P.pusher'host = "http://api.pusherapp.com"
-    , P.pusher'path = path
-    , P.pusher'credentials = cred
-    }
 
 main :: IO ()
 main = do
   eitherCred <- Y.decodeFileEither "example/credentials.yaml"
   case eitherCred of
     Right cred -> do
-      result <- runPusherT pusherApp (getPusher cred)
+      result <- runPusherT pusherApp (P.getPusher cred)
       case result of
         Right (channels, channel, users) -> do
           print $ "Channels info: " ++ show channels

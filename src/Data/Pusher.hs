@@ -1,6 +1,7 @@
-module Data.Pusher (Pusher(..), Credentials(..)) where
+module Data.Pusher (Pusher(..), Credentials(..), getPusher) where
 
 import Data.Aeson ((.:))
+import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import Control.Applicative ((<$>), (<*>))
 import qualified Data.Aeson as A
@@ -27,3 +28,12 @@ instance A.FromJSON Credentials where
     <*> (encodeUtf8 <$> v .: "app-key")
     <*> (encodeUtf8 <$> v .: "app-secret")
   parseJSON v2 = failExpectObj v2
+
+getPusher :: Credentials -> Pusher
+getPusher cred =
+  let path = "/apps/" <> T.pack (show $ credentials'appID cred) <> "/" in
+  Pusher
+    { pusher'host = "http://api.pusherapp.com"
+    , pusher'path = path
+    , pusher'credentials = cred
+    }
