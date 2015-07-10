@@ -1,6 +1,18 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TupleSections #-}
 
+{-|
+Module      : Pusher.HTTP
+Description : Functions for issuing HTTP requests
+Copyright   : (c) Will Sewell, 2015
+Licence     : MIT
+Maintainer  : me@willsewell.com
+Stability   : experimental
+
+A layer on top of the HTTP functions in the Wreq library which lifts the return
+values to the typclasses we are using in this library. Non 200 responses are
+converted into MonadError errors.
+-}
 module Pusher.HTTP (MonadHTTP(..), get, post) where
 
 import Data.Text.Encoding (decodeUtf8')
@@ -15,6 +27,8 @@ import qualified Data.Text as T
 import qualified Network.Wreq as W
 import qualified Network.Wreq.Types as WT
 
+-- |IO monads that can issue get and post requests. The intention is to use the
+-- IO instance in the main library, and a mock in the tests.
 class Monad m => MonadHTTP m where
   getWith :: W.Options -> String -> m (W.Response BL.ByteString)
   postWith :: WT.Postable a => W.Options -> String -> a -> m (W.Response BL.ByteString)
@@ -31,11 +45,16 @@ instance (Error e, MonadHTTP m) => MonadHTTP (ErrorT e m) where
   getWith = getWith
   postWith = postWith
 
+-- |Issue an HTTP GET request. On a 200 response, the response body is returned.
+-- On failure, an error will be thrown into the MonadError instance.
 get
   :: (A.FromJSON a, Functor m, MonadError String m, MonadHTTP m)
   => T.Text
+  -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
   -> [(T.Text, B.ByteString)]
+  -- ^ List of query string parameters as key-value tuples
   -> m a
+  -- ^ The body of the response
 get ep qs  = do
   opts <- paramOpts <$> decodeParams qs
   r <- getWith opts (T.unpack ep)
@@ -45,6 +64,7 @@ get ep qs  = do
       return
       (A.eitherDecode $ r ^. W.responseBody)
 
+-- |Issue an HTTP POST request.
 post
   :: (WT.Postable a, Functor m, MonadError String m, MonadHTTP m)
   => T.Text
@@ -56,6 +76,7 @@ post ep qs body = do
   r <- postWith opts (T.unpack ep) body
   errorOn200 r
 
+-- |Convert the values of key-value tuples to Text from ByteString.
 decodeParams
   :: (Functor m, MonadError String m)
   => [(T.Text, B.ByteString)] -> m [(T.Text, T.Text)]
@@ -65,6 +86,7 @@ decodeParams qs =
     return
     (mapM (\(k, v) -> (k,) <$> decodeUtf8' v) qs)
 
+-- |Build Wreq request Options from a list of query string parameters.
 paramOpts :: [(T.Text, T.Text)] -> W.Options
 paramOpts params = W.defaults & W.params .~ params
 
