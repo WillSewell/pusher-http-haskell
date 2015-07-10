@@ -23,6 +23,7 @@ import qualified Data.HashMap.Strict as HM
 import Pusher.HTTP
   ( MonadHTTP(postWith, getWith)
   , get
+  , post
   )
 
 -- Need to use newtype, otherwise there would be overlapping instances with the
@@ -75,7 +76,7 @@ failedResponse = Response
   }
 
 test :: Spec
-test =
+test = do
   describe "HTTP.get" $ do
     it "returns the body when the request is 200" $
       runMockServer (get "some/path" []) succeededResponse
@@ -85,3 +86,15 @@ test =
       (runMockServer (get "some/path" []) failedResponse :: Either String ())
       `shouldBe` Left "\"fail\""
 
+  describe "HTTP.post" $ do
+    it "returns the body when the request is 200" $
+      -- TODO: Need a way of checking the POST data that is sent to the server
+      runMockServer (post "some/path" [] (A.Object HM.empty)) succeededResponse
+      `shouldBe` Right ()
+
+    it "returns an error when the request fails" $
+      (runMockServer
+        (post "some/path" [] (A.Object HM.empty))
+        failedResponse
+        :: Either String ())
+      `shouldBe` Left "\"fail\""
