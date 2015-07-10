@@ -1,6 +1,18 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
+{-|
+Module      : Pusher.Protocol
+Description : Types representing Pusher messages
+Copyright   : (c) Will Sewell, 2015
+Licence     : MIT
+Maintainer  : me@willsewell.com
+Stability   : experimental
+
+Types representing the JSON format of Pusher messages.
+
+There are also types for query string parameters.
+-}
 module Pusher.Protocol
   ( ChannelInfo(..)
   , ChannelInfoAttributes(..)
@@ -24,9 +36,12 @@ import qualified Data.Traversable as Traversable
 
 import Pusher.Util (failExpectObj)
 
+-- |Types that can be serialised to a querystring parameter value.
 class ToURLParam a where
+  -- |Convert the data into a querystring parameter value.
   toURLParam :: a -> T.Text
 
+-- |Enumeration of the attributes that can be queried about multiple channels.
 data ChannelsInfoAttributes = ChannelsUserCount deriving Generic
 
 instance ToURLParam ChannelsInfoAttributes where
@@ -34,11 +49,12 @@ instance ToURLParam ChannelsInfoAttributes where
 
 instance Hashable ChannelsInfoAttributes
 
+-- |A set of requested ChannelsInfoAttributes.
 newtype ChannelsInfoQuery =
   ChannelsInfoQuery (HS.HashSet ChannelsInfoAttributes)
   deriving ToURLParam
 
-
+-- |Enumeration of the attributes that can be queried about a single channel.
 data ChannelInfoAttributes = ChannelUserCount | ChannelSubscriptionCount
   deriving Generic
 
@@ -48,6 +64,7 @@ instance ToURLParam ChannelInfoAttributes where
 
 instance Hashable ChannelInfoAttributes
 
+-- |A set of requested ChannelInfoAttributes.
 newtype ChannelInfoQuery = ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
   deriving ToURLParam
 
@@ -55,7 +72,8 @@ newtype ChannelInfoQuery = ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
 instance ToURLParam a => ToURLParam (HS.HashSet a) where
   toURLParam hs = T.concat $ toURLParam <$> HS.toList hs
 
-
+-- |A map of channel names to their ChannelInfo. The result of querying channel
+-- info from multuple channels.
 newtype ChannelsInfo =
   ChannelsInfo (HM.HashMap T.Text ChannelInfo)
   deriving Show
@@ -69,7 +87,7 @@ instance A.FromJSON ChannelsInfo where
       v1 -> failExpectObj v1
   parseJSON v2 = failExpectObj v2
 
-
+-- |A set of returned channel attributes for a single channel.
 newtype ChannelInfo =
   ChannelInfo (HS.HashSet ChannelInfoAttributeResp)
   deriving Show
@@ -83,13 +101,14 @@ instance A.FromJSON ChannelInfo where
       maybeUserCount
   parseJSON v = failExpectObj v
 
-
+-- |An enumeration of possible returned channel attributes. These now have
+-- associated values.
 data ChannelInfoAttributeResp = UserCountResp Int deriving Show
 
 instance Hashable ChannelInfoAttributeResp where
   hashWithSalt salt (UserCountResp count) = hashWithSalt salt count
 
-
+-- |A list of users returned by querying for users in a presence channel.
 newtype Users = Users [User] deriving Show
 
 instance A.FromJSON Users where
@@ -98,6 +117,7 @@ instance A.FromJSON Users where
     Users <$> A.parseJSON users
   parseJSON v = failExpectObj v
 
+-- |The data about a user returned when querying for users in a presence channel.
 data User = User { user'id :: T.Text } deriving Show
 
 instance A.FromJSON User where
