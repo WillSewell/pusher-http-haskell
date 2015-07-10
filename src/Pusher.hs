@@ -57,7 +57,7 @@ module Pusher (
 
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Error (MonadError, throwError)
+import Control.Monad.Error (throwError)
 import Control.Monad.Reader (MonadReader, asks)
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
@@ -67,6 +67,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
+import Control.Monad.Pusher (MonadPusher)
 import Data.Pusher (Pusher(..))
 import Pusher.Auth (authenticatePresence, authenticatePrivate, makeQS)
 import Pusher.HTTP (MonadHTTP, get, post)
@@ -82,7 +83,7 @@ import Pusher.Util (getIntPOSIXTime)
 
 -- |Trigger an event to one or more channels.
 trigger
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
+  :: MonadPusher m
   => [T.Text] -- ^The list of channels to trigger to
   -> T.Text -- ^The event
   -> T.Text -- ^The data to send (often encoded JSON)
@@ -110,7 +111,7 @@ trigger channelNames event dat socketId = do
 
 -- |Query a list of channels for information.
 channels
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
+  :: MonadPusher m
   => T.Text -- ^A channel prefix you wish to filter on
   -> ChannelsInfoQuery -- ^Data you wish to query for, currently just the user count
   -> m ChannelsInfo -- ^The returned data
@@ -126,7 +127,7 @@ channels prefix attributes = do
 
 -- |Query for information on a single channel.
 channel
-  :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
+  :: MonadPusher m
   => T.Text
   -> ChannelInfoQuery  -- ^Can query user count and also subscription count (if enabled)
   -> m ChannelInfo
@@ -138,7 +139,7 @@ channel channelName attributes = do
 
 -- |Get a list of users in a presence channel.
 users
- :: (MonadError String m, MonadReader Pusher m, MonadIO m, MonadHTTP m, Functor m)
+ :: MonadPusher m
  => T.Text -> m Users
 users channelName = do
   (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"

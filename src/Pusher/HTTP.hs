@@ -18,8 +18,7 @@ module Pusher.HTTP (MonadHTTP(..), get, post) where
 import Data.Text.Encoding (decodeUtf8')
 import Control.Applicative ((<$>))
 import Control.Lens ((&), (^.), (.~))
-import Control.Monad.Error (Error, ErrorT, MonadError, throwError)
-import Control.Monad.Reader (ReaderT)
+import Control.Monad.Error (MonadError, throwError)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -27,23 +26,7 @@ import qualified Data.Text as T
 import qualified Network.Wreq as W
 import qualified Network.Wreq.Types as WT
 
--- |IO monads that can issue get and post requests. The intention is to use the
--- IO instance in the main library, and a mock in the tests.
-class Monad m => MonadHTTP m where
-  getWith :: W.Options -> String -> m (W.Response BL.ByteString)
-  postWith :: WT.Postable a => W.Options -> String -> a -> m (W.Response BL.ByteString)
-
-instance MonadHTTP IO where
-  getWith = W.getWith
-  postWith = W.postWith
-
-instance MonadHTTP m => MonadHTTP (ReaderT r m) where
-  getWith = getWith
-  postWith = postWith
-
-instance (Error e, MonadHTTP m) => MonadHTTP (ErrorT e m) where
-  getWith = getWith
-  postWith = postWith
+import Control.Monad.Pusher.HTTP (MonadHTTP(getWith, postWith))
 
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
