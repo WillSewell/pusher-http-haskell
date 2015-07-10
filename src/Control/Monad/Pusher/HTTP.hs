@@ -1,4 +1,4 @@
-{-
+{-|
 Module      : Control.Monad.Pusher.HTTP
 Description : Typclass for IO monads that can issue HTTP requests
 Copyright   : (c) Will Sewell, 2015

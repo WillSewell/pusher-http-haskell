@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-
+
+{-|
 Module      : Control.Monad.Pusher
 Description : Monad type aliases for the return types of the external API functions
 Copyright   : (c) Will Sewell, 2015
