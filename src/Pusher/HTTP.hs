@@ -15,71 +15,87 @@ converted into MonadError errors.
 -}
 module Pusher.HTTP (MonadHTTP(..), get, post) where
 
-import Data.Text.Encoding (decodeUtf8')
-import Control.Applicative ((<$>))
-import Control.Lens ((&), (^.), (.~))
+import Control.Arrow (second)
 import Control.Monad.Error (MonadError, throwError)
+import Network.HTTP.Client
+  ( Manager
+  , RequestBody(RequestBodyLBS)
+  , Response
+  , method
+  , parseUrl
+  , requestBody
+  , responseBody
+  , responseStatus
+  , setQueryString
+  )
+import Network.HTTP.Types.Method (methodPost)
+import Network.HTTP.Types.Status (statusCode, statusMessage)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.Text as T
-import qualified Network.Wreq as W
-import qualified Network.Wreq.Types as WT
 
-import Control.Monad.Pusher.HTTP (MonadHTTP(getWith, postWith))
+import Control.Monad.Pusher.HTTP (MonadHTTP(httpLbs))
 
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
 get
   :: (A.FromJSON a, Functor m, MonadError String m, MonadHTTP m)
-  => T.Text
+  => Manager
+  -> B.ByteString
   -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
-  -> [(T.Text, B.ByteString)]
-  -- ^ List of query string parameters as key-value tuples
+  -> [(B.ByteString, B.ByteString)]
+  -- ^List of query string parameters as key-value tuples
   -> m a
-  -- ^ The body of the response
-get ep qs  = do
-  opts <- paramOpts <$> decodeParams qs
-  r <- getWith opts (T.unpack ep)
-  when200 r $
+  -- ^The body of the response
+get connManager ep qs = do
+  resp <- makeRequest connManager ep qs Nothing
+  when200 resp $
     either
       throwError
       return
-      (A.eitherDecode $ r ^. W.responseBody)
+      (A.eitherDecode $ responseBody resp)
 
 -- |Issue an HTTP POST request.
 post
-  :: (WT.Postable a, Functor m, MonadError String m, MonadHTTP m)
-  => T.Text
-  -> [(T.Text, B.ByteString)]
+  :: (A.ToJSON a, Functor m, MonadError String m, MonadHTTP m)
+  => Manager
+  -> B.ByteString
+  -> [(B.ByteString, B.ByteString)]
   -> a
   -> m ()
-post ep qs body = do
-  opts <- paramOpts <$> decodeParams qs
-  r <- postWith opts (T.unpack ep) body
-  errorOn200 r
+post connManager ep qs body = do
+  resp <- makeRequest connManager ep qs (Just $ A.encode body)
+  errorOn200 resp
 
--- |Convert the values of key-value tuples to Text from ByteString.
-decodeParams
-  :: (Functor m, MonadError String m)
-  => [(T.Text, B.ByteString)] -> m [(T.Text, T.Text)]
-decodeParams qs =
-  either
-    (throwError . show)
-    return
-    (mapM (\(k, v) -> (k,) <$> decodeUtf8' v) qs)
+-- |Make a request by building up an http-client Request data structure, and
+-- performing the IO action.
+makeRequest
+  :: (Functor m, MonadError String m, MonadHTTP m)
+  => Manager
+  -> B.ByteString
+  -> [(B.ByteString, B.ByteString)]
+  -> Maybe BL.ByteString
+  -> m (Response BL.ByteString)
+makeRequest connManager ep qs body = do
+  req <- either (throwError . show) return (parseUrl $ BC.unpack ep)
+  let
+    req' = setQueryString (map (second Just) qs) req
+    req'' = case body of
+      Just b -> req'
+        { method = methodPost
+        , requestBody = RequestBodyLBS b
+        }
+      Nothing -> req'
+  httpLbs req'' connManager
 
--- |Build Wreq request Options from a list of query string parameters.
-paramOpts :: [(T.Text, T.Text)] -> W.Options
-paramOpts params = W.defaults & W.params .~ params
-
-when200 :: (MonadError String m) => W.Response BL.ByteString -> m a -> m a
+when200 :: (MonadError String m) => Response BL.ByteString -> m a -> m a
 when200 response run =
-  let status = response ^. W.responseStatus in
-  if status ^. W.statusCode == 200 then
+  let status = responseStatus response in
+  if statusCode status == 200 then
      run
   else
-     throwError $ show $ status ^. W.statusMessage
+     throwError $ show $ statusMessage status
 
-errorOn200 :: (MonadError String m) => W.Response BL.ByteString -> m ()
+errorOn200 :: (MonadError String m) => Response BL.ByteString -> m ()
 errorOn200 response = when200 response (return ())

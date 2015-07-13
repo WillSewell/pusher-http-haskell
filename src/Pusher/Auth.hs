@@ -40,10 +40,10 @@ makeQS
   :: MonadReader Pusher m
   => T.Text
   -> T.Text
-  -> [(T.Text, B.ByteString)] -- ^Any additional parameters
+  -> [(B.ByteString, B.ByteString)] -- ^Any additional parameters
   -> B.ByteString
   -> Int -- ^Current UNIX timestamp
-  -> m [(T.Text, B.ByteString)]
+  -> m [(B.ByteString, B.ByteString)]
 makeQS method path params body ts = do
   cred <- asks pusher'credentials
   let
@@ -64,9 +64,9 @@ makeQS method path params body ts = do
   return $ ("auth_signature", authSig) : allParams
 
 -- |Render key-value tuple mapping of query string parameters into a string.
-formQueryString :: [(T.Text, B.ByteString)] -> B.ByteString
+formQueryString :: [(B.ByteString, B.ByteString)] -> B.ByteString
 formQueryString =
-  B.intercalate "&" . map (\(a, b) -> encodeUtf8 a <> "=" <> b)
+  B.intercalate "&" . map (\(a, b) -> a <> "=" <> b)
 
 -- |Create a Pusher auth signature of a string using the provided credentials.
 authSignature :: Credentials -> B.ByteString -> B.ByteString

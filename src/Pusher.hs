@@ -108,7 +108,8 @@ trigger channelNames event dat socketId = do
 
   (ep, path) <- getEndpoint "events"
   qs <- makeQSWithTS "POST" path [] bodyBS
-  post ep qs body
+  connManager <- asks pusher'connectionManager
+  post connManager (encodeUtf8 ep) qs body
 
 -- |Query a list of channels for information.
 channels
@@ -124,7 +125,8 @@ channels prefix attributes = do
       ]
   (ep, path) <- getEndpoint "channels"
   qs <- makeQSWithTS "GET" path params ""
-  get ep qs
+  connManager <- asks pusher'connectionManager
+  get connManager (encodeUtf8 ep) qs
 
 -- |Query for information on a single channel.
 channel
@@ -136,7 +138,8 @@ channel channelName attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
   (ep, path) <- getEndpoint $ "channels/" <> channelName
   qs <- makeQSWithTS "GET" path params ""
-  get ep qs
+  connManager <- asks pusher'connectionManager
+  get connManager (encodeUtf8 ep) qs
 
 -- |Get a list of users in a presence channel.
 users
@@ -145,7 +148,8 @@ users
 users channelName = do
   (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"
   qs <- makeQSWithTS "GET" path [] ""
-  get ep qs
+  connManager <- asks pusher'connectionManager
+  get connManager (encodeUtf8 ep) qs
 
 -- |Build a full endpoint from the details in Pusher and the subPath.
 getEndpoint
@@ -165,8 +169,8 @@ makeQSWithTS
   :: (MonadReader Pusher m, MonadIO m, MonadHTTP m)
   => T.Text
   -> T.Text
-  -> [(T.Text, B.ByteString)]
+  -> [(B.ByteString, B.ByteString)]
   -> B.ByteString
-  -> m [(T.Text, B.ByteString)]
+  -> m [(B.ByteString, B.ByteString)]
 makeQSWithTS method path params body =
   makeQS method path params body =<< getIntPOSIXTime

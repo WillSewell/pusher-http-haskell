@@ -11,7 +11,12 @@ import Control.Monad.Error (MonadError, catchError, throwError)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, runReaderT)
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Test.Hspec (Spec, describe, it, shouldBe)
-import Network.HTTP.Client (createCookieJar)
+import Network.HTTP.Client
+  ( Manager
+  , createCookieJar
+  , defaultManagerSettings
+  , newManager
+  )
 import Network.HTTP.Client.Internal (Response(..), ResponseClose(..))
 import Network.HTTP.Types.Status (mkStatus)
 import Network.HTTP.Types.Version (http11)
@@ -21,7 +26,7 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
 
 import Pusher.HTTP
-  ( MonadHTTP(postWith, getWith)
+  ( MonadHTTP(httpLbs)
   , get
   , post
   )
@@ -52,8 +57,7 @@ instance (MonadError e m) => MonadError e (MockServer m) where
   catchError = liftCatchMockerServer catchError
 
 instance Monad m => MonadHTTP (MockServer m) where
-  getWith _ _ = ask
-  postWith _ _ _ = ask
+  httpLbs _ _ = ask
 
 succeededResponse :: Response BL.ByteString
 succeededResponse = Response
@@ -75,26 +79,38 @@ failedResponse = Response
   , responseClose' = ResponseClose (return () :: IO ())
   }
 
+-- |Create a connection manager. This will be ignored by the mock server, but we
+-- need it in order to type check.
+withConnManager :: (Manager -> IO a) -> IO a
+withConnManager run = newManager defaultManagerSettings >>= run
+
 test :: Spec
 test = do
   describe "HTTP.get" $ do
-    it "returns the body when the request is 200" $
-      runMockServer (get "some/path" []) succeededResponse
+    it "returns the body when the request is 200" $ withConnManager $ \mngr ->
+      runMockServer
+        (get mngr "http://example.com/path" [])
+        succeededResponse
       `shouldBe` (Right $ A.Object $ HM.singleton "data" (A.String "some body"))
 
-    it "returns an error when the request fails" $
-      (runMockServer (get "some/path" []) failedResponse :: Either String ())
+    it "returns an error when the request fails" $ withConnManager $ \mngr ->
+      (runMockServer
+        (get mngr "http://example.com/path" [])
+        failedResponse
+        :: Either String ())
       `shouldBe` Left "\"fail\""
 
   describe "HTTP.post" $ do
-    it "returns the body when the request is 200" $
+    it "returns the body when the request is 200" $ withConnManager $ \mngr ->
       -- TODO: Need a way of checking the POST data that is sent to the server
-      runMockServer (post "some/path" [] (A.Object HM.empty)) succeededResponse
+      runMockServer
+        (post mngr "http://example.com/path" [] (A.Object HM.empty))
+        succeededResponse
       `shouldBe` Right ()
 
-    it "returns an error when the request fails" $
+    it "returns an error when the request fails" $ withConnManager $ \mngr ->
       (runMockServer
-        (post "some/path" [] (A.Object HM.empty))
+        (post mngr "http://example.com/path" [] (A.Object HM.empty))
         failedResponse
         :: Either String ())
       `shouldBe` Left "\"fail\""

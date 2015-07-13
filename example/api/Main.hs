@@ -12,7 +12,8 @@ main = do
   eitherCred <- Y.decodeFileEither "example/credentials.yaml"
   case eitherCred of
     Right cred -> do
-      result <- runPusherT pusherApp (P.getPusher cred)
+      pusher <- P.getPusher cred
+      result <- runPusherT pusherApp pusher
       case result of
         Right (channels, channel, users) -> do
           print $ "Channels info: " ++ show channels

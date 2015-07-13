@@ -11,10 +11,12 @@ credentials in order to run the main API functions.
 -}
 module Data.Pusher (Pusher(..), Credentials(..), getPusher) where
 
+import Control.Applicative ((<$>), (<*>))
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:))
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
-import Control.Applicative ((<$>), (<*>))
+import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
@@ -26,6 +28,7 @@ data Pusher = Pusher
   { pusher'host :: T.Text
   , pusher'path :: T.Text
   , pusher'credentials :: Credentials
+  , pusher'connectionManager :: Manager
   }
 
 -- |The credentials for the current app.
@@ -44,11 +47,13 @@ instance A.FromJSON Credentials where
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
 -- automatically.
-getPusher :: Credentials -> Pusher
-getPusher cred =
-  let path = "/apps/" <> T.pack (show $ credentials'appID cred) <> "/" in
-  Pusher
+getPusher :: MonadIO m => Credentials -> m Pusher
+getPusher cred = do
+  let path = "/apps/" <> T.pack (show $ credentials'appID cred) <> "/"
+  connManager <- liftIO $ newManager defaultManagerSettings
+  return Pusher
     { pusher'host = "http://api.pusherapp.com"
     , pusher'path = path
     , pusher'credentials = cred
+    , pusher'connectionManager = connManager
     }
