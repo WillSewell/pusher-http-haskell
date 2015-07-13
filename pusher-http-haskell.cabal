@@ -6,6 +6,7 @@ tested-with:          GHC == 7.8.3
 
 library
   exposed-modules:    Control.Monad.Pusher,
+                      Control.Monad.Pusher.HTTP,
                       Data.Pusher,
                       Pusher,
                       Pusher.Auth,

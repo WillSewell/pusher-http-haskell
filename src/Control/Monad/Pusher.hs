@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 {-|
@@ -36,10 +37,10 @@ runPusherT run p = runErrorT $ runReaderT run p
 
 -- |Typeclass alias for the return type of the API functions (keeps the
 -- signatures less verbose)
-class
+type MonadPusher m =
   ( MonadError String m
   , MonadReader Pusher m
   , MonadIO m
   , MonadHTTP m
   , Functor m
-  ) => MonadPusher m
+  )
