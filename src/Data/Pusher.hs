@@ -9,7 +9,12 @@ Stability   : experimental
 You must create an instance of this datatype with your particular Pusher app
 credentials in order to run the main API functions.
 -}
-module Data.Pusher (Pusher(..), Credentials(..), getPusher) where
+module Data.Pusher
+  ( Pusher(..)
+  , Credentials(..)
+  , getPusher
+  , getPusherWithConnManager
+  ) where
 
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -49,9 +54,13 @@ instance A.FromJSON Credentials where
 -- automatically.
 getPusher :: MonadIO m => Credentials -> m Pusher
 getPusher cred = do
-  let path = "/apps/" <> T.pack (show $ credentials'appID cred) <> "/"
   connManager <- liftIO $ newManager defaultManagerSettings
-  return Pusher
+  return $ getPusherWithConnManager connManager cred
+
+getPusherWithConnManager :: Manager -> Credentials -> Pusher
+getPusherWithConnManager connManager cred =
+  let path = "/apps/" <> T.pack (show $ credentials'appID cred) <> "/" in
+  Pusher
     { pusher'host = "http://api.pusherapp.com"
     , pusher'path = path
     , pusher'credentials = cred
