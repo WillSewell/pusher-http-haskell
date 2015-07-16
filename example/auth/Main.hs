@@ -4,7 +4,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (fromJust)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (decodeUtf8)
-import Pusher.Auth (authenticatePresence)
+import Network.Pusher (authenticatePresence)
 import Snap.Core
   ( Method(GET)
   , Snap

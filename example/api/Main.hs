@@ -4,8 +4,8 @@ import Control.Monad.Pusher (PusherT, runPusherT)
 import qualified Data.HashSet as HS
 import qualified Data.Pusher as P
 import qualified Data.Yaml as Y
-import qualified Pusher as P
-import qualified Pusher.Protocol as P
+import qualified Network.Pusher as P
+import qualified Network.Pusher.Protocol as P
 
 main :: IO ()
 main = do

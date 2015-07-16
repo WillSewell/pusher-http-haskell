@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 {-|
-Module      : Pusher.Auth
+Module      : Network.Pusher.Auth
 Description : Functions to perform authentication (generate auth signatures)
 Copyright   : (c) Will Sewell, 2015
 Licence     : MIT
@@ -12,7 +12,7 @@ This module contains helper functions for authenticating HTTP requests, as well
 as publically facing functions for authentication private and presence channel
 users; these functions are re-exported in the main Pusher module.
 -}
-module Pusher.Auth
+module Network.Pusher.Auth
   ( authenticatePresence
   , authenticatePresenceWithEncoder
   , authenticatePrivate, makeQS

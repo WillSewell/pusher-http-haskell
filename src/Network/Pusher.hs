@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 {-|
-Module      : Pusher
+Module      : Network.Pusher
 Description : Haskell interface to the Pusher HTTP API
 Copyright   : (c) Will Sewell, 2015
 Licence     : MIT
@@ -44,7 +44,7 @@ There is a simple working example in the example/ directory.
 
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
-module Pusher (
+module Network.Pusher (
   -- * Events
     trigger
   -- * Channel queries
@@ -70,9 +70,9 @@ import qualified Data.Text as T
 
 import Control.Monad.Pusher (MonadPusher)
 import Data.Pusher (Pusher(..))
-import Pusher.Auth (authenticatePresence, authenticatePrivate, makeQS)
-import Pusher.HTTP (MonadHTTP, get, post)
-import Pusher.Protocol
+import Network.Pusher.Auth (authenticatePresence, authenticatePrivate, makeQS)
+import Network.Pusher.HTTP (MonadHTTP, get, post)
+import Network.Pusher.Protocol
   ( ChannelInfo
   , ChannelInfoQuery
   , ChannelsInfo
@@ -80,7 +80,7 @@ import Pusher.Protocol
   , Users
   , toURLParam
   )
-import Pusher.Util (getIntPOSIXTime)
+import Network.Pusher.Util (getIntPOSIXTime)
 
 -- |Trigger an event to one or more channels.
 trigger

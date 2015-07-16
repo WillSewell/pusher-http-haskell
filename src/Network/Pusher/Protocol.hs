@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 {-|
-Module      : Pusher.Protocol
+Module      : Network.Pusher.Protocol
 Description : Types representing Pusher messages
 Copyright   : (c) Will Sewell, 2015
 Licence     : MIT
@@ -13,7 +13,7 @@ Types representing the JSON format of Pusher messages.
 
 There are also types for query string parameters.
 -}
-module Pusher.Protocol
+module Network.Pusher.Protocol
   ( ChannelInfo(..)
   , ChannelInfoAttributes(..)
   , ChannelInfoQuery(..)
@@ -34,7 +34,7 @@ import qualified Data.HashSet as HS
 import qualified Data.Text as T
 import qualified Data.Traversable as Traversable
 
-import Pusher.Util (failExpectObj)
+import Network.Pusher.Util (failExpectObj)
 
 -- |Types that can be serialised to a querystring parameter value.
 class ToURLParam a where

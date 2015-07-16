@@ -26,7 +26,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 
-import Pusher.Util (failExpectObj)
+import Network.Pusher.Util (failExpectObj)
 
 -- |All the required configuration needed to interact with the API.
 data Pusher = Pusher

@@ -2,7 +2,7 @@
 {-# LANGUAGE TupleSections #-}
 
 {-|
-Module      : Pusher.HTTP
+Module      : Network.Pusher.HTTP
 Description : Functions for issuing HTTP requests
 Copyright   : (c) Will Sewell, 2015
 Licence     : MIT
@@ -13,7 +13,7 @@ A layer on top of the HTTP functions in the Wreq library which lifts the return
 values to the typclasses we are using in this library. Non 200 responses are
 converted into MonadError errors.
 -}
-module Pusher.HTTP (MonadHTTP(..), get, post) where
+module Network.Pusher.HTTP (MonadHTTP(..), get, post) where
 
 import Control.Arrow (second)
 import Control.Monad.Error (MonadError, throwError)
