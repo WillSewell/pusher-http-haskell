@@ -56,6 +56,7 @@ module Network.Pusher (
   , authenticatePrivate
   ) where
 
+import Control.Applicative ((<$>))
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Error (throwError)
@@ -69,9 +70,9 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
 import Control.Monad.Pusher (MonadPusher)
-import Data.Pusher (Pusher(..))
+import Data.Pusher (Credentials(..), Pusher(..))
 import Network.Pusher.Auth (authenticatePresence, authenticatePrivate, makeQS)
-import Network.Pusher.HTTP (MonadHTTP, get, post)
+import Network.Pusher.HTTP (get, post)
 import Network.Pusher.Protocol
   ( ChannelInfo
   , ChannelInfoQuery
@@ -166,11 +167,13 @@ getEndpoint subPath = do
 
 -- |Impure wrapper around makeQS which gets the current time implicitly.
 makeQSWithTS
-  :: (MonadReader Pusher m, MonadIO m, MonadHTTP m)
+  :: (Functor m, MonadIO m, MonadReader Pusher m)
   => T.Text
   -> T.Text
   -> [(B.ByteString, B.ByteString)]
   -> B.ByteString
   -> m [(B.ByteString, B.ByteString)]
-makeQSWithTS method path params body =
-  makeQS method path params body =<< getIntPOSIXTime
+makeQSWithTS method path params body = do
+  appKey <- asks $ credentials'appKey . pusher'credentials
+  appSecret <- asks $ credentials'appSecret . pusher'credentials
+  makeQS appKey appSecret method path params body <$> getIntPOSIXTime
