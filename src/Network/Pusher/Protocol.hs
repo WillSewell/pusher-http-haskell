@@ -118,7 +118,7 @@ instance A.FromJSON Users where
   parseJSON v = failExpectObj v
 
 -- |The data about a user returned when querying for users in a presence channel.
-data User = User { user'id :: T.Text } deriving Show
+data User = User { userID :: T.Text } deriving Show
 
 instance A.FromJSON User where
   parseJSON (A.Object v) = User <$> v .: "id"

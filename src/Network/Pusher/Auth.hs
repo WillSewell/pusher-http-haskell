@@ -80,10 +80,10 @@ authenticatePrivate
 authenticatePrivate cred socketID channelName =
   let
     sig = authSignature
-      (credentials'appSecret cred)
+      (credentialsAppSecret cred)
       (socketID <> ":" <> channelName)
   in
-    credentials'appKey cred <> ":" <> sig
+    credentialsAppKey cred <> ":" <> sig
 
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- presence channel.
@@ -106,11 +106,11 @@ authenticatePresenceWithEncoder
   -> B.ByteString
 authenticatePresenceWithEncoder userEncoder cred socketID channelName userData =
   let
-    sig = authSignature (credentials'appSecret cred)
+    sig = authSignature (credentialsAppSecret cred)
       ( socketID <> ":"
       <> channelName <> ":"
       <> userEncoder userData
       )
   in
-    credentials'appKey cred <> ":" <> sig
+    credentialsAppKey cred <> ":" <> sig
 

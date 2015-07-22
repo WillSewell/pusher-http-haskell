@@ -109,7 +109,7 @@ trigger channelNames event dat socketId = do
 
   (ep, path) <- getEndpoint "events"
   qs <- makeQSWithTS "POST" path [] bodyBS
-  connManager <- asks pusher'connectionManager
+  connManager <- asks pusherConnectionManager
   post connManager (encodeUtf8 ep) qs body
 
 -- |Query a list of channels for information.
@@ -126,7 +126,7 @@ channels prefix attributes = do
       ]
   (ep, path) <- getEndpoint "channels"
   qs <- makeQSWithTS "GET" path params ""
-  connManager <- asks pusher'connectionManager
+  connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs
 
 -- |Query for information on a single channel.
@@ -139,7 +139,7 @@ channel channelName attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
   (ep, path) <- getEndpoint $ "channels/" <> channelName
   qs <- makeQSWithTS "GET" path params ""
-  connManager <- asks pusher'connectionManager
+  connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs
 
 -- |Get a list of users in a presence channel.
@@ -149,7 +149,7 @@ users
 users channelName = do
   (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"
   qs <- makeQSWithTS "GET" path [] ""
-  connManager <- asks pusher'connectionManager
+  connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs
 
 -- |Build a full endpoint from the details in Pusher and the subPath.
@@ -158,8 +158,8 @@ getEndpoint
   => T.Text -- ^The subpath of the specific request, e.g "events/channel-name"
   -> m (T.Text, T.Text) -- ^The full endpoint, and just the path component
 getEndpoint subPath = do
-  host <- asks pusher'host
-  path <- asks pusher'path
+  host <- asks pusherHost
+  path <- asks pusherPath
   let
     fullPath = path <> subPath
     endpoint = host <> fullPath
@@ -174,6 +174,6 @@ makeQSWithTS
   -> B.ByteString
   -> m [(B.ByteString, B.ByteString)]
 makeQSWithTS method path params body = do
-  appKey <- asks $ credentials'appKey . pusher'credentials
-  appSecret <- asks $ credentials'appSecret . pusher'credentials
+  appKey <- asks $ credentialsAppKey . pusherCredentials
+  appSecret <- asks $ credentialsAppSecret . pusherCredentials
   makeQS appKey appSecret method path params body <$> getIntPOSIXTime

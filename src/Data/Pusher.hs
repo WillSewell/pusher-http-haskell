@@ -30,17 +30,17 @@ import Network.Pusher.Util (failExpectObj)
 
 -- |All the required configuration needed to interact with the API.
 data Pusher = Pusher
-  { pusher'host :: T.Text
-  , pusher'path :: T.Text
-  , pusher'credentials :: Credentials
-  , pusher'connectionManager :: Manager
+  { pusherHost :: T.Text
+  , pusherPath :: T.Text
+  , pusherCredentials :: Credentials
+  , pusherConnectionManager :: Manager
   }
 
 -- |The credentials for the current app.
 data Credentials = Credentials
-  { credentials'appID :: Integer
-  , credentials'appKey :: B.ByteString
-  , credentials'appSecret :: B.ByteString
+  { credentialsAppID :: Integer
+  , credentialsAppKey :: B.ByteString
+  , credentialsAppSecret :: B.ByteString
   }
 
 instance A.FromJSON Credentials where
@@ -59,10 +59,10 @@ getPusher cred = do
 
 getPusherWithConnManager :: Manager -> Credentials -> Pusher
 getPusherWithConnManager connManager cred =
-  let path = "/apps/" <> T.pack (show $ credentials'appID cred) <> "/" in
+  let path = "/apps/" <> T.pack (show $ credentialsAppID cred) <> "/" in
   Pusher
-    { pusher'host = "http://api.pusherapp.com"
-    , pusher'path = path
-    , pusher'credentials = cred
-    , pusher'connectionManager = connManager
+    { pusherHost = "http://api.pusherapp.com"
+    , pusherPath = path
+    , pusherCredentials = cred
+    , pusherConnectionManager = connManager
     }
