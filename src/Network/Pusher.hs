@@ -71,8 +71,13 @@ import qualified Data.Text as T
 
 import Control.Monad.Pusher (MonadPusher)
 import Data.Pusher (Credentials(..), Pusher(..))
-import Network.Pusher.Auth (authenticatePresence, authenticatePrivate, makeQS)
-import Network.Pusher.HTTP (get, post)
+import Network.Pusher.Internal.Auth
+  ( authenticatePresence
+  , authenticatePrivate
+  , makeQS
+  )
+import Network.Pusher.Internal.HTTP (get, post)
+import Network.Pusher.Internal.Util (getIntPOSIXTime)
 import Network.Pusher.Protocol
   ( ChannelInfo
   , ChannelInfoQuery
@@ -81,7 +86,6 @@ import Network.Pusher.Protocol
   , Users
   , toURLParam
   )
-import Network.Pusher.Util (getIntPOSIXTime)
 
 -- |Trigger an event to one or more channels.
 trigger

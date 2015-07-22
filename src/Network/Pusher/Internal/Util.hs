@@ -1,12 +1,12 @@
 {-|
-Module      : Network.Pusher.Util
+Module      : Network.Pusher.Internal.Util
 Description : Various utilty functions
 Copyright   : (c) Will Sewell, 2015
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
 -}
-module Network.Pusher.Util
+module Network.Pusher.Internal.Util
   ( failExpectObj
   , getIntPOSIXTime
   ) where

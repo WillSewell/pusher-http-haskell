@@ -25,7 +25,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
 
-import Pusher.HTTP
+import Network.Pusher.Internal.HTTP
   ( MonadHTTP(httpLbs)
   , get
   , post

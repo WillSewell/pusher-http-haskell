@@ -34,7 +34,7 @@ import qualified Data.HashSet as HS
 import qualified Data.Text as T
 import qualified Data.Traversable as Traversable
 
-import Network.Pusher.Util (failExpectObj)
+import Network.Pusher.Internal.Util (failExpectObj)
 
 -- |Types that can be serialised to a querystring parameter value.
 class ToURLParam a where
