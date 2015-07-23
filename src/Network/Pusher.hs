@@ -77,12 +77,14 @@ import Network.Pusher.Internal.Auth
   , makeQS
   )
 import Network.Pusher.Internal.HTTP (get, post)
-import Network.Pusher.Internal.Util (getIntPOSIXTime)
+import Network.Pusher.Internal.Util (getIntPOSIXTime, show')
 import Network.Pusher.Protocol
-  ( ChannelInfo
+  ( Channel
+  , ChannelInfo
   , ChannelInfoQuery
   , ChannelsInfo
   , ChannelsInfoQuery
+  , ChannelType
   , Users
   , toURLParam
   )
@@ -90,20 +92,20 @@ import Network.Pusher.Protocol
 -- |Trigger an event to one or more channels.
 trigger
   :: MonadPusher m
-  => [T.Text] -- ^The list of channels to trigger to
+  => [Channel] -- ^The list of channels to trigger to
   -> T.Text -- ^The event
   -> T.Text -- ^The data to send (often encoded JSON)
   -> Maybe T.Text -- ^An optional socket ID of a connection you wish to exclude
   -> m ()
-trigger channelNames event dat socketId = do
+trigger chans event dat socketId = do
   when
-    (length channelNames > 10)
+    (length chans > 10)
     (throwError "Must be less than 10 channels")
 
   let
     body = A.object $
       [ ("name", A.String event)
-      , ("channels", A.toJSON (map A.String channelNames))
+      , ("channels", A.toJSON (map (A.String . show') chans))
       , ("data", A.String dat)
       ] ++ maybeToList (fmap (\sID ->  ("socket_id", A.String sID)) socketId)
     bodyBS = BL.toStrict $ A.encode body
@@ -119,11 +121,13 @@ trigger channelNames event dat socketId = do
 -- |Query a list of channels for information.
 channels
   :: MonadPusher m
-  => T.Text -- ^A channel prefix you wish to filter on
+  => Maybe ChannelType -- ^Filter by the type of channel
+  -> T.Text -- ^A channel prefix you wish to filter on
   -> ChannelsInfoQuery -- ^Data you wish to query for, currently just the user count
   -> m ChannelsInfo -- ^The returned data
-channels prefix attributes = do
+channels channelTypeFilter prefixFilter attributes = do
   let
+    prefix = maybe "" show' channelTypeFilter <> prefixFilter
     params =
       [ ("info", encodeUtf8 $ toURLParam attributes)
       , ("filter_by_prefix", encodeUtf8 prefix)
@@ -136,12 +140,12 @@ channels prefix attributes = do
 -- |Query for information on a single channel.
 channel
   :: MonadPusher m
-  => T.Text
+  => Channel
   -> ChannelInfoQuery  -- ^Can query user count and also subscription count (if enabled)
   -> m ChannelInfo
-channel channelName attributes = do
+channel chan attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
-  (ep, path) <- getEndpoint $ "channels/" <> channelName
+  (ep, path) <- getEndpoint $ "channels/" <> show' chan
   qs <- makeQSWithTS "GET" path params ""
   connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs
@@ -149,9 +153,10 @@ channel channelName attributes = do
 -- |Get a list of users in a presence channel.
 users
  :: MonadPusher m
- => T.Text -> m Users
-users channelName = do
-  (ep, path) <- getEndpoint $ "channels/" <> channelName <> "/users"
+ => Channel
+ -> m Users
+users chan = do
+  (ep, path) <- getEndpoint $ "channels/" <> show' chan <> "/users"
   qs <- makeQSWithTS "GET" path [] ""
   connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs

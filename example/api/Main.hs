@@ -24,9 +24,9 @@ main = do
 
 pusherApp :: PusherT IO (P.ChannelsInfo, P.ChannelInfo, P.Users)
 pusherApp = do
-  P.trigger ["presence-messages"] "some_event" "data" Nothing
-  channels <- P.channels "presence-" (P.ChannelsInfoQuery (HS.singleton P.ChannelsUserCount))
-  channel <- P.channel "presence-messages" (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount))
-  users <- P.users "presence-messages"
+  let chan = P.Channel P.Presence "messages"
+  P.trigger [chan] "some_event" "data" Nothing
+  channels <- P.channels (Just P.Presence) "" (P.ChannelsInfoQuery (HS.singleton P.ChannelsUserCount))
+  channel <- P.channel chan (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount))
+  users <- P.users chan
   return (channels, channel, users)
-
