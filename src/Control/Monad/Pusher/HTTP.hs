@@ -13,8 +13,10 @@ module Control.Monad.Pusher.HTTP (MonadHTTP(..)) where
 
 import Control.Monad.Error (Error, ErrorT)
 import Control.Monad.Reader (ReaderT)
+import Control.Monad.Trans.Class (lift)
 import Network.HTTP.Client (Manager, Request, Response)
 import qualified Data.ByteString.Lazy as BL
+import qualified Network.HTTP.Client as HTTP.Client
 
 -- |These functions essentially abstract the corresponding functions from the
 -- Wreq library.
@@ -22,10 +24,10 @@ class Monad m => MonadHTTP m where
   httpLbs :: Request -> Manager -> m (Response BL.ByteString)
 
 instance MonadHTTP IO where
-  httpLbs = httpLbs
+  httpLbs = HTTP.Client.httpLbs
 
 instance MonadHTTP m => MonadHTTP (ReaderT r m) where
-  httpLbs = httpLbs
+  httpLbs req mngr = lift $ httpLbs req mngr
 
 instance (Error e, MonadHTTP m) => MonadHTTP (ErrorT e m) where
-  httpLbs = httpLbs
+  httpLbs req mngr = lift $ httpLbs req mngr
