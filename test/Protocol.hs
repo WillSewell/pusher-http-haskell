@@ -13,6 +13,8 @@ import Network.Pusher.Protocol
   , ChannelInfoAttributeResp(UserCountResp)
   , ChannelsInfo(..)
   , ChannelType(Public, Presence, Private)
+  , User(..)
+  , Users(..)
   , parseChannel
   )
 
@@ -60,3 +62,15 @@ test = do
       `shouldBe`
         -- TODO: Currently incomplete due to ChannelInfo being incomplete
         (Just $ ChannelInfo $ HS.fromList [UserCountResp 42])
+
+  describe "Protocol.Users" $
+    it "parsing works" $
+      A.decode
+        "{\
+\         \"users\": [\
+\           { \"id\": \"1\" },\
+\           { \"id\": \"2\" }\
+\         ]\
+\       }"
+      `shouldBe`
+        (Just $ Users [User "1", User "2"])

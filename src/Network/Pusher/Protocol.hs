@@ -24,7 +24,8 @@ module Network.Pusher.Protocol
   , ChannelsInfoQuery(..)
   , ChannelsInfoAttributes(..)
   , ChannelType(..)
-  , Users
+  , User(..)
+  , Users(..)
   , parseChannel
   , toURLParam
   ) where
@@ -163,7 +164,7 @@ instance Hashable ChannelInfoAttributeResp where
   hashWithSalt salt (UserCountResp count) = hashWithSalt salt count
 
 -- |A list of users returned by querying for users in a presence channel.
-newtype Users = Users [User] deriving Show
+newtype Users = Users [User] deriving (Eq, Show)
 
 instance A.FromJSON Users where
   parseJSON (A.Object v) = do
@@ -172,7 +173,7 @@ instance A.FromJSON Users where
   parseJSON v = failExpectObj v
 
 -- |The data about a user returned when querying for users in a presence channel.
-data User = User { userID :: T.Text } deriving Show
+data User = User { userID :: T.Text } deriving (Eq, Show)
 
 instance A.FromJSON User where
   parseJSON (A.Object v) = User <$> v .: "id"
