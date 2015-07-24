@@ -18,6 +18,7 @@ module Network.Pusher.Protocol
   ( Channel(..)
   , ChannelInfo(..)
   , ChannelInfoAttributes(..)
+  , ChannelInfoAttributeResp(UserCountResp)
   , ChannelInfoQuery(..)
   , ChannelsInfo(..)
   , ChannelsInfoQuery(..)
@@ -125,7 +126,7 @@ instance ToURLParam a => ToURLParam (HS.HashSet a) where
 -- info from multuple channels.
 newtype ChannelsInfo =
   ChannelsInfo (HM.HashMap Channel ChannelInfo)
-  deriving Show
+  deriving (Eq, Show)
 
 instance A.FromJSON ChannelsInfo where
   parseJSON (A.Object v) = do
@@ -143,7 +144,7 @@ instance A.FromJSON ChannelsInfo where
 -- |A set of returned channel attributes for a single channel.
 newtype ChannelInfo =
   ChannelInfo (HS.HashSet ChannelInfoAttributeResp)
-  deriving Show
+  deriving (Eq, Show)
 
 instance A.FromJSON ChannelInfo where
   parseJSON (A.Object v) = do
@@ -156,7 +157,7 @@ instance A.FromJSON ChannelInfo where
 
 -- |An enumeration of possible returned channel attributes. These now have
 -- associated values.
-data ChannelInfoAttributeResp = UserCountResp Int deriving Show
+data ChannelInfoAttributeResp = UserCountResp Int deriving (Eq, Show)
 
 instance Hashable ChannelInfoAttributeResp where
   hashWithSalt salt (UserCountResp count) = hashWithSalt salt count
