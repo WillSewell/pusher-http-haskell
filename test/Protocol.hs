@@ -47,3 +47,16 @@ test = do
           [ (Channel Presence "foobar", ChannelInfo $ HS.fromList [UserCountResp 42])
           , (Channel Presence "another", ChannelInfo $ HS.fromList [UserCountResp 123])
           ])
+
+  describe "Protocol.ChannelInfo" $
+    it "parsing works" $
+      -- Data from https://pusher.com/docs/rest_api#successful-response-2
+      A.decode
+        "{\
+\         \"occupied\": true,\
+\         \"user_count\": 42,\
+\         \"subscription_count\": 42\
+\       }"
+      `shouldBe`
+        -- TODO: Currently incomplete due to ChannelInfo being incomplete
+        (Just $ ChannelInfo $ HS.fromList [UserCountResp 42])
