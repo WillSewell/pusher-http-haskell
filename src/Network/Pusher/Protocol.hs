@@ -24,15 +24,17 @@ module Network.Pusher.Protocol
   , ChannelsInfoAttributes(..)
   , ChannelType(..)
   , Users
+  , parseChannel
   , toURLParam
   ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), (<*>))
 import Data.Aeson ((.:), (.:?))
 import Data.Foldable (asum)
 import Data.Hashable (Hashable, hashWithSalt)
 import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
+import Test.QuickCheck (Arbitrary, arbitrary, elements)
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
@@ -50,6 +52,9 @@ instance Show ChannelType where
   show Private = "private-"
   show Presence = "presence-"
 
+instance Arbitrary ChannelType where
+  arbitrary = elements [Public, Private, Presence]
+
 -- |The channel name (not including the channel type prefix) and its type.
 data Channel = Channel
   { channelType :: ChannelType
@@ -60,6 +65,9 @@ instance Hashable Channel
 
 instance Show Channel where
   show (Channel chanType name) = show chanType ++ T.unpack name
+
+instance Arbitrary Channel where
+  arbitrary = Channel <$> arbitrary <*> (T.pack <$> arbitrary)
 
 -- |Convert string representation, e.g. private-chan into the datatype
 parseChannel :: T.Text -> Channel
