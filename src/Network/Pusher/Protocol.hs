@@ -59,7 +59,7 @@ data Channel = Channel
 instance Hashable Channel
 
 instance Show Channel where
-  show (Channel chanType name) = show chanType ++ show name
+  show (Channel chanType name) = show chanType ++ T.unpack name
 
 -- |Convert string representation, e.g. private-chan into the datatype
 parseChannel :: T.Text -> Channel
