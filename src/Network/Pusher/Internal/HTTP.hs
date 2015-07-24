@@ -24,10 +24,12 @@ import Network.HTTP.Client
   , method
   , parseUrl
   , requestBody
+  , requestHeaders
   , responseBody
   , responseStatus
   , setQueryString
   )
+import Network.HTTP.Types.Header (hContentType)
 import Network.HTTP.Types.Method (methodPost)
 import Network.HTTP.Types.Status (statusCode, statusMessage)
 import qualified Data.Aeson as A
@@ -65,7 +67,6 @@ post
   -> a
   -> m ()
 post connManager ep qs body = do
-
   resp <- makeRequest connManager ep qs (Just $ A.encode body)
   errorOn200 resp
 
@@ -85,6 +86,7 @@ makeRequest connManager ep qs body = do
     req'' = case body of
       Just b -> req'
         { method = methodPost
+        , requestHeaders = [(hContentType, "application/json")]
         , requestBody = RequestBodyLBS b
         }
       Nothing -> req'
