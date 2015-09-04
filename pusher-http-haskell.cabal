@@ -7,6 +7,7 @@ tested-with:          GHC == 7.8.3
 library
   exposed-modules:    Control.Monad.Pusher,
                       Control.Monad.Pusher.HTTP,
+                      Control.Monad.Pusher.Time,
                       Data.Pusher,
                       Network.Pusher,
                       Network.Pusher.Internal.Auth,

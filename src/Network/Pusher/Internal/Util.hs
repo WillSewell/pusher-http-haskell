@@ -8,14 +8,11 @@ Stability   : experimental
 -}
 module Network.Pusher.Internal.Util
   ( failExpectObj
-  , getIntPOSIXTime
   , show'
   ) where
 
 import Control.Applicative ((<$>))
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.String (IsString, fromString)
-import Data.Time.Clock.POSIX (getPOSIXTime)
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Types as A
 
@@ -23,10 +20,6 @@ import qualified Data.Aeson.Types as A
 -- when an object was expected, but it was a different type of data.
 failExpectObj :: A.Value -> A.Parser a
 failExpectObj = fail . ("Expected JSON object, got " ++) . show
-
--- | Wrapper around getPOSIXTime that rounds the time to an Int.
-getIntPOSIXTime :: MonadIO m => m Int
-getIntPOSIXTime =  liftIO $ round <$> getPOSIXTime
 
 -- | Generalised version of show
 show' :: (Show a, IsString b) => a -> b

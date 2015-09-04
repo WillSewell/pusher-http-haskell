@@ -18,11 +18,11 @@ their own types. They are really just aliases for a stack of ReaderT and ErrorT.
 module Control.Monad.Pusher (MonadPusher, PusherM, PusherT, runPusherT) where
 
 import Control.Monad.Error (ErrorT, MonadError, runErrorT)
-import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Identity (Identity)
 import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
 
 import Control.Monad.Pusher.HTTP (MonadHTTP)
+import Control.Monad.Pusher.Time (MonadTime)
 import Data.Pusher (Pusher)
 
 -- |Monad that can be used as the return type of the main API functions.
@@ -38,9 +38,9 @@ runPusherT run p = runErrorT $ runReaderT run p
 -- |Typeclass alias for the return type of the API functions (keeps the
 -- signatures less verbose)
 type MonadPusher m =
-  ( MonadError String m
-  , MonadReader Pusher m
-  , MonadIO m
+  ( Functor m
+  , MonadError String m
   , MonadHTTP m
-  , Functor m
+  , MonadReader Pusher m
+  , MonadTime m
   )
