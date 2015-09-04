@@ -18,12 +18,13 @@ module Network.Pusher.Protocol
   ( Channel(..)
   , ChannelInfo(..)
   , ChannelInfoAttributes(..)
-  , ChannelInfoAttributeResp(UserCountResp)
+  , ChannelInfoAttributeResp(..)
   , ChannelInfoQuery(..)
   , ChannelsInfo(..)
   , ChannelsInfoQuery(..)
   , ChannelsInfoAttributes(..)
   , ChannelType(..)
+  , FullChannelInfo
   , User(..)
   , Users(..)
   , parseChannel
@@ -33,7 +34,7 @@ module Network.Pusher.Protocol
 import Control.Applicative ((<$>), (<*>))
 import Data.Aeson ((.:), (.:?))
 import Data.Foldable (asum)
-import Data.Hashable (Hashable, hashWithSalt)
+import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import Test.QuickCheck (Arbitrary, arbitrary, elements)
@@ -93,7 +94,7 @@ class ToURLParam a where
   toURLParam :: a -> T.Text
 
 -- |Enumeration of the attributes that can be queried about multiple channels.
-data ChannelsInfoAttributes = ChannelsUserCount deriving Generic
+data ChannelsInfoAttributes = ChannelsUserCount deriving (Eq, Generic)
 
 instance ToURLParam ChannelsInfoAttributes where
   toURLParam ChannelsUserCount = "user_count"
@@ -107,7 +108,7 @@ newtype ChannelsInfoQuery =
 
 -- |Enumeration of the attributes that can be queried about a single channel.
 data ChannelInfoAttributes = ChannelUserCount | ChannelSubscriptionCount
-  deriving Generic
+  deriving (Eq, Generic)
 
 instance ToURLParam ChannelInfoAttributes where
   toURLParam ChannelUserCount = "user_count"
@@ -121,7 +122,7 @@ newtype ChannelInfoQuery = ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
 
 
 instance ToURLParam a => ToURLParam (HS.HashSet a) where
-  toURLParam hs = T.concat $ toURLParam <$> HS.toList hs
+  toURLParam hs = T.intercalate "," $ toURLParam <$> HS.toList hs
 
 -- |A map of channels to their ChannelInfo. The result of querying channel
 -- info from multuple channels.
@@ -156,12 +157,42 @@ instance A.FromJSON ChannelInfo where
       maybeUserCount
   parseJSON v = failExpectObj v
 
--- |An enumeration of possible returned channel attributes. These now have
--- associated values.
-data ChannelInfoAttributeResp = UserCountResp Int deriving (Eq, Show)
+-- |An enumeration of possible returned channel attributes when multiple
+-- when multiple channels are queried.
+data ChannelInfoAttributeResp = UserCountResp Int deriving (Eq, Generic, Show)
 
-instance Hashable ChannelInfoAttributeResp where
-  hashWithSalt salt (UserCountResp count) = hashWithSalt salt count
+instance Hashable ChannelInfoAttributeResp
+
+-- |A set of returned channel attributes for a single channel.
+newtype FullChannelInfo =
+  FullChannelInfo (HS.HashSet FullChannelAttributeResp)
+  deriving (Eq, Show)
+
+instance A.FromJSON FullChannelInfo where
+  parseJSON (A.Object v) = do
+    occupied <- v .: "occupied"
+    maybeUserCount <- v .:? "user_count"
+    maybeSubCount <- v .:? "subscription_count"
+    let
+      hs = HS.singleton (OccupiedResp occupied)
+      hs' =  maybeInsert (FullUserCountResp <$> maybeUserCount) hs
+      hs'' =  maybeInsert (SubscriptionCountResp <$> maybeSubCount) hs'
+    return $ FullChannelInfo hs''
+   where
+    maybeInsert :: (Eq a, Hashable a) => Maybe a -> HS.HashSet a -> HS.HashSet a
+    maybeInsert maybeVal hs = maybe hs (`HS.insert` hs) maybeVal
+
+  parseJSON v = failExpectObj v
+
+-- |An enumeration of possible returned channel attributes when a single
+-- channel is queried
+data FullChannelAttributeResp
+  = OccupiedResp Bool
+  | FullUserCountResp Int
+  | SubscriptionCountResp Int
+  deriving (Eq, Generic, Show)
+
+instance Hashable FullChannelAttributeResp
 
 -- |A list of users returned by querying for users in a presence channel.
 newtype Users = Users [User] deriving (Eq, Show)

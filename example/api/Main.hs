@@ -22,11 +22,17 @@ main = do
         Left e -> print e
     Left e -> print e
 
-pusherApp :: PusherT IO (P.ChannelsInfo, P.ChannelInfo, P.Users)
+pusherApp :: PusherT IO (P.ChannelsInfo, P.FullChannelInfo, P.Users)
 pusherApp = do
   let chan = P.Channel P.Presence "messages"
   P.trigger [chan] "some_event" "data" Nothing
-  channels <- P.channels (Just P.Presence) "" (P.ChannelsInfoQuery (HS.singleton P.ChannelsUserCount))
-  channel <- P.channel chan (P.ChannelInfoQuery (HS.singleton P.ChannelUserCount))
+  channels <- P.channels
+    (Just P.Presence)
+    ""
+    (P.ChannelsInfoQuery (HS.singleton P.ChannelsUserCount))
+  channel <- P.channel
+    chan
+    (P.ChannelInfoQuery
+      (HS.fromList [P.ChannelUserCount, P.ChannelSubscriptionCount]))
   users <- P.users chan
   return (channels, channel, users)

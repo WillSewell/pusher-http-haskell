@@ -39,6 +39,8 @@ import qualified Data.ByteString.Lazy as BL
 
 import Control.Monad.Pusher.HTTP (MonadHTTP(httpLbs))
 
+import Debug.Trace
+
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
 get

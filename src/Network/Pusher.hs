@@ -85,6 +85,7 @@ import Network.Pusher.Protocol
   , ChannelsInfo
   , ChannelsInfoQuery
   , ChannelType
+  , FullChannelInfo
   , Users
   , toURLParam
   )
@@ -142,7 +143,7 @@ channel
   :: MonadPusher m
   => Channel
   -> ChannelInfoQuery  -- ^Can query user count and also subscription count (if enabled)
-  -> m ChannelInfo
+  -> m FullChannelInfo
 channel chan attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
   (ep, path) <- getEndpoint $ "channels/" <> show' chan
