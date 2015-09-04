@@ -16,7 +16,8 @@ converted into MonadError errors.
 module Network.Pusher.Internal.HTTP (MonadHTTP(..), get, post) where
 
 import Control.Arrow (second)
-import Control.Monad.Error (MonadError, throwError)
+import Control.Monad.Except (MonadError, throwError)
+import Data.Text.Encoding (decodeUtf8')
 import Network.HTTP.Client
   ( Manager
   , RequestBody(RequestBodyLBS)
@@ -36,6 +37,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.Text as T
 
 import Control.Monad.Pusher.HTTP (MonadHTTP(httpLbs))
 
@@ -44,7 +46,7 @@ import Debug.Trace
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
 get
-  :: (A.FromJSON a, Functor m, MonadError String m, MonadHTTP m)
+  :: (A.FromJSON a, Functor m, MonadError T.Text m, MonadHTTP m)
   => Manager
   -> B.ByteString
   -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
@@ -56,13 +58,13 @@ get connManager ep qs = do
   resp <- makeRequest connManager ep qs Nothing
   when200 resp $
     either
-      throwError
+      (throwError . T.pack)
       return
       (A.eitherDecode $ responseBody resp)
 
 -- |Issue an HTTP POST request.
 post
-  :: (A.ToJSON a, Functor m, MonadError String m, MonadHTTP m)
+  :: (A.ToJSON a, Functor m, MonadError T.Text m, MonadHTTP m)
   => Manager
   -> B.ByteString
   -> [(B.ByteString, B.ByteString)]
@@ -75,14 +77,14 @@ post connManager ep qs body = do
 -- |Make a request by building up an http-client Request data structure, and
 -- performing the IO action.
 makeRequest
-  :: (Functor m, MonadError String m, MonadHTTP m)
+  :: (Functor m, MonadError T.Text m, MonadHTTP m)
   => Manager
   -> B.ByteString
   -> [(B.ByteString, B.ByteString)]
   -> Maybe BL.ByteString
   -> m (Response BL.ByteString)
 makeRequest connManager ep qs body = do
-  req <- either (throwError . show) return (parseUrl $ BC.unpack ep)
+  req <- either (throwError . T.pack . show) return (parseUrl $ BC.unpack ep)
   let
     req' = setQueryString (map (second Just) qs) req
     req'' = case body of
@@ -94,13 +96,13 @@ makeRequest connManager ep qs body = do
       Nothing -> req'
   httpLbs req'' connManager
 
-when200 :: (MonadError String m) => Response BL.ByteString -> m a -> m a
+when200 :: (MonadError T.Text m) => Response BL.ByteString -> m a -> m a
 when200 response run =
   let status = responseStatus response in
   if statusCode status == 200 then
      run
   else
-     throwError $ show $ statusMessage status
+     throwError $ either (T.pack . show) id $ decodeUtf8' $ statusMessage status
 
-errorOn200 :: (MonadError String m) => Response BL.ByteString -> m ()
+errorOn200 :: (MonadError T.Text m) => Response BL.ByteString -> m ()
 errorOn200 response = when200 response (return ())

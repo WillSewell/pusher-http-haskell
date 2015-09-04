@@ -11,7 +11,7 @@ to use the IO instance in the main library, and a mock in the tests.
 -}
 module Control.Monad.Pusher.HTTP (MonadHTTP(..)) where
 
-import Control.Monad.Error (Error, ErrorT)
+import Control.Monad.Except (ExceptT)
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Trans.Class (lift)
 import Network.HTTP.Client (Manager, Request, Response)
@@ -29,5 +29,5 @@ instance MonadHTTP IO where
 instance MonadHTTP m => MonadHTTP (ReaderT r m) where
   httpLbs req mngr = lift $ httpLbs req mngr
 
-instance (Error e, MonadHTTP m) => MonadHTTP (ErrorT e m) where
+instance MonadHTTP m => MonadHTTP (ExceptT e m) where
   httpLbs req mngr = lift $ httpLbs req mngr

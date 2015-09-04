@@ -7,7 +7,7 @@
 module HTTP where
 
 import Control.Applicative (Applicative)
-import Control.Monad.Error (MonadError, catchError, throwError)
+import Control.Monad.Except (MonadError, catchError, throwError)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, runReaderT)
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Test.Hspec (Spec, describe, it, shouldBe)
@@ -24,6 +24,7 @@ import qualified Control.Monad.Trans.Reader as Reader
 import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
+import qualified Data.Text as T
 
 import Network.Pusher.Internal.HTTP
   ( MonadHTTP(httpLbs)
@@ -97,8 +98,8 @@ test = do
       (runMockServer
         (get mngr "http://example.com/path" [])
         failedResponse
-        :: Either String ())
-      `shouldBe` Left "\"fail\""
+        :: Either T.Text ())
+      `shouldBe` Left "fail"
 
   describe "HTTP.post" $ do
     it "returns the body when the request is 200" $ withConnManager $ \mngr ->
@@ -112,5 +113,5 @@ test = do
       (runMockServer
         (post mngr "http://example.com/path" [] (A.Object HM.empty))
         failedResponse
-        :: Either String ())
-      `shouldBe` Left "\"fail\""
+        :: Either T.Text ())
+      `shouldBe` Left "fail"

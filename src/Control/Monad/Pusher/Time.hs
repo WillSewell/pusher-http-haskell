@@ -9,7 +9,7 @@ Stability   : experimental
 module Control.Monad.Pusher.Time (MonadTime(..)) where
 
 import Control.Applicative ((<$>))
-import Control.Monad.Error (Error, ErrorT)
+import Control.Monad.Except (ExceptT)
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Trans.Class (lift)
 import Network.HTTP.Client (Manager, Request, Response)
@@ -26,5 +26,5 @@ instance MonadTime IO where
 instance MonadTime m => MonadTime (ReaderT r m) where
   getPOSIXTime = lift getPOSIXTime
 
-instance (Error e, MonadTime m) => MonadTime (ErrorT e m) where
+instance MonadTime m => MonadTime (ExceptT e m) where
   getPOSIXTime = lift getPOSIXTime

@@ -58,7 +58,7 @@ module Network.Pusher (
 
 import Control.Applicative ((<$>))
 import Control.Monad (when)
-import Control.Monad.Error (throwError)
+import Control.Monad.Except (throwError)
 import Control.Monad.Reader (MonadReader, asks)
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))

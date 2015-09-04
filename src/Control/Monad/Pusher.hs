@@ -17,9 +17,10 @@ their own types. They are really just aliases for a stack of ReaderT and ErrorT.
 -}
 module Control.Monad.Pusher (MonadPusher, PusherM, PusherT, runPusherT) where
 
-import Control.Monad.Error (ErrorT, MonadError, runErrorT)
+import Control.Monad.Except (ExceptT, MonadError, runExceptT)
 import Control.Monad.Identity (Identity)
 import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
+import qualified Data.Text as T
 
 import Control.Monad.Pusher.HTTP (MonadHTTP)
 import Control.Monad.Pusher.Time (MonadTime)
@@ -29,17 +30,17 @@ import Data.Pusher (Pusher)
 type PusherM a = PusherT Identity a
 
 -- |Use this if you wish to stack this on your own monads.
-type PusherT m a = ReaderT Pusher (ErrorT String m) a
+type PusherT m a = ReaderT Pusher (ExceptT T.Text m) a
 
 -- |Run the monadic Pusher code to extract the result
-runPusherT :: PusherT m a -> Pusher -> m (Either String a)
-runPusherT run p = runErrorT $ runReaderT run p
+runPusherT :: PusherT m a -> Pusher -> m (Either T.Text a)
+runPusherT run p = runExceptT $ runReaderT run p
 
 -- |Typeclass alias for the return type of the API functions (keeps the
 -- signatures less verbose)
 type MonadPusher m =
   ( Functor m
-  , MonadError String m
+  , MonadError T.Text m
   , MonadHTTP m
   , MonadReader Pusher m
   , MonadTime m
