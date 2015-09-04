@@ -67,6 +67,9 @@ test-suite tests
   default-extensions: OverloadedStrings
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
+  other-modules:      Auth,
+                      HTTP
+                      Protocol
   hs-source-dirs:     test
   build-depends:      aeson,
                       base,
