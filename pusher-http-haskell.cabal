@@ -11,6 +11,10 @@ stability:            experimental
 homepage:             https://github.com/pusher-community/pusher-http-haskell
 bug-reports:          https://github.com/pusher-community/pusher-http-haskell/issues
 synopsis:             Haskell client library for the Pusher HTTP API
+description:          Functions that correspond to endpoints of the Pusher HTTP
+                      API. Messages can be triggered, and information about the
+                      channel can be queried. Additionally there are functions
+                      for authenticating users of private and presence channels.
 category:             Network
 tested-with:          GHC == 7.8.4
 
