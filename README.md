@@ -1,6 +1,9 @@
 # Pusher Haskell HTTP client library
 
-*This is currently in the alpha stage of development, and should not be used!*
+[![Build Status](https://travis-ci.org/pusher-community/pusher-http-haskell.svg?branch=master)]
+(https://travis-ci.org/pusher-community/pusher-http-haskell)
+
+*This is currently in the alpha stage of development*
 
 Supports triggering messages and querying channel information.
 See: https://pusher.com/docs/rest_api
