@@ -24,7 +24,8 @@ module Network.Pusher.Protocol
   , ChannelsInfoQuery(..)
   , ChannelsInfoAttributes(..)
   , ChannelType(..)
-  , FullChannelInfo
+  , FullChannelInfo(..)
+  , FullChannelAttributeResp(..)
   , User(..)
   , Users(..)
   , parseChannel
