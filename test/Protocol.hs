@@ -12,6 +12,7 @@ import Network.Pusher.Protocol
   , ChannelInfo(..)
   , ChannelsInfo(..)
   , ChannelType(Public, Presence, Private)
+  , FullChannelInfo(..)
   , User(..)
   , Users(..)
   , parseChannel
@@ -49,7 +50,7 @@ test = do
           , (Channel Presence "another", ChannelInfo $ Just 123)
           ])
 
-  describe "Protocol.ChannelInfo" $
+  describe "Protocol.FullChannelInfo" $
     it "parsing works" $
       -- Data from https://pusher.com/docs/rest_api#successful-response-2
       A.decode
@@ -59,8 +60,7 @@ test = do
 \         \"subscription_count\": 42\
 \       }"
       `shouldBe`
-        -- TODO: Currently incomplete due to ChannelInfo being incomplete
-        (Just $ ChannelInfo $ Just 42)
+        (Just $ FullChannelInfo True (Just 42) (Just 42))
 
   describe "Protocol.Users" $
     it "parsing works" $
