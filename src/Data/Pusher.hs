@@ -13,12 +13,14 @@ module Data.Pusher
   ( Pusher(..)
   , Credentials(..)
   , getPusher
+  , getPusherWithHost
   , getPusherWithConnManager
   ) where
 
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:))
+import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
@@ -54,15 +56,26 @@ instance A.FromJSON Credentials where
 -- automatically.
 getPusher :: MonadIO m => Credentials -> m Pusher
 getPusher cred = do
-  connManager <- liftIO $ newManager defaultManagerSettings
-  return $ getPusherWithConnManager connManager cred
+    connManager <- getConnManager
+    return $ getPusherWithConnManager connManager Nothing cred
 
-getPusherWithConnManager :: Manager -> Credentials -> Pusher
-getPusherWithConnManager connManager cred =
+-- |Get a Pusher instance that uses a specific API endpoint.
+getPusherWithHost :: MonadIO m => T.Text -> Credentials -> m Pusher
+getPusherWithHost apiHost cred = do
+  connManager <- getConnManager
+  return $ getPusherWithConnManager connManager (Just apiHost) cred
+
+-- |Get a Pusher instance with a given connection manager. This can be useful
+-- if you want to share a connection with your application code.
+getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
+getPusherWithConnManager connManager apiHost cred =
   let path = "/apps/" <> T.pack (show $ credentialsAppID cred) <> "/" in
   Pusher
-    { pusherHost = "http://api.pusherapp.com"
+    { pusherHost = fromMaybe "http://api.pusherapp.com" apiHost
     , pusherPath = path
     , pusherCredentials = cred
     , pusherConnectionManager = connManager
     }
+
+getConnManager :: MonadIO m => m Manager
+getConnManager = liftIO $ newManager defaultManagerSettings
