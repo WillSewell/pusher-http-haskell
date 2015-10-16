@@ -18,14 +18,12 @@ module Network.Pusher.Protocol
   ( Channel(..)
   , ChannelInfo(..)
   , ChannelInfoAttributes(..)
-  , ChannelInfoAttributeResp(..)
   , ChannelInfoQuery(..)
   , ChannelsInfo(..)
   , ChannelsInfoQuery(..)
   , ChannelsInfoAttributes(..)
   , ChannelType(..)
   , FullChannelInfo(..)
-  , FullChannelAttributeResp(..)
   , User(..)
   , Users(..)
   , parseChannel
@@ -144,56 +142,30 @@ instance A.FromJSON ChannelsInfo where
       v1 -> failExpectObj v1
   parseJSON v2 = failExpectObj v2
 
--- |A set of returned channel attributes for a single channel.
-newtype ChannelInfo =
-  ChannelInfo (HS.HashSet ChannelInfoAttributeResp)
-  deriving (Eq, Show)
+-- |The possible returned channel attributes when multiple when multiple
+-- channels are queried.
+data ChannelInfo = ChannelInfo
+  { channelInfoUserCount :: Maybe Int
+  } deriving (Eq, Show)
 
 instance A.FromJSON ChannelInfo where
-  parseJSON (A.Object v) = do
-    maybeUserCount <- v .:? "user_count"
-    return $ ChannelInfo $ maybe
-      HS.empty
-      (HS.singleton . UserCountResp)
-      maybeUserCount
+  parseJSON (A.Object v) = ChannelInfo <$> v .:? "user_count"
   parseJSON v = failExpectObj v
 
--- |An enumeration of possible returned channel attributes when multiple
--- when multiple channels are queried.
-data ChannelInfoAttributeResp = UserCountResp Int deriving (Eq, Generic, Show)
-
-instance Hashable ChannelInfoAttributeResp
-
--- |A set of returned channel attributes for a single channel.
-newtype FullChannelInfo =
-  FullChannelInfo (HS.HashSet FullChannelAttributeResp)
-  deriving (Eq, Show)
+-- |The possible values returned by a query to a single channel
+data FullChannelInfo = FullChannelInfo
+  { fullChannelInfoOccupied :: Bool
+  , fullChannelInfoUserCount :: Maybe Int
+  , fullChannelInfoSubCount :: Maybe Int
+  } deriving (Eq, Show)
 
 instance A.FromJSON FullChannelInfo where
-  parseJSON (A.Object v) = do
-    occupied <- v .: "occupied"
-    maybeUserCount <- v .:? "user_count"
-    maybeSubCount <- v .:? "subscription_count"
-    let
-      hs = HS.singleton (OccupiedResp occupied)
-      hs' =  maybeInsert (FullUserCountResp <$> maybeUserCount) hs
-      hs'' =  maybeInsert (SubscriptionCountResp <$> maybeSubCount) hs'
-    return $ FullChannelInfo hs''
-   where
-    maybeInsert :: (Eq a, Hashable a) => Maybe a -> HS.HashSet a -> HS.HashSet a
-    maybeInsert maybeVal hs = maybe hs (`HS.insert` hs) maybeVal
-
+  parseJSON (A.Object v) =
+    FullChannelInfo
+      <$> v .: "occupied"
+      <*> v .:? "user_count"
+      <*> v .:? "subscription_count"
   parseJSON v = failExpectObj v
-
--- |An enumeration of possible returned channel attributes when a single
--- channel is queried
-data FullChannelAttributeResp
-  = OccupiedResp Bool
-  | FullUserCountResp Int
-  | SubscriptionCountResp Int
-  deriving (Eq, Generic, Show)
-
-instance Hashable FullChannelAttributeResp
 
 -- |A list of users returned by querying for users in a presence channel.
 newtype Users = Users [User] deriving (Eq, Show)

@@ -10,7 +10,6 @@ import qualified Data.Text as T
 import Network.Pusher.Protocol
   ( Channel(..)
   , ChannelInfo(..)
-  , ChannelInfoAttributeResp(UserCountResp)
   , ChannelsInfo(..)
   , ChannelType(Public, Presence, Private)
   , User(..)
@@ -46,8 +45,8 @@ test = do
 \       }"
       `shouldBe`
         (Just $ ChannelsInfo $ HM.fromList
-          [ (Channel Presence "foobar", ChannelInfo $ HS.fromList [UserCountResp 42])
-          , (Channel Presence "another", ChannelInfo $ HS.fromList [UserCountResp 123])
+          [ (Channel Presence "foobar", ChannelInfo $ Just 42)
+          , (Channel Presence "another", ChannelInfo $ Just 123)
           ])
 
   describe "Protocol.ChannelInfo" $
@@ -61,7 +60,7 @@ test = do
 \       }"
       `shouldBe`
         -- TODO: Currently incomplete due to ChannelInfo being incomplete
-        (Just $ ChannelInfo $ HS.fromList [UserCountResp 42])
+        (Just $ ChannelInfo $ Just 42)
 
   describe "Protocol.Users" $
     it "parsing works" $
