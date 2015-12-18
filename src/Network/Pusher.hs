@@ -34,7 +34,7 @@ An example of how you would use these functions:
       , credentials'appKey = wrd12344rcd234
       , credentials'appSecret = 124df34d545v
       }
-  result <- runPusherT (Pusher.trigger ["my-channel"] "my-event" "my-data") pusher
+  result <- runPusherT (Pusher.trigger ["my-channel"] "my-event" "my-data" Nothing) pusher
   case result of
     Right resp -> print resp
     Left e -> error e
