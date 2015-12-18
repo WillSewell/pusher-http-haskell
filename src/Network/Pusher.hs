@@ -77,7 +77,6 @@ import Network.Pusher.Internal.Auth
   , makeQS
   )
 import Network.Pusher.Internal.HTTP (get, post)
-import Network.Pusher.Internal.Util (show')
 import Network.Pusher.Protocol
   ( Channel
   , ChannelInfo
@@ -87,6 +86,8 @@ import Network.Pusher.Protocol
   , ChannelType
   , FullChannelInfo
   , Users
+  , renderChannel
+  , renderChannelPrefix
   , toURLParam
   )
 
@@ -106,7 +107,7 @@ trigger chans event dat socketId = do
   let
     body = A.object $
       [ ("name", A.String event)
-      , ("channels", A.toJSON (map (A.String . show') chans))
+      , ("channels", A.toJSON (map (A.String . renderChannel) chans))
       , ("data", A.String dat)
       ] ++ maybeToList (fmap (\sID ->  ("socket_id", A.String sID)) socketId)
     bodyBS = BL.toStrict $ A.encode body
@@ -128,7 +129,7 @@ channels
   -> m ChannelsInfo -- ^The returned data
 channels channelTypeFilter prefixFilter attributes = do
   let
-    prefix = maybe "" show' channelTypeFilter <> prefixFilter
+    prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
     params =
       [ ("info", encodeUtf8 $ toURLParam attributes)
       , ("filter_by_prefix", encodeUtf8 prefix)
@@ -146,7 +147,7 @@ channel
   -> m FullChannelInfo
 channel chan attributes = do
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
-  (ep, path) <- getEndpoint $ "channels/" <> show' chan
+  (ep, path) <- getEndpoint $ "channels/" <> renderChannel chan
   qs <- makeQSWithTS "GET" path params ""
   connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs
@@ -157,7 +158,7 @@ users
  => Channel
  -> m Users
 users chan = do
-  (ep, path) <- getEndpoint $ "channels/" <> show' chan <> "/users"
+  (ep, path) <- getEndpoint $ "channels/" <> renderChannel chan <> "/users"
   qs <- makeQSWithTS "GET" path [] ""
   connManager <- asks pusherConnectionManager
   get connManager (encodeUtf8 ep) qs

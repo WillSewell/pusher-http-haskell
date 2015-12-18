@@ -16,19 +16,20 @@ import Network.Pusher.Protocol
   , User(..)
   , Users(..)
   , parseChannel
+  , renderChannel
   )
 
 test :: Spec
 test = do
   describe "Protocol.Channel" $ do
     it "show instance works for public channels" $
-      show (Channel Public "test") `shouldBe` "test"
+      renderChannel (Channel Public "test") `shouldBe` "test"
 
     it "show instance works for private channels" $
-      show (Channel Private "test") `shouldBe` "private-test"
+      renderChannel (Channel Private "test") `shouldBe` "private-test"
 
     it "show instance is an inverse of parseChannel" $
-      property $ \chan -> parseChannel (T.pack $ show chan) == chan
+      property $ \chan -> parseChannel (renderChannel chan) == chan
 
   describe "Protocol.ChannelsInfo" $
     it "parsing works" $
