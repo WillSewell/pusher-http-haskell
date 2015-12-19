@@ -29,12 +29,13 @@ An example of how you would use these functions:
 
 @
   let
-    pusher = getPusher $ Credentials
-      { credentials'appID = 123
-      , credentials'appKey = wrd12344rcd234
-      , credentials'appSecret = 124df34d545v
+    credentials = Credentials
+      { credentialsAppID = 123
+      , credentialsAppKey = wrd12344rcd234
+      , credentialsAppSecret = 124df34d545v
       }
-  result <- runPusherT (Pusher.trigger ["my-channel"] "my-event" "my-data" Nothing) pusher
+  pusher <- getPusher credentials
+  result <- runPusherT (trigger [Channel Public "my-channel"] "my-event" "my-data" Nothing) pusher
   case result of
     Right resp -> print resp
     Left e -> error e
