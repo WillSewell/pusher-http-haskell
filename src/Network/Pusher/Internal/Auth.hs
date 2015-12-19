@@ -32,6 +32,7 @@ import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Crypto.MAC.HMAC as HMAC
 
 import Data.Pusher (Credentials(..))
+import Network.Pusher.Internal.Util (show')
 
 -- |Generate the required query string parameters required to send API requests
 -- to Pusher.
@@ -49,7 +50,7 @@ makeQS appKey appSecret method path params body ts =
     -- Generate all required parameters and add them to the list of existing ones
     allParams = sortWith fst $ params ++
       [ ("auth_key", appKey)
-      , ("auth_timestamp", BC.pack $ show ts)
+      , ("auth_timestamp", show' ts)
       , ("auth_version", "1.0")
       , ("body_md5", B16.encode (MD5.hash body))
       ]
@@ -113,4 +114,3 @@ authenticatePresenceWithEncoder userEncoder cred socketID channelName userData =
       )
   in
     credentialsAppKey cred <> ":" <> sig
-

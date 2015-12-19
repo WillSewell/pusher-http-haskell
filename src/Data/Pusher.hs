@@ -28,7 +28,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 
-import Network.Pusher.Internal.Util (failExpectObj)
+import Network.Pusher.Internal.Util (failExpectObj, show')
 
 -- |All the required configuration needed to interact with the API.
 data Pusher = Pusher
@@ -69,7 +69,7 @@ getPusherWithHost apiHost cred = do
 -- if you want to share a connection with your application code.
 getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost cred =
-  let path = "/apps/" <> T.pack (show $ credentialsAppID cred) <> "/" in
+  let path = "/apps/" <> show' (credentialsAppID cred) <> "/" in
   Pusher
     { pusherHost = fromMaybe "http://api.pusherapp.com" apiHost
     , pusherPath = path

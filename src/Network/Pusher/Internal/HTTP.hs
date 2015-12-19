@@ -40,6 +40,7 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
 import Control.Monad.Pusher.HTTP (MonadHTTP(httpLbs))
+import Network.Pusher.Internal.Util (show')
 
 import Debug.Trace
 
@@ -84,7 +85,7 @@ makeRequest
   -> Maybe BL.ByteString
   -> m (Response BL.ByteString)
 makeRequest connManager ep qs body = do
-  req <- either (throwError . T.pack . show) return (parseUrl $ BC.unpack ep)
+  req <- either (throwError . show') return (parseUrl $ BC.unpack ep)
   let
     req' = setQueryString (map (second Just) qs) req
     req'' = case body of
@@ -102,7 +103,7 @@ when200 response run =
   if statusCode status == 200 then
      run
   else
-     throwError $ either (T.pack . show) id $ decodeUtf8' $ statusMessage status
+     throwError $ either show' id $ decodeUtf8' $ statusMessage status
 
 errorOn200 :: (MonadError T.Text m) => Response BL.ByteString -> m ()
 errorOn200 response = when200 response (return ())
