@@ -35,10 +35,11 @@ An example of how you would use these functions:
       , credentialsAppSecret = 124df34d545v
       }
   pusher <- getPusher credentials
-  result <- runPusherT (trigger [Channel Public "my-channel"] "my-event" "my-data" Nothing) pusher
+  result <-
+    trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
   case result of
-    Right resp -> print resp
     Left e -> error e
+    Right resp -> print resp
 @
 
 There is a simple working example in the example/ directory.
@@ -59,8 +60,8 @@ module Network.Pusher (
 
 import Control.Applicative ((<$>))
 import Control.Monad (when)
-import Control.Monad.Except (throwError)
-import Control.Monad.Reader (MonadReader, asks)
+import Control.Monad.Trans.Except (runExceptT, throwE)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
@@ -69,7 +70,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
-import Control.Monad.Pusher (MonadPusher)
+import Control.Monad.Pusher.HTTP (MonadHTTP)
 import Control.Monad.Pusher.Time (MonadTime, getPOSIXTime)
 import Data.Pusher (Credentials(..), Pusher(..))
 import Network.Pusher.Internal.Auth
@@ -80,7 +81,6 @@ import Network.Pusher.Internal.Auth
 import Network.Pusher.Internal.HTTP (get, post)
 import Network.Pusher.Protocol
   ( Channel
-  , ChannelInfo
   , ChannelInfoQuery
   , ChannelsInfo
   , ChannelsInfoQuery
@@ -94,16 +94,17 @@ import Network.Pusher.Protocol
 
 -- |Trigger an event to one or more channels.
 trigger
-  :: MonadPusher m
-  => [Channel] -- ^The list of channels to trigger to
+  :: (MonadHTTP m, MonadIO m, MonadTime m)
+  => Pusher
+  -> [Channel] -- ^The list of channels to trigger to
   -> T.Text -- ^The event
   -> T.Text -- ^The data to send (often encoded JSON)
   -> Maybe T.Text -- ^An optional socket ID of a connection you wish to exclude
-  -> m ()
-trigger chans event dat socketId = do
+  -> m (Either T.Text ())
+trigger pusher chans event dat socketId = runExceptT $ do
   when
     (length chans > 10)
-    (throwError "Must be less than 10 channels")
+    (throwE "Must be less than 10 channels")
 
   let
     body = A.object $
@@ -114,78 +115,125 @@ trigger chans event dat socketId = do
     bodyBS = BL.toStrict $ A.encode body
   when
     (B.length bodyBS > 10000)
-    (throwError "Body must be less than 10000KB")
+    (throwE "Body must be less than 10000KB")
 
-  (ep, path) <- getEndpoint "events"
-  qs <- makeQSWithTS "POST" path [] bodyBS
-  connManager <- asks pusherConnectionManager
+  let
+    (ep, path) = getEndpoint (pusherHost pusher) (pusherPath pusher) "events"
+    credentials = pusherCredentials pusher
+  qs <-
+    makeQSWithTS
+      (credentialsAppKey credentials)
+      (credentialsAppSecret credentials)
+      "POST"
+      path
+      []
+      bodyBS
+  let connManager = pusherConnectionManager pusher
   post connManager (encodeUtf8 ep) qs body
 
 -- |Query a list of channels for information.
 channels
-  :: MonadPusher m
-  => Maybe ChannelType -- ^Filter by the type of channel
+  :: (MonadHTTP m, MonadIO m, MonadTime m)
+  => Pusher
+  -> Maybe ChannelType -- ^Filter by the type of channel
   -> T.Text -- ^A channel prefix you wish to filter on
   -> ChannelsInfoQuery -- ^Data you wish to query for, currently just the user count
-  -> m ChannelsInfo -- ^The returned data
-channels channelTypeFilter prefixFilter attributes = do
+  -> m (Either T.Text ChannelsInfo) -- ^The returned data
+channels pusher channelTypeFilter prefixFilter attributes = runExceptT $ do
   let
     prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
     params =
       [ ("info", encodeUtf8 $ toURLParam attributes)
       , ("filter_by_prefix", encodeUtf8 prefix)
       ]
-  (ep, path) <- getEndpoint "channels"
-  qs <- makeQSWithTS "GET" path params ""
-  connManager <- asks pusherConnectionManager
+  let
+    (ep, path) = getEndpoint (pusherHost pusher) (pusherPath pusher) "channels"
+    credentials = pusherCredentials pusher
+  qs <-
+    makeQSWithTS
+      (credentialsAppKey credentials)
+      (credentialsAppSecret credentials)
+      "GET"
+      path
+      params
+      ""
+  let connManager = pusherConnectionManager pusher
   get connManager (encodeUtf8 ep) qs
 
 -- |Query for information on a single channel.
 channel
-  :: MonadPusher m
-  => Channel
+  :: (MonadHTTP m, MonadIO m, MonadTime m)
+  => Pusher
+  -> Channel
   -> ChannelInfoQuery  -- ^Can query user count and also subscription count (if enabled)
-  -> m FullChannelInfo
-channel chan attributes = do
-  let params = [("info", encodeUtf8 $ toURLParam attributes)]
-  (ep, path) <- getEndpoint $ "channels/" <> renderChannel chan
-  qs <- makeQSWithTS "GET" path params ""
-  connManager <- asks pusherConnectionManager
+  -> m (Either T.Text FullChannelInfo)
+channel pusher chan attributes = runExceptT $ do
+  let
+    params = [("info", encodeUtf8 $ toURLParam attributes)]
+    (ep, path) =
+      getEndpoint
+        (pusherHost pusher)
+        (pusherPath pusher)
+        ("channels/" <> renderChannel chan)
+    credentials = pusherCredentials pusher
+  qs <-
+    makeQSWithTS
+      (credentialsAppKey credentials)
+      (credentialsAppSecret credentials)
+      "GET"
+      path
+      params
+      ""
+  let connManager = pusherConnectionManager pusher
   get connManager (encodeUtf8 ep) qs
 
 -- |Get a list of users in a presence channel.
 users
- :: MonadPusher m
- => Channel
- -> m Users
-users chan = do
-  (ep, path) <- getEndpoint $ "channels/" <> renderChannel chan <> "/users"
-  qs <- makeQSWithTS "GET" path [] ""
-  connManager <- asks pusherConnectionManager
+  :: (MonadHTTP m, MonadIO m, MonadTime m)
+  => Pusher
+  -> Channel
+  -> m (Either T.Text Users)
+users pusher chan = runExceptT $ do
+  let
+    (ep, path) =
+      getEndpoint
+      (pusherHost pusher)
+      (pusherPath pusher)
+      ("channels/" <> renderChannel chan <> "/users")
+    credentials = pusherCredentials pusher
+  qs <-
+    makeQSWithTS
+      (credentialsAppKey credentials)
+      (credentialsAppSecret credentials)
+      "GET"
+      path
+      []
+      ""
+  let connManager = pusherConnectionManager pusher
   get connManager (encodeUtf8 ep) qs
 
 -- |Build a full endpoint from the details in Pusher and the subPath.
 getEndpoint
-  :: (MonadReader Pusher m)
-  => T.Text -- ^The subpath of the specific request, e.g "events/channel-name"
-  -> m (T.Text, T.Text) -- ^The full endpoint, and just the path component
-getEndpoint subPath = do
-  host <- asks pusherHost
-  path <- asks pusherPath
+  :: T.Text
+  -> T.Text
+  -> T.Text -- ^The subpath of the specific request, e.g "events/channel-name"
+  -> (T.Text, T.Text) -- ^The full endpoint, and just the path component
+getEndpoint host path subPath =
   let
     fullPath = path <> subPath
     endpoint = host <> fullPath
-  return (endpoint, fullPath)
+  in
+    (endpoint, fullPath)
 
 -- |Impure wrapper around makeQS which gets the current time implicitly.
 makeQSWithTS
-  :: (Functor m, MonadTime m, MonadReader Pusher m)
-  => T.Text
+  :: MonadTime m
+  => B.ByteString
+  -> B.ByteString
+  -> T.Text
   -> T.Text
   -> [(B.ByteString, B.ByteString)]
   -> B.ByteString
   -> m [(B.ByteString, B.ByteString)]
-makeQSWithTS method path params body = do
-  appKey <- asks $ credentialsAppKey . pusherCredentials
-  appSecret <- asks $ credentialsAppSecret . pusherCredentials
+makeQSWithTS appKey appSecret method path params body =
   makeQS appKey appSecret method path params body <$> getPOSIXTime

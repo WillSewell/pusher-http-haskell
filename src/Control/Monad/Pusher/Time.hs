@@ -9,13 +9,10 @@ Stability   : experimental
 module Control.Monad.Pusher.Time (MonadTime(..)) where
 
 import Control.Applicative ((<$>))
-import Control.Monad.Except (ExceptT)
-import Control.Monad.Reader (ReaderT)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Reader (ReaderT)
 import Control.Monad.Trans.Class (lift)
-import Network.HTTP.Client (Manager, Request, Response)
-import qualified Data.ByteString.Lazy as BL
 import qualified Data.Time.Clock.POSIX as Clock
-import qualified Network.HTTP.Client as HTTP.Client
 
 class Monad m => MonadTime m where
   getPOSIXTime :: m Int

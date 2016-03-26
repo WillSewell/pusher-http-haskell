@@ -1,15 +1,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module HTTP where
 
 import Control.Applicative (Applicative)
-import Control.Monad.Except (MonadError, catchError, throwError)
-import Control.Monad.Reader (MonadReader, ReaderT, ask, runReaderT)
-import Control.Monad.Trans.Class (MonadTrans, lift)
+import Control.Monad.Trans.Except (runExceptT)
+import Control.Monad.Trans.Reader (ReaderT, ask, runReaderT)
+import Control.Monad.Trans.Class (MonadTrans)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Network.HTTP.Client
   ( Manager
@@ -43,8 +42,6 @@ newtype MockServer m a = MockServer
 runMockServer :: MockServer m a -> Response BL.ByteString -> m a
 runMockServer (MockServer s) = runReaderT s
 
-deriving instance Monad m => MonadReader (Response BL.ByteString) (MockServer m)
-
 liftCatchMockerServer
   :: (m a -> (e -> m a) -> m a)
   -> MockServer m a
@@ -53,12 +50,8 @@ liftCatchMockerServer
 liftCatchMockerServer catcher run handler =
   MockServer $ Reader.liftCatch catcher (server run) (server . handler)
 
-instance (MonadError e m) => MonadError e (MockServer m) where
-  throwError = lift . throwError
-  catchError = liftCatchMockerServer catchError
-
 instance Monad m => MonadHTTP (MockServer m) where
-  httpLbs _ _ = ask
+  httpLbs _ _ = MockServer ask
 
 succeededResponse :: Response BL.ByteString
 succeededResponse = Response
@@ -88,30 +81,29 @@ withConnManager run = newManager defaultManagerSettings >>= run
 test :: Spec
 test = do
   describe "HTTP.get" $ do
-    it "returns the body when the request is 200" $ withConnManager $ \mngr ->
-      runMockServer
-        (get mngr "http://example.com/path" [])
-        succeededResponse
-      `shouldBe` (Right $ A.Object $ HM.singleton "data" (A.String "some body"))
+    it "returns the body when the request is 200" $
+      withConnManager $ \mngr -> do
+        let getOp = get mngr "http://example.com/path" []
+        resp <- runMockServer (runExceptT getOp) succeededResponse
+        resp `shouldBe`
+          (Right $ A.Object $ HM.singleton "data" (A.String "some body"))
 
-    it "returns an error when the request fails" $ withConnManager $ \mngr ->
-      (runMockServer
-        (get mngr "http://example.com/path" [])
-        failedResponse
-        :: Either T.Text ())
-      `shouldBe` Left "fail"
+    it "returns an error when the request fails" $
+      withConnManager $ \mngr -> do
+        let getOp = get mngr "http://example.com/path" []
+        resp <- runMockServer (runExceptT getOp) failedResponse
+        (resp :: Either T.Text ()) `shouldBe` Left "fail"
 
   describe "HTTP.post" $ do
-    it "returns the body when the request is 200" $ withConnManager $ \mngr ->
-      -- TODO: Need a way of checking the POST data that is sent to the server
-      runMockServer
-        (post mngr "http://example.com/path" [] (A.Object HM.empty))
-        succeededResponse
-      `shouldBe` Right ()
+    it "returns the body when the request is 200" $
+      withConnManager $ \mngr -> do
+        -- TODO: Need a way of checking the POST data that is sent to the server
+        let postOp = post mngr "http://example.com/path" [] $ A.Object HM.empty
+        resp <- runMockServer (runExceptT postOp) succeededResponse
+        resp `shouldBe` Right ()
 
-    it "returns an error when the request fails" $ withConnManager $ \mngr ->
-      (runMockServer
-        (post mngr "http://example.com/path" [] (A.Object HM.empty))
-        failedResponse
-        :: Either T.Text ())
-      `shouldBe` Left "fail"
+    it "returns an error when the request fails" $
+      withConnManager $ \mngr -> do
+        let postOp = post mngr "http://example.com/path" [] $ A.Object HM.empty
+        resp <- runMockServer (runExceptT postOp) failedResponse
+        (resp :: Either T.Text ()) `shouldBe` Left "fail"

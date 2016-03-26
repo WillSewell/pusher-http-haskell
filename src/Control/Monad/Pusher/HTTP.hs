@@ -11,8 +11,8 @@ to use the IO instance in the main library, and a mock in the tests.
 -}
 module Control.Monad.Pusher.HTTP (MonadHTTP(..)) where
 
-import Control.Monad.Except (ExceptT)
-import Control.Monad.Reader (ReaderT)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Reader (ReaderT)
 import Control.Monad.Trans.Class (lift)
 import Network.HTTP.Client (Manager, Request, Response)
 import qualified Data.ByteString.Lazy as BL

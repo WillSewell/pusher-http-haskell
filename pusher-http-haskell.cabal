@@ -19,8 +19,7 @@ category:             Network
 tested-with:          GHC == 7.10.3
 
 library
-  exposed-modules:    Control.Monad.Pusher,
-                      Control.Monad.Pusher.HTTP,
+  exposed-modules:    Control.Monad.Pusher.HTTP,
                       Control.Monad.Pusher.Time,
                       Data.Pusher,
                       Network.Pusher,
@@ -39,7 +38,6 @@ library
                       hashable ==1.2.*,
                       http-client ==0.4.*,
                       http-types >=0.8 && <0.10,
-                      mtl ==2.2.*,
                       QuickCheck >=2.7 && <2.9,
                       text ==1.2.*,
                       time >=1.4 && <1.6,
@@ -52,7 +50,6 @@ executable api-example
   hs-source-dirs:     example/api
   main-is:            Main.hs
   build-depends:      base,
-                      mtl,
                       pusher-http-haskell,
                       text,
                       unordered-containers,
@@ -67,7 +64,6 @@ executable auth-example
                       base,
                       bytestring,
                       containers,
-                      mtl,
                       pusher-http-haskell,
                       snap-core,
                       snap-server,
@@ -91,7 +87,6 @@ test-suite tests
                       hspec,
                       http-client,
                       http-types,
-                      mtl,
                       pusher-http-haskell,
                       QuickCheck,
                       text,
