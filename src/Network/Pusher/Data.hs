@@ -1,7 +1,7 @@
 {-|
-Module      : Data.Pusher
+Module      : Network.Pusher.Data
 Description : Data structure to store Pusher config
-Copyright   : (c) Will Sewell, 2015
+Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
@@ -9,7 +9,7 @@ Stability   : experimental
 You must create an instance of this datatype with your particular Pusher app
 credentials in order to run the main API functions.
 -}
-module Data.Pusher
+module Network.Pusher.Data
   ( Pusher(..)
   , Credentials(..)
   , getPusher

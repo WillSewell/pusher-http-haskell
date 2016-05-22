@@ -3,7 +3,7 @@
 {-|
 Module      : Network.Pusher.Internal.Auth
 Description : Functions to perform authentication (generate auth signatures)
-Copyright   : (c) Will Sewell, 2015
+Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
@@ -31,7 +31,7 @@ import qualified Crypto.Hash.MD5 as MD5
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Crypto.MAC.HMAC as HMAC
 
-import Data.Pusher (Credentials(..))
+import Network.Pusher.Data (Credentials(..))
 import Network.Pusher.Internal.Util (show')
 
 -- |Generate the required query string parameters required to send API requests

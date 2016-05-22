@@ -4,7 +4,7 @@
 {-|
 Module      : Network.Pusher.Internal.HTTP
 Description : Functions for issuing HTTP requests
-Copyright   : (c) Will Sewell, 2015
+Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
@@ -13,15 +13,20 @@ A layer on top of the HTTP functions in the Wreq library which lifts the return
 values to the typclasses we are using in this library. Non 200 responses are
 converted into MonadError errors.
 -}
-module Network.Pusher.Internal.HTTP (MonadHTTP(..), get, post) where
+module Network.Pusher.Internal.HTTP (get, post) where
 
 import Control.Arrow (second)
-import Control.Monad.Except (MonadError, throwError)
+import Control.Exception (displayException)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Except (ExceptT(ExceptT), throwE)
+import Data.Monoid ((<>))
 import Data.Text.Encoding (decodeUtf8')
 import Network.HTTP.Client
   ( Manager
+  , Request
   , RequestBody(RequestBodyLBS)
   , Response
+  , httpLbs
   , method
   , parseUrl
   , requestBody
@@ -39,71 +44,56 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
-import Control.Monad.Pusher.HTTP (MonadHTTP(httpLbs))
+import Network.Pusher.Internal (PusherRequestParams(PusherRequestParams))
 import Network.Pusher.Internal.Util (show')
-
-import Debug.Trace
 
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
 get
-  :: (A.FromJSON a, Functor m, MonadError T.Text m, MonadHTTP m)
+  :: A.FromJSON a
   => Manager
-  -> B.ByteString
-  -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
-  -> [(B.ByteString, B.ByteString)]
-  -- ^List of query string parameters as key-value tuples
-  -> m a
+  -> PusherRequestParams
+  -> ExceptT T.Text IO a
   -- ^The body of the response
-get connManager ep qs = do
-  resp <- makeRequest connManager ep qs Nothing
-  when200 resp $
-    either
-      (throwError . T.pack)
-      return
-      (A.eitherDecode $ responseBody resp)
+get connManager (PusherRequestParams ep qs) = do
+  req <- ExceptT $ return $ mkRequest ep qs
+  resp <- doReqest connManager req
+  either
+    (throwE . T.pack)
+    return
+    (A.eitherDecode resp)
 
 -- |Issue an HTTP POST request.
 post
-  :: (A.ToJSON a, Functor m, MonadError T.Text m, MonadHTTP m)
+  :: A.ToJSON a
   => Manager
-  -> B.ByteString
-  -> [(B.ByteString, B.ByteString)]
+  -> PusherRequestParams
   -> a
-  -> m ()
-post connManager ep qs body = do
-  resp <- makeRequest connManager ep qs (Just $ A.encode body)
-  errorOn200 resp
+  -> ExceptT T.Text IO ()
+post connManager (PusherRequestParams ep qs) body = do
+  req <- ExceptT $ return $ mkPost (A.encode body) <$> mkRequest ep qs
+  _ <- doReqest connManager req
+  return ()
 
--- |Make a request by building up an http-client Request data structure, and
--- performing the IO action.
-makeRequest
-  :: (Functor m, MonadError T.Text m, MonadHTTP m)
-  => Manager
-  -> B.ByteString
-  -> [(B.ByteString, B.ByteString)]
-  -> Maybe BL.ByteString
-  -> m (Response BL.ByteString)
-makeRequest connManager ep qs body = do
-  req <- either (throwError . show') return (parseUrl $ BC.unpack ep)
-  let
-    req' = setQueryString (map (second Just) qs) req
-    req'' = case body of
-      Just b -> req'
-        { method = methodPost
-        , requestHeaders = [(hContentType, "application/json")]
-        , requestBody = RequestBodyLBS b
-        }
-      Nothing -> req'
-  httpLbs req'' connManager
+mkRequest :: T.Text -> [(B.ByteString, B.ByteString)] -> Either T.Text Request
+mkRequest ep qs =
+  case parseUrl $ T.unpack ep of
+    Nothing -> Left $ "failed to parse url: " <> ep
+    Just req -> Right $ setQueryString (map (second Just) qs) req
 
-when200 :: (MonadError T.Text m) => Response BL.ByteString -> m a -> m a
-when200 response run =
-  let status = responseStatus response in
+mkPost :: BL.ByteString -> Request -> Request
+mkPost body req =
+  req
+    { method = methodPost
+    , requestHeaders = [(hContentType, "application/json")]
+    , requestBody = RequestBodyLBS body
+    }
+
+doReqest :: Manager -> Request -> ExceptT T.Text IO BL.ByteString
+doReqest connManager req = do
+  response <- liftIO $ httpLbs req connManager
+  let status = responseStatus response
   if statusCode status == 200 then
-     run
+    return $ responseBody response
   else
-     throwError $ either show' id $ decodeUtf8' $ statusMessage status
-
-errorOn200 :: (MonadError T.Text m) => Response BL.ByteString -> m ()
-errorOn200 response = when200 response (return ())
+    throwE $ either (T.pack . displayException) id $ decodeUtf8' $ statusMessage status

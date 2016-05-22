@@ -4,7 +4,7 @@ cabal-version:        >=1.18
 build-type:           Simple
 license:              MIT
 license-file:         LICENSE
-copyright:            (c) Will Sewell, 2015
+copyright:            (c) Will Sewell, 2016
 author:               Will Sewell
 maintainer:           me@willsewell.com
 stability:            experimental
@@ -19,15 +19,13 @@ category:             Network
 tested-with:          GHC == 7.10.3
 
 library
-  exposed-modules:    Control.Monad.Pusher,
-                      Control.Monad.Pusher.HTTP,
-                      Control.Monad.Pusher.Time,
-                      Data.Pusher,
-                      Network.Pusher,
+  exposed-modules:    Network.Pusher,
+                      Network.Pusher.Internal,
                       Network.Pusher.Internal.Auth,
                       Network.Pusher.Internal.HTTP,
                       Network.Pusher.Protocol
-  other-modules:      Network.Pusher.Internal.Util
+  other-modules:      Network.Pusher.Data,
+                      Network.Pusher.Internal.Util
   default-language:   Haskell2010
   hs-source-dirs:     src
   default-extensions: OverloadedStrings
@@ -39,7 +37,6 @@ library
                       hashable ==1.2.*,
                       http-client ==0.4.*,
                       http-types >=0.8 && <0.10,
-                      mtl ==2.2.*,
                       QuickCheck >=2.7 && <2.9,
                       text ==1.2.*,
                       time >=1.4 && <1.6,
@@ -52,7 +49,6 @@ executable api-example
   hs-source-dirs:     example/api
   main-is:            Main.hs
   build-depends:      base,
-                      mtl,
                       pusher-http-haskell,
                       text,
                       unordered-containers,
@@ -67,7 +63,6 @@ executable auth-example
                       base,
                       bytestring,
                       containers,
-                      mtl,
                       pusher-http-haskell,
                       snap-core,
                       snap-server,
@@ -82,7 +77,6 @@ test-suite tests
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
   other-modules:      Auth,
-                      HTTP
                       Protocol
   hs-source-dirs:     test
   build-depends:      aeson,
@@ -91,7 +85,6 @@ test-suite tests
                       hspec,
                       http-client,
                       http-types,
-                      mtl,
                       pusher-http-haskell,
                       QuickCheck,
                       text,
