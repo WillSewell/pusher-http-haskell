@@ -3,7 +3,7 @@
 {-|
 Module      : Network.Pusher.Internal.Auth
 Description : Functions to perform authentication (generate auth signatures)
-Copyright   : (c) Will Sewell, 2015
+Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental

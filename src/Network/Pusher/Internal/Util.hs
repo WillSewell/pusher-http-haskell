@@ -1,7 +1,7 @@
 {-|
 Module      : Network.Pusher.Internal.Util
 Description : Various utilty functions
-Copyright   : (c) Will Sewell, 2015
+Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental

@@ -4,7 +4,7 @@
 {-|
 Module      : Network.Pusher.Internal.HTTP
 Description : Functions for issuing HTTP requests
-Copyright   : (c) Will Sewell, 2015
+Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
