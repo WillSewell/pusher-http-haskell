@@ -19,10 +19,9 @@ category:             Network
 tested-with:          GHC == 7.10.3
 
 library
-  exposed-modules:    Control.Monad.Pusher.HTTP,
-                      Control.Monad.Pusher.Time,
-                      Data.Pusher,
+  exposed-modules:    Data.Pusher,
                       Network.Pusher,
+                      Network.Pusher.Internal,
                       Network.Pusher.Internal.Auth,
                       Network.Pusher.Internal.HTTP,
                       Network.Pusher.Protocol
@@ -78,7 +77,6 @@ test-suite tests
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
   other-modules:      Auth,
-                      HTTP
                       Protocol
   hs-source-dirs:     test
   build-depends:      aeson,
