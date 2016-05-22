@@ -2,7 +2,7 @@ module Auth where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Data.Pusher (Credentials(..))
+import Network.Pusher (Credentials(..))
 import Network.Pusher.Internal.Auth
   ( authenticatePrivate
   , authenticatePresenceWithEncoder
@@ -52,4 +52,3 @@ credentials = Credentials
   , credentialsAppKey = "278d425bdf160c739803"
   , credentialsAppSecret = "7ad3773142a6692b25b8"
   }
-

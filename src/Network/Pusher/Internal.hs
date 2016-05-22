@@ -24,7 +24,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
-import Data.Pusher (Pusher(..), Credentials(..))
+import Network.Pusher.Data (Pusher(..), Credentials(..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Protocol
   ( Channel

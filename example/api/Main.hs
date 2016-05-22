@@ -2,7 +2,6 @@ module Main where
 
 import Data.Monoid ((<>))
 import qualified Data.HashSet as HS
-import qualified Data.Pusher as P
 import qualified Data.Text.IO as T
 import qualified Data.Yaml as Y
 import qualified Network.Pusher as P

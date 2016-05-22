@@ -47,8 +47,14 @@ There is a simple working example in the example/ directory.
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
 module Network.Pusher (
+  -- * The Pusher config type
+    Pusher(..)
+  , Credentials(..)
+  , getPusher
+  , getPusherWithHost
+  , getPusherWithConnManager
   -- * Events
-    trigger
+  , trigger
   -- * Channel queries
   , channels
   , channel
@@ -71,7 +77,13 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
-import Data.Pusher (Credentials(..), Pusher(..))
+import Network.Pusher.Data
+  ( Pusher(..)
+  , Credentials(..)
+  , getPusher
+  , getPusherWithHost
+  , getPusherWithConnManager
+  )
 import Network.Pusher.Internal.Auth
   ( authenticatePresence
   , authenticatePrivate
