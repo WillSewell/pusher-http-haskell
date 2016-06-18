@@ -1,5 +1,5 @@
 name:                 pusher-http-haskell
-version:              0.3.0.2
+version:              1.0.0.0
 cabal-version:        >=1.18
 build-type:           Simple
 license:              MIT
@@ -43,34 +43,6 @@ library
                       time >=1.4 && <1.6,
                       transformers >=0.3 && <0.5,
                       unordered-containers ==0.2.*
-
-executable api-example
-  default-language:   Haskell2010
-  default-extensions: OverloadedStrings
-  hs-source-dirs:     example/api
-  main-is:            Main.hs
-  build-depends:      base,
-                      pusher-http-haskell,
-                      text,
-                      unordered-containers,
-                      yaml
-
-executable auth-example
-  default-language:   Haskell2010
-  default-extensions: OverloadedStrings
-  hs-source-dirs:     example/auth
-  main-is:            Main.hs
-  build-depends:      aeson,
-                      base,
-                      bytestring,
-                      containers,
-                      pusher-http-haskell,
-                      snap-core,
-                      snap-server,
-                      text,
-                      transformers,
-                      unordered-containers,
-                      yaml
 
 test-suite tests
   default-language:   Haskell2010

@@ -11,7 +11,7 @@ import qualified Network.Pusher.Protocol as P
 
 main :: IO ()
 main = do
-  eitherCred <- Y.decodeFileEither "example/credentials.yaml"
+  eitherCred <- Y.decodeFileEither "../credentials.yaml"
   case eitherCred of
     Left e -> print e
     Right cred -> do
