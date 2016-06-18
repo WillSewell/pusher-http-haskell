@@ -118,7 +118,7 @@ mkGetRequest
   -> PusherRequestParams
 mkGetRequest pusher subPath params time =
   let
-    (fullPath, ep) = mkEndpoint pusher subPath
+    (ep, fullPath) = mkEndpoint pusher subPath
     qs = mkQS pusher "GET" fullPath params "" time
   in
     PusherRequestParams ep qs
@@ -132,7 +132,7 @@ mkPostRequest
   -> PusherRequestParams
 mkPostRequest pusher subPath params bodyBS time =
   let
-    (fullPath, ep) = mkEndpoint pusher subPath
+    (ep, fullPath) = mkEndpoint pusher subPath
     qs = mkQS pusher "POST" fullPath params bodyBS time
   in
     PusherRequestParams ep qs
