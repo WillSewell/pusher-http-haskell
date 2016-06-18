@@ -1,3 +1,7 @@
+cache:
+  directories:
+  - $HOME/.stack
+
 before_install:
   # stack
   - mkdir -p ~/.local/bin
