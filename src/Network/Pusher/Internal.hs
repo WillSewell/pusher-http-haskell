@@ -25,6 +25,7 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
 import Network.Pusher.Data (Pusher(..), Credentials(..))
+import Network.Pusher.Error(PusherError(..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Protocol
   ( Channel
@@ -55,11 +56,11 @@ mkTriggerRequest
   -> T.Text
   -> Maybe T.Text
   -> Int
-  -> Either T.Text (PusherRequestParams, PusherRequestBody)
+  -> Either PusherError (PusherRequestParams, PusherRequestBody)
 mkTriggerRequest pusher chans event dat socketId time = do
     when
       (length chans > 10)
-      (Left "Must be less than 10 channels")
+      (Left $ PusherArgumentError "Must be less than 10 channels")
     let
       body = A.object $
         [ ("name", A.String event)
@@ -69,7 +70,7 @@ mkTriggerRequest pusher chans event dat socketId time = do
       bodyBS = BL.toStrict $ A.encode body
     when
       (B.length bodyBS > 10000)
-      (Left "Body must be less than 10000KB")
+      (Left $ PusherArgumentError "Body must be less than 10000KB")
     return (mkPostRequest pusher "events" [] bodyBS time, body)
 
 mkChannelsRequest

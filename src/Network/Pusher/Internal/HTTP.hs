@@ -44,6 +44,7 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
+import Network.Pusher.Error (PusherError(..))
 import Network.Pusher.Internal (PusherRequestParams(PusherRequestParams))
 import Network.Pusher.Internal.Util (show')
 
@@ -53,13 +54,13 @@ get
   :: A.FromJSON a
   => Manager
   -> PusherRequestParams
-  -> ExceptT T.Text IO a
+  -> ExceptT PusherError IO a
   -- ^The body of the response
 get connManager (PusherRequestParams ep qs) = do
   req <- ExceptT $ return $ mkRequest ep qs
   resp <- doReqest connManager req
   either
-    (throwE . T.pack)
+    (throwE . PusherInvalidResponseError . T.pack)
     return
     (A.eitherDecode resp)
 
@@ -69,16 +70,19 @@ post
   => Manager
   -> PusherRequestParams
   -> a
-  -> ExceptT T.Text IO ()
+  -> ExceptT PusherError IO ()
 post connManager (PusherRequestParams ep qs) body = do
   req <- ExceptT $ return $ mkPost (A.encode body) <$> mkRequest ep qs
   _ <- doReqest connManager req
   return ()
 
-mkRequest :: T.Text -> [(B.ByteString, B.ByteString)] -> Either T.Text Request
+mkRequest
+  :: T.Text
+  -> [(B.ByteString, B.ByteString)]
+  -> Either PusherError Request
 mkRequest ep qs =
   case parseUrl $ T.unpack ep of
-    Nothing -> Left $ "failed to parse url: " <> ep
+    Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
     Just req -> Right $ setQueryString (map (second Just) qs) req
 
 mkPost :: BL.ByteString -> Request -> Request
@@ -89,11 +93,16 @@ mkPost body req =
     , requestBody = RequestBodyLBS body
     }
 
-doReqest :: Manager -> Request -> ExceptT T.Text IO BL.ByteString
+doReqest :: Manager -> Request -> ExceptT PusherError IO BL.ByteString
 doReqest connManager req = do
   response <- liftIO $ httpLbs req connManager
   let status = responseStatus response
   if statusCode status == 200 then
     return $ responseBody response
   else
-    throwE $ either (T.pack . displayException) id $ decodeUtf8' $ statusMessage status
+    let decoded = decodeUtf8' $ statusMessage status in
+    throwE $
+      either
+        (PusherInvalidResponseError . T.pack . displayException)
+        PusherNon200ResponseError
+        decoded
