@@ -62,6 +62,8 @@ module Network.Pusher (
   -- * Authentication
   , authenticatePresence
   , authenticatePrivate
+  -- * Errors
+  , PusherError(..)
   ) where
 
 import Control.Applicative ((<$>))
@@ -84,6 +86,7 @@ import Network.Pusher.Data
   , getPusherWithHost
   , getPusherWithConnManager
   )
+import Network.Pusher.Error(PusherError(..))
 import Network.Pusher.Internal.Auth
   ( authenticatePresence
   , authenticatePrivate
@@ -117,7 +120,7 @@ trigger
   -- ^The data to send (often encoded JSON)
   -> Maybe T.Text
   -- ^An optional socket ID of a connection you wish to exclude
-  -> m (Either T.Text ())
+  -> m (Either PusherError ())
 trigger pusher chans event dat socketId =
   liftIO $ runExceptT $ do
     (requestParams, requestBody) <-
@@ -135,7 +138,7 @@ channels
   -- ^A channel prefix you wish to filter on
   -> ChannelsInfoQuery
   -- ^Data you wish to query for, currently just the user count
-  -> m (Either T.Text ChannelsInfo)
+  -> m (Either PusherError ChannelsInfo)
   -- ^The returned data
 channels pusher channelTypeFilter prefixFilter attributes =
   liftIO $ runExceptT $ do
@@ -156,7 +159,7 @@ channel
   -> Channel
   -> ChannelInfoQuery
   -- ^Can query user count and also subscription count (if enabled)
-  -> m (Either T.Text FullChannelInfo)
+  -> m (Either PusherError FullChannelInfo)
 channel pusher chan attributes =
   liftIO $ runExceptT $ do
     requestParams <-
@@ -168,7 +171,7 @@ users
   :: MonadIO m
   => Pusher
   -> Channel
-  -> m (Either T.Text Users)
+  -> m (Either PusherError Users)
 users pusher chan =
   liftIO $ runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
