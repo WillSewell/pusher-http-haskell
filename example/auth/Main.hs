@@ -24,7 +24,7 @@ main = quickHttpServe $ method GET authHandler
 
 authHandler :: Snap ()
 authHandler = do
-    cred <- liftIO $ Y.decodeFile "example/credentials.yaml"
+    cred <- liftIO $ Y.decodeFile "../credentials.yaml"
     params <- getParams
     let
       userData = A.Object $ HM.fromList -- Would normally come from session data
