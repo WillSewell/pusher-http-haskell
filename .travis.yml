@@ -1,15 +1,18 @@
+cache:
+  directories:
+  - $HOME/.stack
+
 before_install:
   # stack
   - mkdir -p ~/.local/bin
   - export PATH=~/.local/bin:$PATH
-  - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.4.0/stack-0.1.4.0-x86_64-linux.tar.gz | tar xz -C ~/.local/bin
-
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 addons:
   apt:
     sources:
       - hvr-ghc
     packages:
-      - ghc-7.10.2
+      - ghc-7.10.3
 
 install:
   - stack --no-terminal --skip-ghc-check setup
