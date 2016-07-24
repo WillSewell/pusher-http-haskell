@@ -84,7 +84,7 @@ mkRequest
   -> RequestQueryString
   -> Either PusherError HTTP.Client.Request
 mkRequest ep qs =
-  case HTTP.Client.parseUrl $ T.unpack ep of
+  case HTTP.Client.parseRequest $ T.unpack ep of
     Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
     Just req -> Right $ HTTP.Client.setQueryString (map (second Just) qs) req
 
