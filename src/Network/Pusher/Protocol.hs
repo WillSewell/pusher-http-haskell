@@ -15,20 +15,16 @@ Types representing the JSON format of Pusher messages.
 There are also types for query string parameters.
 -}
 module Network.Pusher.Protocol
-  ( Channel(..)
-  , ChannelInfo(..)
+  ( ChannelInfo(..)
   , ChannelInfoAttributes(..)
   , ChannelInfoQuery(..)
   , ChannelsInfo(..)
   , ChannelsInfoQuery(..)
   , ChannelsInfoAttributes(..)
-  , ChannelType(..)
   , FullChannelInfo(..)
   , User(..)
   , Users(..)
-  , parseChannel
-  , renderChannel
-  , renderChannelPrefix
+  , ToURLParam
   , toURLParam
   ) where
 
@@ -46,49 +42,7 @@ import qualified Data.HashSet as HS
 import qualified Data.Text as T
 
 import Network.Pusher.Internal.Util (failExpectObj)
-
--- |The possible types of Pusher channe.
-data ChannelType = Public | Private | Presence deriving (Eq, Generic, Show)
-
-instance Hashable ChannelType
-
-instance Arbitrary ChannelType where
-  arbitrary = elements [Public, Private, Presence]
-
-renderChannelPrefix :: ChannelType -> T.Text
-renderChannelPrefix Public = ""
-renderChannelPrefix Private = "private-"
-renderChannelPrefix Presence = "presence-"
-
--- |The channel name (not including the channel type prefix) and its type.
-data Channel = Channel
-  { channelType :: ChannelType
-  , channelName :: T.Text
-  } deriving (Eq, Generic, Show)
-
-instance Hashable Channel
-
-instance Arbitrary Channel where
-  arbitrary = Channel <$> arbitrary <*> (T.pack <$> arbitrary)
-
-renderChannel :: Channel -> T.Text
-renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
-
--- |Convert string representation, e.g. private-chan into the datatype
-parseChannel :: T.Text -> Channel
-parseChannel chan =
-  -- Attempt to parse it as a private or presence channel; default to public
-  fromMaybe
-    (Channel Public chan)
-    (asum [parseChanAs Private,  parseChanAs Presence])
- where
-  parseChanAs chanType =
-    let split = T.splitOn (renderChannelPrefix chanType) chan in
-    -- If the prefix appears at the start, then the first element will be empty
-    if length split > 1 && T.null (head split) then
-      Just $ Channel chanType (T.concat $ tail split)
-    else
-      Nothing
+import Network.Pusher.Data (Channel, parseChannel)
 
 -- |Types that can be serialised to a querystring parameter value.
 class ToURLParam a where

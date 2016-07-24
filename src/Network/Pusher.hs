@@ -47,19 +47,37 @@ There is a simple working example in the example/ directory.
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
 module Network.Pusher (
-  -- * The Pusher config type
+  -- * Data types
+  -- ** Pusher config type
     Pusher(..)
   , Credentials(..)
+  , AppID
+  , AppKey
+  , AppSecret
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
-  -- * Events
+  -- ** Channels
+  , Channel(..)
+  , ChannelName
+  , ChannelType(..)
+  , renderChannel
+  , renderChannelPrefix
+  , parseChannel
+  -- ** Events
+  , Event
+  , EventData
+  , SocketID
+  -- * HTTP Requests
+  -- ** Trigger events
   , trigger
-  -- * Channel queries
+  -- ** Channel queries
   , channels
   , channel
   , users
   -- * Authentication
+  , AuthString
+  , AuthSignature
   , authenticatePresence
   , authenticatePrivate
   -- * Errors
@@ -72,7 +90,6 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, throwE)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
-import Data.Text.Encoding (encodeUtf8)
 import Network.HTTP.Client (Manager)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
@@ -80,29 +97,39 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
 import Network.Pusher.Data
-  ( Pusher(..)
+  ( AppID
+  , AppKey
+  , AppSecret
+  , Channel(..)
+  , ChannelName
+  , ChannelType(..)
   , Credentials(..)
+  , Event
+  , EventData
+  , Pusher(..)
+  , SocketID
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
+  , parseChannel
+  , renderChannel
+  , renderChannelPrefix
   )
 import Network.Pusher.Error(PusherError(..))
 import Network.Pusher.Internal.Auth
-  ( authenticatePresence
+  ( AuthSignature
+  , AuthString
+  , authenticatePresence
   , authenticatePrivate
   , makeQS
   )
 import Network.Pusher.Internal.Util (getTime)
 import Network.Pusher.Protocol
-  ( Channel
-  , ChannelInfoQuery
+  ( ChannelInfoQuery
   , ChannelsInfo
   , ChannelsInfoQuery
-  , ChannelType
   , FullChannelInfo
   , Users
-  , renderChannel
-  , renderChannelPrefix
   , toURLParam
   )
 import qualified Network.Pusher.Internal as Pusher
@@ -114,11 +141,10 @@ trigger
   => Pusher
   -> [Channel]
   -- ^The list of channels to trigger to
-  -> T.Text
-  -- ^The event
-  -> T.Text
-  -- ^The data to send (often encoded JSON)
-  -> Maybe T.Text
+  -> Event
+  -> EventData
+  -- ^Often encoded JSON
+  -> Maybe SocketID
   -- ^An optional socket ID of a connection you wish to exclude
   -> m (Either PusherError ())
 trigger pusher chans event dat socketId =

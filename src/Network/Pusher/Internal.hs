@@ -7,9 +7,7 @@ Maintainer  : me@willsewell.com
 Stability   : experimental
 -}
 module Network.Pusher.Internal
-  ( PusherRequestParams(..)
-  , PusherRequestBody
-  , mkTriggerRequest
+  ( mkTriggerRequest
   , mkChannelsRequest
   , mkChannelRequest
   , mkUsersRequest
@@ -24,39 +22,41 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
-import Network.Pusher.Data (Pusher(..), Credentials(..))
-import Network.Pusher.Error(PusherError(..))
-import Network.Pusher.Internal.Auth (makeQS)
-import Network.Pusher.Protocol
+import Network.Pusher.Data
   ( Channel
-  , ChannelInfoQuery
-  , ChannelsInfo
-  , ChannelsInfoQuery
   , ChannelType
-  , FullChannelInfo
-  , Users
+  , Credentials(..)
+  , Event
+  , EventData
+  , Pusher(..)
+  , SocketID
   , renderChannel
   , renderChannelPrefix
+  )
+import Network.Pusher.Error(PusherError(..))
+import Network.Pusher.Internal.Auth (makeQS)
+import Network.Pusher.Internal.HTTP
+  ( RequestBody
+  , RequestParams(RequestParams)
+  , RequestQueryString
+  )
+import Network.Pusher.Protocol
+  ( ChannelInfoQuery
+  , ChannelsInfo
+  , ChannelsInfoQuery
+  , FullChannelInfo
+  , Users
   , toURLParam
   )
-
-data PusherRequestParams = PusherRequestParams
-  { pusherRequestEndpoint :: T.Text
-  -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
-  , pusherRequestQueryString :: [(B.ByteString, B.ByteString)]
-  -- ^List of query string parameters as key-value tuples
-  }
-
-type PusherRequestBody = A.Value
 
 mkTriggerRequest
   :: Pusher
   -> [Channel]
-  -> T.Text
-  -> T.Text
-  -> Maybe T.Text
+  -> Event
+  -> EventData
+  -> Maybe SocketID
   -> Int
-  -> Either PusherError (PusherRequestParams, PusherRequestBody)
+  -> Either PusherError (RequestParams, RequestBody)
 mkTriggerRequest pusher chans event dat socketId time = do
     when
       (length chans > 10)
@@ -79,7 +79,7 @@ mkChannelsRequest
   -> T.Text
   -> ChannelsInfoQuery
   -> Int
-  -> PusherRequestParams
+  -> RequestParams
 mkChannelsRequest pusher channelTypeFilter prefixFilter attributes time =
   let
     prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
@@ -95,7 +95,7 @@ mkChannelRequest
   -> Channel
   -> ChannelInfoQuery
   -> Int
-  -> PusherRequestParams
+  -> RequestParams
 mkChannelRequest pusher chan attributes time =
   let
     params = [("info", encodeUtf8 $ toURLParam attributes)]
@@ -103,7 +103,7 @@ mkChannelRequest pusher chan attributes time =
   in
     mkGetRequest pusher subPath params time
 
-mkUsersRequest :: Pusher -> Channel -> Int -> PusherRequestParams
+mkUsersRequest :: Pusher -> Channel -> Int -> RequestParams
 mkUsersRequest pusher chan time =
   let
     subPath = "channels/" <> renderChannel chan <> "/users"
@@ -113,29 +113,29 @@ mkUsersRequest pusher chan time =
 mkGetRequest
   :: Pusher
   -> T.Text
-  -> [(B.ByteString, B.ByteString)]
+  -> RequestQueryString
   -> Int
-  -> PusherRequestParams
+  -> RequestParams
 mkGetRequest pusher subPath params time =
   let
     (ep, fullPath) = mkEndpoint pusher subPath
     qs = mkQS pusher "GET" fullPath params "" time
   in
-    PusherRequestParams ep qs
+    RequestParams ep qs
 
 mkPostRequest
   :: Pusher
   -> T.Text
-  -> [(B.ByteString, B.ByteString)]
+  -> RequestQueryString
   -> B.ByteString
   -> Int
-  -> PusherRequestParams
+  -> RequestParams
 mkPostRequest pusher subPath params bodyBS time =
   let
     (ep, fullPath) = mkEndpoint pusher subPath
     qs = mkQS pusher "POST" fullPath params bodyBS time
   in
-    PusherRequestParams ep qs
+    RequestParams ep qs
 
 -- |Build a full endpoint from the details in Pusher and the subPath.
 mkEndpoint
@@ -153,10 +153,10 @@ mkQS
   :: Pusher
   -> T.Text
   -> T.Text
-  -> [(B.ByteString, B.ByteString)]
+  -> RequestQueryString
   -> B.ByteString
   -> Int
-  -> [(B.ByteString, B.ByteString)]
+  -> RequestQueryString
 mkQS pusher =
   let
     credentials = pusherCredentials pusher

@@ -2,7 +2,11 @@ module Auth where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
 
-import Network.Pusher (Credentials(..))
+import Network.Pusher
+  ( Channel(..)
+  , ChannelType(Private, Presence)
+  , Credentials(..)
+  )
 import Network.Pusher.Internal.Auth
   ( authenticatePrivate
   , authenticatePresenceWithEncoder
@@ -29,7 +33,7 @@ test = do
   describe "Auth.authenticatePrivate" $
     it "works" $
       -- Data from https://pusher.com/docs/auth_signatures#worked-example
-      authenticatePrivate credentials "1234.1234" "private-foobar"
+      authenticatePrivate credentials "1234.1234" (Channel Private "foobar")
       `shouldBe` "278d425bdf160c739803:58df8b0c36d6982b82c3ecf6b4662e34fe8c25bba48f5369f135bf843651c3a4"
 
   describe "Auth.authenticatePresenceWithEncoder" $
@@ -42,7 +46,7 @@ test = do
           (const userData)
           credentials
           "1234.1234"
-          "presence-foobar"
+          (Channel Presence "foobar")
           ("doesn't matter" :: String)
         `shouldBe` "278d425bdf160c739803:afaed3695da2ffd16931f457e338e6c9f2921fa133ce7dac49f529792be6304c"
 
