@@ -13,17 +13,11 @@ Exposes the functions necessary for interacting with the Pusher HTTP API, as
 well as functions for generating auth signatures for private and presence
 channels.
 
-The idea is that you must create a Pusher data structure with your credentials,
-then your write your block of code that calls functions from this library, and
-finally "run" this code with the Pusher data structure you created.
+First create a 'Pusher' data structure with your Pusher 'Credentials', and then
+call the functions defined in this module to make the HTTP requests.
 
-The types of the functions are general enough to allow you to use the provided
-PusherM as the return type, or PusherT if you wish to use other monads in your
-applications monad transformer stack.
-
-The functions return a MonadError type which means any can fail, and you must
-handle these failures in your client application. In the simplist case you can
-instantiate the type to an Either and case split on it.
+If any of the requests fail, the return values of the functions will result in
+a 'Left' 'PusherError' when run.
 
 An example of how you would use these functions:
 
