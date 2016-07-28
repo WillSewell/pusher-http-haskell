@@ -13,17 +13,11 @@ Exposes the functions necessary for interacting with the Pusher HTTP API, as
 well as functions for generating auth signatures for private and presence
 channels.
 
-The idea is that you must create a Pusher data structure with your credentials,
-then your write your block of code that calls functions from this library, and
-finally "run" this code with the Pusher data structure you created.
+First create a 'Pusher' data structure with your Pusher 'Credentials', and then
+call the functions defined in this module to make the HTTP requests.
 
-The types of the functions are general enough to allow you to use the provided
-PusherM as the return type, or PusherT if you wish to use other monads in your
-applications monad transformer stack.
-
-The functions return a MonadError type which means any can fail, and you must
-handle these failures in your client application. In the simplist case you can
-instantiate the type to an Either and case split on it.
+If any of the requests fail, the return values of the functions will result in
+a 'Left' 'PusherError' when run.
 
 An example of how you would use these functions:
 
@@ -47,19 +41,37 @@ There is a simple working example in the example/ directory.
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
 module Network.Pusher (
-  -- * The Pusher config type
+  -- * Data types
+  -- ** Pusher config type
     Pusher(..)
   , Credentials(..)
+  , AppID
+  , AppKey
+  , AppSecret
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
-  -- * Events
+  -- ** Channels
+  , Channel(..)
+  , ChannelName
+  , ChannelType(..)
+  , renderChannel
+  , renderChannelPrefix
+  , parseChannel
+  -- ** Events
+  , Event
+  , EventData
+  , SocketID
+  -- * HTTP Requests
+  -- ** Trigger events
   , trigger
-  -- * Channel queries
+  -- ** Channel queries
   , channels
   , channel
   , users
   -- * Authentication
+  , AuthString
+  , AuthSignature
   , authenticatePresence
   , authenticatePrivate
   -- * Errors
@@ -72,7 +84,6 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, throwE)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
-import Data.Text.Encoding (encodeUtf8)
 import Network.HTTP.Client (Manager)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
@@ -80,29 +91,39 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
 import Network.Pusher.Data
-  ( Pusher(..)
+  ( AppID
+  , AppKey
+  , AppSecret
+  , Channel(..)
+  , ChannelName
+  , ChannelType(..)
   , Credentials(..)
+  , Event
+  , EventData
+  , Pusher(..)
+  , SocketID
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
+  , parseChannel
+  , renderChannel
+  , renderChannelPrefix
   )
 import Network.Pusher.Error(PusherError(..))
 import Network.Pusher.Internal.Auth
-  ( authenticatePresence
+  ( AuthSignature
+  , AuthString
+  , authenticatePresence
   , authenticatePrivate
   , makeQS
   )
 import Network.Pusher.Internal.Util (getTime)
 import Network.Pusher.Protocol
-  ( Channel
-  , ChannelInfoQuery
+  ( ChannelInfoQuery
   , ChannelsInfo
   , ChannelsInfoQuery
-  , ChannelType
   , FullChannelInfo
   , Users
-  , renderChannel
-  , renderChannelPrefix
   , toURLParam
   )
 import qualified Network.Pusher.Internal as Pusher
@@ -114,11 +135,10 @@ trigger
   => Pusher
   -> [Channel]
   -- ^The list of channels to trigger to
-  -> T.Text
-  -- ^The event
-  -> T.Text
-  -- ^The data to send (often encoded JSON)
-  -> Maybe T.Text
+  -> Event
+  -> EventData
+  -- ^Often encoded JSON
+  -> Maybe SocketID
   -- ^An optional socket ID of a connection you wish to exclude
   -> m (Either PusherError ())
 trigger pusher chans event dat socketId =

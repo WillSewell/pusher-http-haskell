@@ -1,34 +1,63 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 {-|
 Module      : Network.Pusher.Data
-Description : Data structure to store Pusher config
+Description : Data structure representing Pusher concepts and config
 Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
 
-You must create an instance of this datatype with your particular Pusher app
-credentials in order to run the main API functions.
+You must create an instance of the Pusher datatype with your particular Pusher
+app credentials in order to run the main API functions.
+
+The other types represent Pusher channels and Pusher event fields.
 -}
-module Network.Pusher.Data
-  ( Pusher(..)
+module Network.Pusher.Data (
+  -- * Pusher config data type
+    AppID
+  , AppKey
+  , AppSecret
+  , Pusher(..)
   , Credentials(..)
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
+  -- * Channels
+  , Channel(..)
+  , ChannelName
+  , ChannelType(..)
+  , renderChannel
+  , renderChannelPrefix
+  , parseChannel
+  -- Events
+  , Event
+  , EventData
+  , SocketID
   ) where
 
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:))
+import Data.Foldable (asum)
+import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
+import GHC.Generics (Generic)
 import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
+import Test.QuickCheck (Arbitrary, arbitrary, elements)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 
 import Network.Pusher.Internal.Util (failExpectObj, show')
+
+type AppID = Integer
+
+type AppKey = B.ByteString
+
+type AppSecret = B.ByteString
 
 -- |All the required configuration needed to interact with the API.
 data Pusher = Pusher
@@ -40,9 +69,9 @@ data Pusher = Pusher
 
 -- |The credentials for the current app.
 data Credentials = Credentials
-  { credentialsAppID :: Integer
-  , credentialsAppKey :: B.ByteString
-  , credentialsAppSecret :: B.ByteString
+  { credentialsAppID :: AppID
+  , credentialsAppKey :: AppKey
+  , credentialsAppSecret :: AppSecret
   }
 
 instance A.FromJSON Credentials where
@@ -79,3 +108,54 @@ getPusherWithConnManager connManager apiHost cred =
 
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
+
+type ChannelName = T.Text
+
+-- |The possible types of Pusher channe.
+data ChannelType = Public | Private | Presence deriving (Eq, Generic, Show)
+
+instance Hashable ChannelType
+
+instance Arbitrary ChannelType where
+  arbitrary = elements [Public, Private, Presence]
+
+renderChannelPrefix :: ChannelType -> T.Text
+renderChannelPrefix Public = ""
+renderChannelPrefix Private = "private-"
+renderChannelPrefix Presence = "presence-"
+
+-- |The channel name (not including the channel type prefix) and its type.
+data Channel = Channel
+  { channelType :: ChannelType
+  , channelName :: ChannelName
+  } deriving (Eq, Generic, Show)
+
+instance Hashable Channel
+
+instance Arbitrary Channel where
+  arbitrary = Channel <$> arbitrary <*> (T.pack <$> arbitrary)
+
+renderChannel :: Channel -> T.Text
+renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
+
+-- |Convert string representation, e.g. private-chan into the datatype
+parseChannel :: T.Text -> Channel
+parseChannel chan =
+  -- Attempt to parse it as a private or presence channel; default to public
+  fromMaybe
+    (Channel Public chan)
+    (asum [parseChanAs Private,  parseChanAs Presence])
+ where
+  parseChanAs chanType =
+    let split = T.splitOn (renderChannelPrefix chanType) chan in
+    -- If the prefix appears at the start, then the first element will be empty
+    if length split > 1 && T.null (head split) then
+      Just $ Channel chanType (T.concat $ tail split)
+    else
+      Nothing
+
+type Event = T.Text
+
+type EventData = T.Text
+
+type SocketID = T.Text

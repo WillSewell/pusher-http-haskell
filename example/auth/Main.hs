@@ -4,7 +4,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (fromJust)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (decodeUtf8)
-import Network.Pusher (authenticatePresence)
+import Network.Pusher (authenticatePresence, parseChannel)
 import Snap.Core
   ( Method(GET)
   , Snap
@@ -32,8 +32,8 @@ authHandler = do
         , ("user_info", A.Object $ HM.singleton "name" (A.String "Mr. Pusher"))]
       signature = authenticatePresence
         (fromJust cred)
-        (head $ params M.! "socket_id")
-        (head $ params M.! "channel_name")
+        (decodeUtf8 $ head $ params M.! "socket_id")
+        (parseChannel $ decodeUtf8 $ head $ params M.! "channel_name")
         userData
       respBody = A.Object $ HM.fromList
         [ ("auth", A.String $ decodeUtf8 signature)
