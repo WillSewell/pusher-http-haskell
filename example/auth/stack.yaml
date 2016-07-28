@@ -2,5 +2,5 @@ packages:
 - '.'
 - '../..'
 extra-deps:
-- pusher-http-haskell-1.0.0.0
-resolver: lts-6.3
+- pusher-http-haskell-1.1.0.0
+resolver: lts-6.8
