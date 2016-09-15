@@ -12,7 +12,7 @@ addons:
     sources:
       - hvr-ghc
     packages:
-      - ghc-7.10.3
+      - ghc-8.0.1
 
 install:
   - stack --no-terminal --skip-ghc-check setup
