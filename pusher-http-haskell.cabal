@@ -1,5 +1,5 @@
 name:                 pusher-http-haskell
-version:              1.1.0.0
+version:              1.1.0.1
 cabal-version:        >=1.18
 build-type:           Simple
 license:              MIT
@@ -16,7 +16,7 @@ description:          Functions that correspond to endpoints of the Pusher HTTP
                       channel can be queried. Additionally there are functions
                       for authenticating users of private and presence channels.
 category:             Network
-tested-with:          GHC == 7.10.3
+tested-with:          GHC == 8.0.1
 
 library
   exposed-modules:    Network.Pusher,
@@ -31,7 +31,7 @@ library
   hs-source-dirs:     src
   default-extensions: OverloadedStrings
   build-depends:      aeson >=0.8 && <0.12,
-                      base >=4.7 && <4.9,
+                      base >=4.7 && <4.10,
                       bytestring ==0.10.*,
                       base16-bytestring ==0.1.*,
                       cryptohash ==0.11.*,
@@ -40,8 +40,8 @@ library
                       http-types >=0.8 && <0.10,
                       QuickCheck >=2.7 && <2.9,
                       text ==1.2.*,
-                      time >=1.4 && <1.6,
-                      transformers >=0.3 && <0.5,
+                      time >=1.4 && <1.7,
+                      transformers >=0.3 && <0.6,
                       unordered-containers ==0.2.*
 
 test-suite tests
