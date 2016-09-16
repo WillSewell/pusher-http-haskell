@@ -24,7 +24,7 @@ import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
 import qualified Data.Aeson as A
-import qualified Data.Aeson.Encode as A
+import qualified Data.Aeson.Text as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Base16 as B16
