@@ -28,14 +28,9 @@ module Network.Pusher.Protocol
   , toURLParam
   ) where
 
-import Control.Applicative ((<$>), (<*>))
 import Data.Aeson ((.:), (.:?))
-import Data.Foldable (asum)
 import Data.Hashable (Hashable)
-import Data.Maybe (fromMaybe)
-import Data.Monoid ((<>))
 import GHC.Generics (Generic)
-import Test.QuickCheck (Arbitrary, arbitrary, elements)
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS

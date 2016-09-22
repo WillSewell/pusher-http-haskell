@@ -12,7 +12,6 @@ module Network.Pusher.Internal.Util
   , show'
   ) where
 
-import Control.Applicative ((<$>))
 import Data.String (IsString, fromString)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import qualified Data.Aeson as A

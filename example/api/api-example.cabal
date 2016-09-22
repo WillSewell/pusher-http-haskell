@@ -19,3 +19,8 @@ executable api-example
                       text,
                       unordered-containers,
                       yaml
+  ghc-options:        -Werror
+                      -Wall
+                      -Wcompat
+                      -Whi-shadowing
+                      -Wmissing-signatures

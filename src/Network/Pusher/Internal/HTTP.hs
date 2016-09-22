@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -32,13 +33,11 @@ import Network.HTTP.Types.Method (methodPost)
 import Network.HTTP.Types.Status (statusCode, statusMessage)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import qualified Network.HTTP.Client as HTTP.Client
 
 import Network.Pusher.Error (PusherError(..))
-import Network.Pusher.Internal.Util (show')
 
 data RequestParams = RequestParams
   { requestEndpoint :: T.Text
@@ -84,9 +83,15 @@ mkRequest
   -> RequestQueryString
   -> Either PusherError HTTP.Client.Request
 mkRequest ep qs =
-  case HTTP.Client.parseRequest $ T.unpack ep of
+  case parseRequest $ T.unpack ep of
     Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
     Just req -> Right $ HTTP.Client.setQueryString (map (second Just) qs) req
+ where
+#if MIN_VERSION_http_client(0,4,30)
+  parseRequest = HTTP.Client.parseRequest
+#else
+  parseRequest = HTTP.Client.parseUrl
+#endif
 
 mkPost :: BL.ByteString -> HTTP.Client.Request -> HTTP.Client.Request
 mkPost body req =

@@ -4,8 +4,6 @@ import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (property)
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
-import qualified Data.HashSet as HS
-import qualified Data.Text as T
 
 import Network.Pusher
   ( Channel(..)

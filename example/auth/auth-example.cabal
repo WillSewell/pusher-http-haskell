@@ -25,3 +25,8 @@ executable auth-example
                       transformers,
                       unordered-containers,
                       yaml
+  ghc-options:        -Werror
+                      -Wall
+                      -Wcompat
+                      -Whi-shadowing
+                      -Wmissing-signatures

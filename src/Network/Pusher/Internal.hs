@@ -42,10 +42,7 @@ import Network.Pusher.Internal.HTTP
   )
 import Network.Pusher.Protocol
   ( ChannelInfoQuery
-  , ChannelsInfo
   , ChannelsInfoQuery
-  , FullChannelInfo
-  , Users
   , toURLParam
   )
 
