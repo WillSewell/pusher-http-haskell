@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 {-|
@@ -24,11 +25,13 @@ import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
 import qualified Data.Aeson as A
+#if MIN_VERSION_aeson(1,0,0)
 import qualified Data.Aeson.Text as A
+#else
+import qualified Data.Aeson.Encode as A
+#endif
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Base16 as B16
-import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
@@ -126,8 +129,7 @@ authenticatePresence =
 -- useful for testing because the encoder can be mocked; aeson's encoder enodes
 -- JSON object fields in arbitrary orders, which makes it impossible to test.
 authenticatePresenceWithEncoder
-  :: A.ToJSON a
-  => (a -> T.Text) -- ^The encoder of the user data.
+  :: (a -> T.Text) -- ^The encoder of the user data.
   -> Credentials
   -> SocketID
   -> Channel

@@ -36,7 +36,6 @@ module Network.Pusher.Data (
   , SocketID
   ) where
 
-import Control.Applicative ((<$>), (<*>))
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:))
 import Data.Foldable (asum)

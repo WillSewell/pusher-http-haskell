@@ -16,7 +16,7 @@ description:          Functions that correspond to endpoints of the Pusher HTTP
                       channel can be queried. Additionally there are functions
                       for authenticating users of private and presence channels.
 category:             Network
-tested-with:          GHC == 8.0.1
+tested-with:          GHC >= 7.10.2
 
 library
   exposed-modules:    Network.Pusher,
@@ -43,6 +43,15 @@ library
                       time >=1.4 && <1.7,
                       transformers >=0.3 && <0.6,
                       unordered-containers ==0.2.*
+  ghc-options:        -Wall
+  if impl(ghc >= 8.0.0)
+    ghc-options:      -Wcompat
+                      -Whi-shadowing
+                      -Wmissing-signatures
+  else
+    ghc-options:      -fwarn-hi-shadowing
+                      -fwarn-missing-signatures
+                      -fwarn-tabs
 
 test-suite tests
   default-language:   Haskell2010
@@ -63,3 +72,12 @@ test-suite tests
                       text,
                       transformers,
                       unordered-containers
+  ghc-options:        -Wall
+  if impl(ghc >= 8.0.0)
+    ghc-options:      -Wcompat
+                      -Whi-shadowing
+                      -Wmissing-signatures
+  else
+    ghc-options:      -fwarn-hi-shadowing
+                      -fwarn-missing-signatures
+                      -fwarn-tabs

@@ -78,16 +78,8 @@ module Network.Pusher (
   , PusherError(..)
   ) where
 
-import Control.Applicative ((<$>))
-import Control.Monad (when)
-import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, throwE)
+import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Maybe (maybeToList)
-import Data.Monoid ((<>))
-import Network.HTTP.Client (Manager)
-import qualified Data.Aeson as A
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
 import Network.Pusher.Data
@@ -115,7 +107,6 @@ import Network.Pusher.Internal.Auth
   , AuthString
   , authenticatePresence
   , authenticatePrivate
-  , makeQS
   )
 import Network.Pusher.Internal.Util (getTime)
 import Network.Pusher.Protocol
@@ -124,7 +115,6 @@ import Network.Pusher.Protocol
   , ChannelsInfoQuery
   , FullChannelInfo
   , Users
-  , toURLParam
   )
 import qualified Network.Pusher.Internal as Pusher
 import qualified Network.Pusher.Internal.HTTP as HTTP
