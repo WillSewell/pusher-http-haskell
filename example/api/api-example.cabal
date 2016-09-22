@@ -8,7 +8,6 @@ author:               Will Sewell
 maintainer:           me@willsewell.com
 stability:            experimental
 synopsis:             Example usage of pusher-http-haskell to trigger and query
-tested-with:          GHC == 7.10.3
 
 executable api-example
   default-language:   Haskell2010
