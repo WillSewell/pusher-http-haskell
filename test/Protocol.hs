@@ -24,8 +24,9 @@ newtype TestChannel = TestChannel Channel deriving (Show)
 
 instance Arbitrary TestChannel where
   arbitrary = do
-    let testChannelType = elements [Public, Private, Presence]
-        channel = Channel <$> testChannelType <*> (T.pack <$> arbitrary)
+    let
+      testChannelType = elements [Public, Private, Presence]
+      channel = Channel <$> testChannelType <*> (T.pack <$> arbitrary)
     TestChannel <$> channel
 
 test :: Spec
