@@ -45,7 +45,6 @@ import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Generics (Generic)
 import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
-import Test.QuickCheck (Arbitrary, arbitrary, elements)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
@@ -115,9 +114,6 @@ data ChannelType = Public | Private | Presence deriving (Eq, Generic, Show)
 
 instance Hashable ChannelType
 
-instance Arbitrary ChannelType where
-  arbitrary = elements [Public, Private, Presence]
-
 renderChannelPrefix :: ChannelType -> T.Text
 renderChannelPrefix Public = ""
 renderChannelPrefix Private = "private-"
@@ -130,9 +126,6 @@ data Channel = Channel
   } deriving (Eq, Generic, Show)
 
 instance Hashable Channel
-
-instance Arbitrary Channel where
-  arbitrary = Channel <$> arbitrary <*> (T.pack <$> arbitrary)
 
 renderChannel :: Channel -> T.Text
 renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
