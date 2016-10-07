@@ -1,9 +1,10 @@
 module Protocol where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
-import Test.QuickCheck (property)
+import Test.QuickCheck (Arbitrary(..), elements, property)
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
+import qualified Data.Text as T
 
 import Network.Pusher
   ( Channel(..)
@@ -19,6 +20,15 @@ import Network.Pusher.Protocol
   , Users(..)
   )
 
+newtype TestChannel = TestChannel Channel deriving (Show)
+
+instance Arbitrary TestChannel where
+  arbitrary = do
+    let
+      testChannelType = elements [Public, Private, Presence]
+      channel = Channel <$> testChannelType <*> (T.pack <$> arbitrary)
+    TestChannel <$> channel
+
 test :: Spec
 test = do
   describe "Protocol.Channel" $ do
@@ -29,7 +39,7 @@ test = do
       renderChannel (Channel Private "test") `shouldBe` "private-test"
 
     it "show instance is an inverse of parseChannel" $
-      property $ \chan -> parseChannel (renderChannel chan) == chan
+      property $ \(TestChannel chan) -> parseChannel (renderChannel chan) == chan
 
   describe "Protocol.ChannelsInfo" $
     it "parsing works" $
