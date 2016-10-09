@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
 
 {-|
 Module      : Network.Pusher.Data
@@ -13,7 +14,8 @@ app credentials in order to run the main API functions.
 
 The other types represent Pusher channels and Pusher event fields.
 -}
-module Network.Pusher.Data (
+module Network.Pusher.Data
+  (
   -- * Pusher config data type
     AppID
   , AppKey
@@ -34,10 +36,18 @@ module Network.Pusher.Data (
   , Event
   , EventData
   , SocketID
-  ) where
+  -- Notifications
+  , Notification
+  , WebhookLevel(..)
+  )
+
+  where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.:))
+import Data.Aeson ((.:), (.=))
+import Data.Char (isAlphaNum)
+import Data.Default (Default(..))
+import Data.Either (either)
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
@@ -46,10 +56,13 @@ import Data.Text.Encoding (encodeUtf8)
 import GHC.Generics (Generic)
 import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
 import qualified Data.Aeson as A
+import qualified Data.Attoparsec.Text as Atto
 import qualified Data.ByteString as B
+import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
 
 import Network.Pusher.Internal.Util (failExpectObj, show')
+import Network.Pusher.Internal.Payloads (Payload(..), payloadObject)
 
 type AppID = Integer
 
@@ -151,3 +164,66 @@ type Event = T.Text
 type EventData = T.Text
 
 type SocketID = T.Text
+
+data Notification = Notification
+  { interests :: Interest
+  , webhookUrl :: Maybe T.Text
+  , webhookLevel :: Maybe WebhookLevel
+  , payload :: Payload
+  } deriving (Eq, Show)
+
+instance A.ToJSON Notification where
+  toJSON Notification {..} = A.Object $ mconcat
+    [ payloadObject payload
+    , HM.fromList
+        [ "interests" .= interests
+        , "webhook_url" .= webhookUrl
+        , "webhook_level" .= webhookLevel
+        ]
+    ]
+
+instance Default Notification where
+  def = Notification
+    { interests = def
+    , webhookUrl = Nothing
+    , webhookLevel = Nothing
+    , payload = def
+    }
+
+mkNotification
+  :: Interest
+  -> Payload
+  -> Maybe T.Text
+  -> Maybe WebhookLevel
+  -> Notification
+mkNotification interest payload webhook level = undefined
+
+newtype Interest = Interest T.Text deriving (Eq, Show)
+
+instance Default Interest where
+  def = Interest "default"
+
+--API requires a single-item list
+instance A.ToJSON Interest where
+  toJSON (Interest a) = A.toJSON [a]
+-- |Convert string representation, into an Interest
+-- Falls back to default instance in the case of a parse failure
+-- Each interest name can be up to 164 characters. Each character
+-- in the name must be an ASCII upper- or lower-case letter,
+-- a number, or one of _=@,.;.
+parseInterest :: T.Text -> Interest
+parseInterest interest =
+  either (const def) id $ Atto.parseOnly interestParser interest
+  where
+    interestParser = do
+      interestText <- Atto.takeWhile1 isAllowed <* Atto.endOfInput
+      if T.length interestText <= 164
+        then return . Interest $ interestText
+        else fail "Input too long."
+    isAllowed c = isAlphaNum c || c `elem` ("_=@,.;" :: String)
+
+data WebhookLevel = Info | Debug deriving (Eq, Show)
+
+instance A.ToJSON WebhookLevel where
+  toJSON Info = "INFO"
+  toJSON Debug = "DEBUG"
