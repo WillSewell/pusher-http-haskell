@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Network.Pusher.Internal.Payloads
@@ -9,8 +10,14 @@ module Network.Pusher.Internal.Payloads
   ) where
 
 import Data.Default(Default(..))
+
+#if MIN_VERSION_base(4,9,0)
 import Data.Monoid(Monoid(..))
 import Data.Semigroup(Semigroup(..))
+#else
+import Data.Monoid((<>))
+#endif
+
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 
@@ -20,12 +27,24 @@ import Network.Pusher.Internal.Payloads.Fcm
 
 newtype Payload = Payload A.Object deriving (Eq, Show)
 
+#if MIN_VERSION_base(4,9,0)
+
 instance Semigroup Payload where
   Payload a <> Payload b = Payload (a <> b)
 
 instance Monoid Payload where
   mappend = (<>)
   mempty = Payload HM.empty
+
+#else
+
+instance Monoid Payload where
+  Payload a `mappend` Payload b = Payload (a `mappend` b)
+  mempty = Payload HM.empty
+
+#endif
+
+
 
 instance Default Payload where
   def = mempty
