@@ -1,17 +1,18 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Network.Pusher.Internal.Payloads.Gcm
-  -- ( createGCMPayload ) where
-  ( GcmPayload
+  ( Gcm(..)
   , GcmNotification ) where
 
-import Data.Aeson ((.=))
+import Data.Aeson ((.:), (.:?), (.=))
 import Data.Default (Default(..))
 import qualified Data.Aeson as A
 import qualified Data.Text as T
 
+import Network.Pusher.Internal.Util (failExpect, failExpectObj)
+
 -- |Documentation available <https://developers.google.com/cloud-messaging/http-server-ref here>.
-data GcmPayload = GcmPayload
+data Gcm = Gcm
   -- | Targets
   { to :: T.Text
   , registrationIds :: [T.Text]
@@ -30,8 +31,8 @@ data GcmPayload = GcmPayload
   deriving (Eq, Show)
 
 --TODO
-instance A.ToJSON GcmPayload where
-  toJSON GcmPayload {..} = A.object
+instance A.ToJSON Gcm where
+  toJSON Gcm {..} = A.object
     [ "to" .= to
     , "registration_ids" .= registrationIds
     , "collapse_key" .= collapseKey
@@ -45,8 +46,24 @@ instance A.ToJSON GcmPayload where
     , "notification" .= notification
     ]
 
-instance Default GcmPayload where
-  def = GcmPayload
+instance A.FromJSON Gcm where
+  parseJSON (A.Object v) =
+    Gcm
+      <$> v .: "to"
+      <*> v .: "registration_ids"
+      <*> v .:? "collapse_key"
+      <*> v .:? "priority"
+      <*> v .:? "content_available"
+      <*> v .:? "delay_while_idle"
+      <*> v .:? "time_to_live"
+      <*> v .:? "restricted_package_name"
+      <*> v .:? "dry_run"
+      <*> v .:? "data"
+      <*> v .:? "notification"
+  parseJSON v = failExpectObj v
+
+instance Default Gcm where
+  def = Gcm
     { to = ""
     , registrationIds = [""]
     , collapseKey = Nothing
@@ -68,6 +85,11 @@ instance Show GcmPriority where
 
 instance A.ToJSON GcmPriority where
   toJSON prio = A.toJSON . show $ prio
+
+instance A.FromJSON GcmPriority where
+  parseJSON (A.String "normal") = pure Normal
+  parseJSON (A.String "high") = pure High
+  parseJSON v = failExpect "JSON string" v
 
 data GcmNotification = GcmNotification
   { title :: T.Text
@@ -99,3 +121,20 @@ instance A.ToJSON GcmNotification where
     , "title_loc_key" .= titleLocKey
     , "title_loc_args" .= titleLocArgs
     ]
+
+instance A.FromJSON GcmNotification where
+  parseJSON (A.Object v) =
+    GcmNotification
+      <$> v .: "title"
+      <*> v .:? "body"
+      <*> v .: "icon"
+      <*> v .:? "sound"
+      <*> v .:? "badge"
+      <*> v .:? "tag"
+      <*> v .:? "color"
+      <*> v .:? "click_action"
+      <*> v .:? "body_loc_key"
+      <*> v .:? "body_loc_args"
+      <*> v .:? "title_loc_key"
+      <*> v .:? "title_loc_args"
+  parseJSON v = failExpectObj v

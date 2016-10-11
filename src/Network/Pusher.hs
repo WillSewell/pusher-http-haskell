@@ -64,6 +64,7 @@ module Network.Pusher (
   , SocketID
   -- ** Notifications
   , Notification
+  , parseInterest
   -- * HTTP Requests
   -- ** Trigger events
   , trigger
@@ -101,6 +102,7 @@ import Network.Pusher.Data
   , getPusherWithHost
   , getPusherWithConnManager
   , parseChannel
+  , parseInterest
   , renderChannel
   , renderChannelPrefix
   )
@@ -195,7 +197,10 @@ notifications
   :: MonadIO m
   => Pusher
   -> m (Either PusherError [Notification])
-notifications = undefined
+notifications pusher =
+  liftIO $ runExceptT $ do
+    requestParams <- liftIO $ Pusher.mkNotificationsRequest pusher <$> getTime
+    HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Push a new notification
 pushNotification
@@ -205,5 +210,5 @@ pushNotification
   -> m (Either PusherError ())
 pushNotification pusher notification =
   liftIO $ runExceptT $ do
-    requestParams <- liftIO $ Pusher.mkNotificationRequest pusher notification <$> getTime
+    requestParams <- liftIO $ Pusher.mkPushNotificationRequest pusher notification <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
