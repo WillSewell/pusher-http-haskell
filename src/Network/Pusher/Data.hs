@@ -240,11 +240,13 @@ instance A.ToJSON Interest where
 
 instance A.FromJSON Interest where
   parseJSON arr@(A.Array v) =
-    if V.length v == 1
-      then
-        let (A.String interest) = v ! 0
-        in pure . Interest $ interest
-      else failExpect "JSON array of length 1" arr
+    if V.length v == 1 then
+      let
+        (A.String interest) = v ! 0
+      in
+        pure . Interest $ interest
+    else
+      failExpect "JSON array of length 1" arr
   parseJSON v = failExpect "JSON array of length 1" v
 
 -- |Convert string representation into an Interest
