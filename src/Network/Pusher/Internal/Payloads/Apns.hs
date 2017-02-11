@@ -3,7 +3,6 @@ module Network.Pusher.Internal.Payloads.Apns
   , ApnsAlert(..)) where
 
 import Data.Aeson ((.:), (.=))
-import Data.Default (Default(..))
 import qualified Data.Aeson as A
 import qualified Data.Text as T
 
@@ -39,16 +38,6 @@ instance A.FromJSON Apns where
       <*> v .: "category"
       <*> v .: "thread-id"
   parseJSON v = failExpectObj v
-
-instance Default Apns where
-  def = Apns
-    { apnsAlert = def
-    , apnsBadge = Nothing
-    , apnsSound = ""
-    , apnsContentAvailable = False
-    , apnsCategory = ""
-    , apnsThreadId = ""
-    }
 
 data ApnsAlert =
   ApnsAlertText T.Text |
@@ -90,6 +79,3 @@ instance A.FromJSON ApnsAlert where
       <*> v .: "loc-args"
       <*> v .: "launch-image"
   parseJSON v = failExpect "JSON object or string" v
-
-instance Default ApnsAlert where
-  def = ApnsAlertText "Default Alert"

@@ -3,7 +3,6 @@ module Network.Pusher.Internal.Payloads.Gcm
   , GcmNotification ) where
 
 import Data.Aeson ((.:), (.:?), (.=))
-import Data.Default (Default(..))
 import qualified Data.Aeson as A
 import qualified Data.Text as T
 
@@ -59,21 +58,6 @@ instance A.FromJSON Gcm where
       <*> v .:? "data"
       <*> v .:? "notification"
   parseJSON v = failExpectObj v
-
-instance Default Gcm where
-  def = Gcm
-    { gcmTo = ""
-    , gcmRegistrationIds = [""]
-    , gcmCollapseKey = Nothing
-    , gcmPriority = Nothing
-    , gcmContentAvailable = Nothing
-    , gcmDelayWhileIdle = Nothing
-    , gcmTimeToLive = Nothing
-    , gcmRestrictedPackageName = Nothing
-    , gcmDryRun = Nothing
-    , gcmCustomData = Nothing
-    , gcmNotification = Nothing
-    }
 
 data GcmPriority = Normal | High deriving (Eq)
 

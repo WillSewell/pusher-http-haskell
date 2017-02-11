@@ -46,7 +46,6 @@ module Network.Pusher.Data
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:), (.:?), (.=))
 import Data.Char (isAlphaNum)
-import Data.Default (Default(..))
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe, catMaybes)
@@ -200,14 +199,6 @@ instance A.FromJSON Notification where
     return $ Notification interests' webhookUrl' webhookLevel' payload'
   parseJSON v = failExpectObj v
 
-instance Default Notification where
-  def = Notification
-    { notificationInterests = def
-    , notificationWebhookUrl = Nothing
-    , notificationWebhookLevel = Nothing
-    , notificationPayload = def
-    }
-
 mkEmptyNotification
   :: Interest
   -> Maybe T.Text
@@ -231,9 +222,6 @@ addPayload notification newPayload =
 
 newtype Interest = Interest T.Text deriving (Eq, Show)
 
-instance Default Interest where
-  def = Interest "default"
-
 -- Pusher API requires this be passed in as a single-item array
 instance A.ToJSON Interest where
   toJSON (Interest a) = A.toJSON [a]
@@ -250,17 +238,18 @@ instance A.FromJSON Interest where
   parseJSON v = failExpect "JSON array of length 1" v
 
 -- |Convert string representation into an Interest
--- Falls back to default instance in the case of a parse failure
+-- Returns 'Nothing' if the interest is not valid.
 -- Each interest name can be up to 164 characters. Each character
 -- in the name must be an ASCII upper- or lower-case letter,
 -- a number, or one of _=@,.;.
-parseInterest :: T.Text -> Interest
+parseInterest :: T.Text -> Maybe Interest
 parseInterest interest =
-  if T.all isAllowed interest && T.length interest <= 164
-    then Interest interest
-    else def
-  where
-    isAllowed c = isAlphaNum c || c `elem` ("_=@,.;" :: String)
+  if T.all isAllowed interest && T.length interest <= 164 then
+    Just $ Interest interest
+  else
+    Nothing
+ where
+  isAllowed c = isAlphaNum c || c `elem` ("_=@,.;" :: String)
 
 data WebhookLevel = Info | Debug deriving (Eq, Show)
 

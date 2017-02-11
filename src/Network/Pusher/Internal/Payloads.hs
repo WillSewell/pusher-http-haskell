@@ -7,8 +7,6 @@ module Network.Pusher.Internal.Payloads
   , payloadObject
   ) where
 
-import Data.Default(Default(..))
-
 #if MIN_VERSION_base(4,9,0)
 import Data.Monoid(Monoid(..))
 import Data.Semigroup(Semigroup(..))
@@ -41,9 +39,6 @@ instance Monoid Payload where
   mempty = Payload HM.empty
 
 #endif
-
-instance Default Payload where
-  def = mempty
 
 class PayloadSource a where
   renderPayload :: a -> Payload
