@@ -1,6 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Network.Pusher.Internal.Payloads
   ( Payload
