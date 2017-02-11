@@ -195,16 +195,6 @@ users pusher chan =
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
 
--- |Get a list of all notifications sent
-notifications
-  :: MonadIO m
-  => Pusher
-  -> m (Either PusherError [Notification])
-notifications pusher =
-  liftIO $ runExceptT $ do
-    requestParams <- liftIO $ Pusher.mkNotificationsRequest pusher <$> getTime
-    HTTP.get (pusherConnectionManager pusher) requestParams
-
 -- |Push a new notification
 pushNotification
   :: MonadIO m
@@ -213,5 +203,16 @@ pushNotification
   -> m (Either PusherError ())
 pushNotification pusher notification =
   liftIO $ runExceptT $ do
-    requestParams <- liftIO $ Pusher.mkPushNotificationRequest pusher notification <$> getTime
+    requestParams <-
+      liftIO $ Pusher.mkPushNotificationRequest pusher notification <$> getTime
+    HTTP.get (pusherConnectionManager pusher) requestParams
+
+-- |Get a list of all notifications sent
+notifications
+  :: MonadIO m
+  => Pusher
+  -> m (Either PusherError [Notification])
+notifications pusher =
+  liftIO $ runExceptT $ do
+    requestParams <- liftIO $ Pusher.mkNotificationsRequest pusher <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
