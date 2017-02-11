@@ -61,7 +61,7 @@ import qualified Data.Text as T
 import qualified Data.Vector as V
 
 import Network.Pusher.Internal.Util (failExpect, failExpectObj, show')
-import Network.Pusher.Internal.Payloads (Payload, PayloadSource(..), payloadObject, Apns, Gcm, Fcm)
+import Network.Pusher.Internal.Payload (Payload, Payloadource(..), payloadObject, Apns, Gcm, Fcm)
 
 type AppID = Integer
 

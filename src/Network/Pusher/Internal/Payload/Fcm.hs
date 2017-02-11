@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Network.Pusher.Internal.Payloads.Fcm
+module Network.Pusher.Internal.Payload.Fcm
 
 -- ()
 

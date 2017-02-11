@@ -1,4 +1,4 @@
-module Network.Pusher.Internal.Payloads.Gcm
+module Network.Pusher.Internal.Payload.Gcm
   ( Gcm(..)
   , GcmNotification ) where
 

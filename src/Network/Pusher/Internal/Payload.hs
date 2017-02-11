@@ -1,8 +1,8 @@
 {-# LANGUAGE CPP #-}
 
-module Network.Pusher.Internal.Payloads
+module Network.Pusher.Internal.Payload
   ( Payload
-  , PayloadSource(..)
+  , Payloadource(..)
   , Apns, Gcm, Fcm
   , payloadObject
   ) where
@@ -17,9 +17,9 @@ import Data.Monoid((<>))
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 
-import Network.Pusher.Internal.Payloads.Apns
-import Network.Pusher.Internal.Payloads.Gcm
-import Network.Pusher.Internal.Payloads.Fcm
+import Network.Pusher.Internal.Payload.Apns
+import Network.Pusher.Internal.Payload.Gcm
+import Network.Pusher.Internal.Payload.Fcm
 
 newtype Payload = Payload A.Object deriving (Eq, Show)
 
@@ -40,19 +40,19 @@ instance Monoid Payload where
 
 #endif
 
-class PayloadSource a where
+class Payloadource a where
   renderPayload :: a -> Payload
 
-instance PayloadSource Apns where
+instance Payloadource Apns where
   renderPayload a = Payload $ HM.singleton "apns" (A.toJSON a)
 
-instance PayloadSource Gcm where
+instance Payloadource Gcm where
   renderPayload a = Payload $ HM.singleton "gcm" (A.toJSON a)
 
-instance PayloadSource Fcm where
+instance Payloadource Fcm where
   renderPayload a = Payload $ HM.singleton "fcm" (A.toJSON a)
 
-combinePayload :: PayloadSource a => a -> Payload -> Payload
+combinePayload :: Payloadource a => a -> Payload -> Payload
 combinePayload source payload =
   renderPayload source <> payload
 

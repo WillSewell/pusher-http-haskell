@@ -28,10 +28,10 @@ library
                       Network.Pusher.Error,
                       Network.Pusher.Internal.Util
                       Network.Pusher.Internal.Util
-                      Network.Pusher.Internal.Payloads
-                      Network.Pusher.Internal.Payloads.Apns
-                      Network.Pusher.Internal.Payloads.Gcm
-                      Network.Pusher.Internal.Payloads.Fcm
+                      Network.Pusher.Internal.Payload
+                      Network.Pusher.Internal.Payload.Apns
+                      Network.Pusher.Internal.Payload.Gcm
+                      Network.Pusher.Internal.Payload.Fcm
   default-language:   Haskell2010
   hs-source-dirs:     src
   default-extensions: OverloadedStrings

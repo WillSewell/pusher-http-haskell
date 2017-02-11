@@ -1,4 +1,4 @@
-module Network.Pusher.Internal.Payloads.Apns
+module Network.Pusher.Internal.Payload.Apns
   ( Apns(..)
   , ApnsAlert(..)) where
 
