@@ -44,8 +44,6 @@ instance Monoid Payload where
 
 #endif
 
-
-
 instance Default Payload where
   def = mempty
 
@@ -67,5 +65,3 @@ combinePayload source payload =
 
 payloadObject :: Payload -> A.Object
 payloadObject (Payload payload) = payload
-
-
