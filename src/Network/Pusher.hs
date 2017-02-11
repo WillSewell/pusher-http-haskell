@@ -72,6 +72,9 @@ module Network.Pusher (
   , channels
   , channel
   , users
+  -- ** Push notifications
+  , pushNotification
+  , notifications
   -- * Authentication
   , AuthString
   , AuthSignature
