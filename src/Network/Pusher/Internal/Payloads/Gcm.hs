@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Network.Pusher.Internal.Payloads.Gcm
   ( Gcm(..)
   , GcmNotification ) where
@@ -14,36 +12,36 @@ import Network.Pusher.Internal.Util (failExpect, failExpectObj)
 -- |Documentation available <https://developers.google.com/cloud-messaging/http-server-ref here>.
 data Gcm = Gcm
   -- | Targets
-  { to :: T.Text
-  , registrationIds :: [T.Text]
+  { gcmTo :: T.Text
+  , gcmRegistrationIds :: [T.Text]
   -- | Options
-  , collapseKey :: Maybe T.Text
-  , priority :: Maybe GcmPriority
-  , contentAvailable :: Maybe Bool
-  , delayWhileIdle :: Maybe Bool
-  , timeToLive :: Maybe Int
-  , restrictedPackageName :: Maybe T.Text
-  , dryRun :: Maybe Bool
+  , gcmCollapseKey :: Maybe T.Text
+  , gcmPriority :: Maybe GcmPriority
+  , gcmContentAvailable :: Maybe Bool
+  , gcmDelayWhileIdle :: Maybe Bool
+  , gcmTimeToLive :: Maybe Int
+  , gcmRestrictedPackageName :: Maybe T.Text
+  , gcmDryRun :: Maybe Bool
   -- | Payload
-  , customData :: Maybe A.Object
-  , notification :: Maybe GcmNotification
+  , gcmCustomData :: Maybe A.Object
+  , gcmNotification :: Maybe GcmNotification
   }
   deriving (Eq, Show)
 
 --TODO
 instance A.ToJSON Gcm where
-  toJSON Gcm {..} = A.object
-    [ "to" .= to
-    , "registration_ids" .= registrationIds
-    , "collapse_key" .= collapseKey
-    , "priority" .= priority
-    , "content_available" .= contentAvailable
-    , "delay_while_idle" .= delayWhileIdle
-    , "time_to_live" .= timeToLive
-    , "restricted_package_name" .= restrictedPackageName
-    , "dry_run" .= dryRun
-    , "data" .= customData
-    , "notification" .= notification
+  toJSON gcm = A.object
+    [ "to" .= gcmTo gcm
+    , "registration_ids" .= gcmRegistrationIds gcm
+    , "collapse_key" .= gcmCollapseKey gcm
+    , "priority" .= gcmPriority gcm
+    , "content_available" .= gcmContentAvailable gcm
+    , "delay_while_idle" .= gcmDelayWhileIdle gcm
+    , "time_to_live" .= gcmTimeToLive gcm
+    , "restricted_package_name" .= gcmRestrictedPackageName gcm
+    , "dry_run" .= gcmDryRun gcm
+    , "data" .= gcmCustomData gcm
+    , "notification" .= gcmNotification gcm
     ]
 
 instance A.FromJSON Gcm where
@@ -64,17 +62,17 @@ instance A.FromJSON Gcm where
 
 instance Default Gcm where
   def = Gcm
-    { to = ""
-    , registrationIds = [""]
-    , collapseKey = Nothing
-    , priority = Nothing
-    , contentAvailable = Nothing
-    , delayWhileIdle = Nothing
-    , timeToLive = Nothing
-    , restrictedPackageName = Nothing
-    , dryRun = Nothing
-    , customData = Nothing
-    , notification = Nothing
+    { gcmTo = ""
+    , gcmRegistrationIds = [""]
+    , gcmCollapseKey = Nothing
+    , gcmPriority = Nothing
+    , gcmContentAvailable = Nothing
+    , gcmDelayWhileIdle = Nothing
+    , gcmTimeToLive = Nothing
+    , gcmRestrictedPackageName = Nothing
+    , gcmDryRun = Nothing
+    , gcmCustomData = Nothing
+    , gcmNotification = Nothing
     }
 
 data GcmPriority = Normal | High deriving (Eq)
@@ -92,34 +90,34 @@ instance A.FromJSON GcmPriority where
   parseJSON v = failExpect "JSON string" v
 
 data GcmNotification = GcmNotification
-  { title :: T.Text
-  , body :: Maybe T.Text
-  , icon :: T.Text
-  , sound :: Maybe T.Text
-  , badge :: Maybe T.Text
-  , tag :: Maybe T.Text
-  , color :: Maybe T.Text
-  , clickAction :: Maybe T.Text
-  , bodyLocKey :: Maybe T.Text
-  , bodyLocArgs :: Maybe [T.Text]
-  , titleLocKey :: Maybe T.Text
-  , titleLocArgs :: Maybe [T.Text]
+  { gcmNotificationTitle :: T.Text
+  , gcmNotificationBody :: Maybe T.Text
+  , gcmNotificationIcon :: T.Text
+  , gcmNotificationSound :: Maybe T.Text
+  , gcmNotificationBadge :: Maybe T.Text
+  , gcmNotificationTag :: Maybe T.Text
+  , gcmNotificationColor :: Maybe T.Text
+  , gcmNotificationClickAction :: Maybe T.Text
+  , gcmNotificationBodyLocKey :: Maybe T.Text
+  , gcmNotificationBodyLocArgs :: Maybe [T.Text]
+  , gcmNotificationTitleLocKey :: Maybe T.Text
+  , gcmNotificationTitleLocArgs :: Maybe [T.Text]
   } deriving (Eq, Show)
 
 instance A.ToJSON GcmNotification where
-  toJSON (GcmNotification {..}) = A.object
-    [ "title" .= title
-    , "body" .= body
-    , "icon" .= icon
-    , "sound" .= sound
-    , "badge" .= badge
-    , "tag" .= tag
-    , "color" .= color
-    , "click_action" .= clickAction
-    , "body_loc_key" .= bodyLocKey
-    , "body_loc_args" .= bodyLocArgs
-    , "title_loc_key" .= titleLocKey
-    , "title_loc_args" .= titleLocArgs
+  toJSON notification = A.object
+    [ "title" .= gcmNotificationTitle notification
+    , "body" .= gcmNotificationBody notification
+    , "icon" .= gcmNotificationIcon notification
+    , "sound" .= gcmNotificationSound notification
+    , "badge" .= gcmNotificationBadge notification
+    , "tag" .= gcmNotificationTag notification
+    , "color" .= gcmNotificationColor notification
+    , "click_action" .= gcmNotificationClickAction notification
+    , "body_loc_key" .= gcmNotificationBodyLocKey notification
+    , "body_loc_args" .= gcmNotificationBodyLocArgs notification
+    , "title_loc_key" .= gcmNotificationTitleLocKey notification
+    , "title_loc_args" .= gcmNotificationTitleLocArgs notification
     ]
 
 instance A.FromJSON GcmNotification where

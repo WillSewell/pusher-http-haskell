@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Network.Pusher.Internal.Payloads.Apns
   ( Apns(..)
   , ApnsAlert(..)) where
@@ -13,22 +11,22 @@ import Network.Pusher.Internal.Util (failExpect, failExpectObj)
 
 -- |Documentation available <https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/TheNotificationPayload.html here>.
 data Apns = Apns
-  { alert :: ApnsAlert
-  , badge :: Maybe Int
-  , sound :: T.Text
-  , contentAvailable :: Bool
-  , category :: T.Text
-  , threadId :: T.Text
+  { apnsAlert :: ApnsAlert
+  , apnsBadge :: Maybe Int
+  , apnsSound :: T.Text
+  , apnsContentAvailable :: Bool
+  , apnsCategory :: T.Text
+  , apnsThreadId :: T.Text
   } deriving (Eq, Show)
 
 instance A.ToJSON Apns where
-  toJSON (Apns {..}) = A.object
-    [ "alert" .= alert
-    , "badge" .= badge
-    , "sound" .= sound
-    , "content-available" .= if contentAvailable then (1 :: Int) else 0
-    , "category" .= category
-    , "thread-id" .= threadId
+  toJSON apns = A.object
+    [ "alert" .= apnsAlert apns
+    , "badge" .= apnsBadge apns
+    , "sound" .= apnsSound apns
+    , "content-available" .= if apnsContentAvailable apns then (1 :: Int) else 0
+    , "category" .= apnsCategory apns
+    , "thread-id" .= apnsThreadId apns
     ]
 
 instance A.FromJSON Apns where
@@ -44,39 +42,39 @@ instance A.FromJSON Apns where
 
 instance Default Apns where
   def = Apns
-    { alert = def
-    , badge = Nothing
-    , sound = ""
-    , contentAvailable = False
-    , category = ""
-    , threadId = ""
+    { apnsAlert = def
+    , apnsBadge = Nothing
+    , apnsSound = ""
+    , apnsContentAvailable = False
+    , apnsCategory = ""
+    , apnsThreadId = ""
     }
 
 data ApnsAlert =
   ApnsAlertText T.Text |
   ApnsAlertDict
-    { title :: T.Text
-    , body :: T.Text
-    , titleLocKey :: Maybe T.Text
-    , titleLocArgs :: Maybe [T.Text]
-    , actionLocKey :: Maybe T.Text
-    , locKey :: T.Text
-    , locArgs :: [T.Text]
-    , launchImage :: T.Text
+    { apnsAlertDictTitle :: T.Text
+    , apnsAlertDictBody :: T.Text
+    , apnsAlertDictTitleLocKey :: Maybe T.Text
+    , apnsAlertDictTitleLocArgs :: Maybe [T.Text]
+    , apnsAlertDictActionLocKey :: Maybe T.Text
+    , apnsAlertDictLocKey :: T.Text
+    , apnsAlertDictLocArgs :: [T.Text]
+    , apnsAlertDictLaunchImage :: T.Text
     }
   deriving (Eq, Show)
 
 instance A.ToJSON ApnsAlert where
   toJSON (ApnsAlertText a) = A.toJSON a
-  toJSON ApnsAlertDict {..} = A.object
-    [ "title" .= title
-    , "body" .= body
-    , "title-loc-key" .= titleLocKey
-    , "title-loc-args" .= titleLocArgs
-    , "action-loc-key" .= actionLocKey
-    , "loc-key" .= locKey
-    , "loc-args" .= locArgs
-    , "launch-image" .= launchImage
+  toJSON apnsAlertDict = A.object
+    [ "title" .= apnsAlertDictTitle apnsAlertDict
+    , "body" .= apnsAlertDictBody apnsAlertDict
+    , "title-loc-key" .= apnsAlertDictTitleLocKey apnsAlertDict
+    , "title-loc-args" .= apnsAlertDictTitleLocArgs apnsAlertDict
+    , "action-loc-key" .= apnsAlertDictActionLocKey apnsAlertDict
+    , "loc-key" .= apnsAlertDictLocKey apnsAlertDict
+    , "loc-args" .= apnsAlertDictLocArgs apnsAlertDict
+    , "launch-image" .= apnsAlertDictLaunchImage apnsAlertDict
     ]
 
 instance A.FromJSON ApnsAlert where
