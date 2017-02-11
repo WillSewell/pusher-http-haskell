@@ -7,7 +7,8 @@ Maintainer  : me@willsewell.com
 Stability   : experimental
 -}
 module Network.Pusher.Internal.Util
-  ( failExpectObj
+  ( failExpect
+  , failExpectObj
   , getTime
   , show'
   ) where
@@ -24,7 +25,10 @@ getTime = round <$> getPOSIXTime
 -- |When decoding Aeson values, this can be used to return a failing parser
 -- when an object was expected, but it was a different type of data.
 failExpectObj :: A.Value -> A.Parser a
-failExpectObj = fail . ("Expected JSON object, got " ++) . show
+failExpectObj = failExpect "JSON object"
+
+failExpect :: String -> A.Value -> A.Parser a
+failExpect expected = fail . (concat ["Expected ", expected, ", got "] ++) . show
 
 -- | Generalised version of show
 show' :: (Show a, IsString b) => a -> b

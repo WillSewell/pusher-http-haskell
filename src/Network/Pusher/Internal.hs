@@ -11,6 +11,8 @@ module Network.Pusher.Internal
   , mkChannelsRequest
   , mkChannelRequest
   , mkUsersRequest
+  , mkNotificationsRequest
+  , mkPushNotificationRequest
   ) where
 
 import Control.Monad (when)
@@ -28,6 +30,7 @@ import Network.Pusher.Data
   , Credentials(..)
   , Event
   , EventData
+  , Notification
   , Pusher(..)
   , SocketID
   , renderChannel
@@ -106,6 +109,17 @@ mkUsersRequest pusher chan time =
     subPath = "channels/" <> renderChannel chan <> "/users"
   in
     mkGetRequest pusher subPath [] time
+
+mkNotificationsRequest :: Pusher -> Int -> RequestParams
+mkNotificationsRequest = undefined
+
+mkPushNotificationRequest :: Pusher -> Notification -> Int -> RequestParams
+mkPushNotificationRequest pusher notification time =
+  let
+    subPath = "notifications/"
+    body = BL.toStrict . A.encode $ notification
+  in
+    mkPostRequest pusher subPath [] body time
 
 mkGetRequest
   :: Pusher

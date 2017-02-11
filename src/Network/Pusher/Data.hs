@@ -13,7 +13,8 @@ app credentials in order to run the main API functions.
 
 The other types represent Pusher channels and Pusher event fields.
 -}
-module Network.Pusher.Data (
+module Network.Pusher.Data
+  (
   -- * Pusher config data type
     AppID
   , AppKey
@@ -34,22 +35,33 @@ module Network.Pusher.Data (
   , Event
   , EventData
   , SocketID
-  ) where
+  -- Notifications
+  , Notification
+  , WebhookLevel(..)
+  , parseInterest
+  )
+
+  where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.:))
+import Data.Aeson ((.:), (.:?), (.=))
+import Data.Char (isAlphaNum)
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, catMaybes)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
+import Data.Vector ((!))
 import GHC.Generics (Generic)
 import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
+import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
+import qualified Data.Vector as V
 
-import Network.Pusher.Internal.Util (failExpectObj, show')
+import Network.Pusher.Internal.Util (failExpect, failExpectObj, show')
+import Network.Pusher.Internal.Payload (Payload, Payloadource(..), payloadObject, Apns, Gcm, Fcm)
 
 type AppID = Integer
 
@@ -151,3 +163,101 @@ type Event = T.Text
 type EventData = T.Text
 
 type SocketID = T.Text
+
+data Notification = Notification
+  { notificationInterests :: Interest
+  , notificationWebhookUrl :: Maybe T.Text
+  , notificationWebhookLevel :: Maybe WebhookLevel
+  , notificationPayload :: Payload
+  } deriving (Eq, Show)
+
+instance A.ToJSON Notification where
+  toJSON (Notification interests webhookUrl webhookLevel payload) =
+    A.Object $ mconcat
+      [ payloadObject payload
+      , HM.fromList
+          [ "interests" .= interests
+          , "webhook_url" .= webhookUrl
+          , "webhook_level" .= webhookLevel
+          ]
+      ]
+
+instance A.FromJSON Notification where
+  parseJSON (A.Object v) = do
+    interests' <- v .: "interests"
+    webhookUrl' <- v .:? "webhook_url"
+    webhookLevel' <- v .:? "webhook_level"
+    apns <- v .:? "apns"
+    gcm <- v .:? "gcm"
+    fcm <- v .:? "fcm"
+    let
+      payload' = mconcat . catMaybes $
+        [ renderPayload <$> (apns :: Maybe Apns)
+        , renderPayload <$> (gcm :: Maybe Gcm)
+        , renderPayload <$> (fcm :: Maybe Fcm)
+        ]
+    return $ Notification interests' webhookUrl' webhookLevel' payload'
+  parseJSON v = failExpectObj v
+
+mkEmptyNotification
+  :: Interest
+  -> Maybe T.Text
+  -> Maybe WebhookLevel
+  -> Notification
+mkEmptyNotification interests' webhookUrl' webhookLevel' =
+  Notification interests' webhookUrl' webhookLevel' mempty
+
+mkNotification
+  :: Interest
+  -> Maybe T.Text
+  -> Maybe WebhookLevel
+  -> Payload
+  -> Notification
+mkNotification = Notification
+
+addPayload :: Notification -> Payload -> Notification
+addPayload notification newPayload =
+  notification
+    { notificationPayload = notificationPayload notification <> newPayload }
+
+newtype Interest = Interest T.Text deriving (Eq, Show)
+
+-- Pusher API requires this be passed in as a single-item array
+instance A.ToJSON Interest where
+  toJSON (Interest a) = A.toJSON [a]
+
+instance A.FromJSON Interest where
+  parseJSON arr@(A.Array v) =
+    if V.length v == 1 then
+      let
+        (A.String interest) = v ! 0
+      in
+        pure . Interest $ interest
+    else
+      failExpect "JSON array of length 1" arr
+  parseJSON v = failExpect "JSON array of length 1" v
+
+-- |Convert string representation into an Interest
+-- Returns 'Nothing' if the interest is not valid.
+-- Each interest name can be up to 164 characters. Each character
+-- in the name must be an ASCII upper- or lower-case letter,
+-- a number, or one of _=@,.;.
+parseInterest :: T.Text -> Maybe Interest
+parseInterest interest =
+  if T.all isAllowed interest && T.length interest <= 164 then
+    Just $ Interest interest
+  else
+    Nothing
+ where
+  isAllowed c = isAlphaNum c || c `elem` ("_=@,.;" :: String)
+
+data WebhookLevel = Info | Debug deriving (Eq, Show)
+
+instance A.ToJSON WebhookLevel where
+  toJSON Info = "INFO"
+  toJSON Debug = "DEBUG"
+
+instance A.FromJSON WebhookLevel where
+  parseJSON (A.String "INFO") = pure Info
+  parseJSON (A.String "DEBUG") = pure Debug
+  parseJSON v = failExpectObj v

@@ -11,6 +11,8 @@ import Network.Pusher
   , ChannelType(Public, Presence, Private)
   , parseChannel
   , renderChannel
+  , Notification
+  , parseInterest
   )
 import Network.Pusher.Protocol
   ( ChannelInfo(..)
@@ -84,3 +86,4 @@ test = do
 \       }"
       `shouldBe`
         (Just $ Users [User "1", User "2"])
+

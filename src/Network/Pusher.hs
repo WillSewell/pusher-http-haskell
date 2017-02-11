@@ -62,6 +62,9 @@ module Network.Pusher (
   , Event
   , EventData
   , SocketID
+  -- ** Notifications
+  , Notification
+  , parseInterest
   -- * HTTP Requests
   -- ** Trigger events
   , trigger
@@ -69,6 +72,9 @@ module Network.Pusher (
   , channels
   , channel
   , users
+  -- ** Push notifications
+  , pushNotification
+  , notifications
   -- * Authentication
   , AuthString
   , AuthSignature
@@ -92,12 +98,14 @@ import Network.Pusher.Data
   , Credentials(..)
   , Event
   , EventData
+  , Notification
   , Pusher(..)
   , SocketID
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
   , parseChannel
+  , parseInterest
   , renderChannel
   , renderChannelPrefix
   )
@@ -185,4 +193,26 @@ users
 users pusher chan =
   liftIO $ runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
+    HTTP.get (pusherConnectionManager pusher) requestParams
+
+-- |Push a new notification
+pushNotification
+  :: MonadIO m
+  => Pusher
+  -> Notification
+  -> m (Either PusherError ())
+pushNotification pusher notification =
+  liftIO $ runExceptT $ do
+    requestParams <-
+      liftIO $ Pusher.mkPushNotificationRequest pusher notification <$> getTime
+    HTTP.get (pusherConnectionManager pusher) requestParams
+
+-- |Get a list of all notifications sent
+notifications
+  :: MonadIO m
+  => Pusher
+  -> m (Either PusherError [Notification])
+notifications pusher =
+  liftIO $ runExceptT $ do
+    requestParams <- liftIO $ Pusher.mkNotificationsRequest pusher <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
