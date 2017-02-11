@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE RecordWildCards #-}
 
 {-|
 Module      : Network.Pusher.Data
@@ -167,14 +166,14 @@ type EventData = T.Text
 type SocketID = T.Text
 
 data Notification = Notification
-  { interests :: Interest
-  , webhookUrl :: Maybe T.Text
-  , webhookLevel :: Maybe WebhookLevel
-  , payload :: Payload
+  { notificationInterests :: Interest
+  , notificationWebhookUrl :: Maybe T.Text
+  , notificationWebhookLevel :: Maybe WebhookLevel
+  , notificationPayload :: Payload
   } deriving (Eq, Show)
 
 instance A.ToJSON Notification where
-  toJSON Notification {..} =
+  toJSON (Notification interests webhookUrl webhookLevel payload) =
     A.Object $ mconcat
       [ payloadObject payload
       , HM.fromList
@@ -203,10 +202,10 @@ instance A.FromJSON Notification where
 
 instance Default Notification where
   def = Notification
-    { interests = def
-    , webhookUrl = Nothing
-    , webhookLevel = Nothing
-    , payload = def
+    { notificationInterests = def
+    , notificationWebhookUrl = Nothing
+    , notificationWebhookLevel = Nothing
+    , notificationPayload = def
     }
 
 mkEmptyNotification
@@ -226,8 +225,9 @@ mkNotification
 mkNotification = Notification
 
 addPayload :: Notification -> Payload -> Notification
-addPayload Notification {..} newPayload =
-  Notification interests webhookUrl webhookLevel (payload <> newPayload)
+addPayload notification newPayload =
+  notification
+    { notificationPayload = notificationPayload notification <> newPayload }
 
 newtype Interest = Interest T.Text deriving (Eq, Show)
 
