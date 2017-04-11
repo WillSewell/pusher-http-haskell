@@ -44,7 +44,7 @@ data RequestParams = RequestParams
   -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
   , requestQueryString :: RequestQueryString
   -- ^List of query string parameters as key-value tuples
-  }
+  } deriving (Show)
 
 type RequestQueryString = [(B.ByteString, B.ByteString)]
 
@@ -59,7 +59,7 @@ get
   -> ExceptT PusherError IO a -- ^The body of the response
 get connManager (RequestParams ep qs) = do
   req <- ExceptT $ return $ mkRequest ep qs
-  resp <- doReqest connManager req
+  resp <- doRequest connManager req
   either
     (throwE . PusherInvalidResponseError . T.pack)
     return
@@ -71,7 +71,7 @@ post
   => HTTP.Client.Manager -> RequestParams -> a -> ExceptT PusherError IO ()
 post connManager (RequestParams ep qs) body = do
   req <- ExceptT $ return $ mkPost (A.encode body) <$> mkRequest ep qs
-  _ <- doReqest connManager req
+  _ <- doRequest connManager req
   return ()
 
 mkRequest :: T.Text
@@ -96,11 +96,11 @@ mkPost body req =
   , HTTP.Client.requestBody = HTTP.Client.RequestBodyLBS body
   }
 
-doReqest
+doRequest
   :: HTTP.Client.Manager
   -> HTTP.Client.Request
   -> ExceptT PusherError IO BL.ByteString
-doReqest connManager req = do
+doRequest connManager req = do
   response <- liftIO $ HTTP.Client.httpLbs req connManager
   let status = HTTP.Client.responseStatus response
   if statusCode status == 200

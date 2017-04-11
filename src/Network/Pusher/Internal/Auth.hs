@@ -23,6 +23,7 @@ module Network.Pusher.Internal.Auth
   ) where
 
 import qualified Data.Aeson as A
+import Data.Char (toLower)
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
@@ -34,8 +35,9 @@ import qualified Data.Aeson.Encode as A
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Crypto.MAC.HMAC as HMAC
-import qualified Data.ByteString as B
+import qualified Data.ByteString as B hiding (map)
 import qualified Data.ByteString.Base16 as B16
+import qualified Data.ByteString.Char8 as B
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
@@ -57,26 +59,34 @@ makeQS
   -> B.ByteString
   -> Int -- ^Current UNIX timestamp
   -> RequestQueryString
-makeQS appKey appSecret method path params body ts =
-  let allParams
-    -- Generate all required parameters and add them to the list of existing
-    -- ones
-       =
-        sortWith fst $
-        params ++
+makeQS appKey appSecret method fullPath params body ts
+    -- Generate all required parameters and add them to the list of existing ones
+    -- Parameters are:
+    -- - In alphabetical order
+    -- - Keys are lower case
+ =
+  let allParams =
+        alphabeticalOrder . lowercaseKeys . (params ++) $
         [ ("auth_key", appKey)
         , ("auth_timestamp", show' ts)
         , ("auth_version", "1.0")
         , ("body_md5", B16.encode (MD5.hash body))
         ]
     -- Generate the auth signature from the list of parameters
+    -- - Method name is upper case
       authSig =
         authSignature appSecret $
         B.intercalate
           "\n"
-          [encodeUtf8 method, encodeUtf8 path, formQueryString allParams]
+          [ encodeUtf8 . T.toUpper $ method
+          , encodeUtf8 fullPath
+          , formQueryString allParams
+          ]
     -- Add the auth string to the list
   in ("auth_signature", authSig) : allParams
+  where
+    alphabeticalOrder = sortWith fst
+    lowercaseKeys = map (\(k, v) -> (B.map toLower k, v))
 
 -- |Render key-value tuple mapping of query string parameters into a string.
 formQueryString :: RequestQueryString -> B.ByteString

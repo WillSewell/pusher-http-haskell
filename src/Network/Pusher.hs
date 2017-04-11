@@ -64,6 +64,15 @@ module Network.Pusher
   , Event
   , EventData
   , SocketID
+  -- ** Notifications
+  , Notification(..)
+  , Interest
+  , mkInterest
+  , WebhookURL
+  , WebhookLevel(..)
+  , APNSPayload(..)
+  , GCMPayload(..)
+  , FCMPayload(..)
   -- * HTTP Requests
   -- ** Trigger events
   , trigger
@@ -71,6 +80,8 @@ module Network.Pusher
   , channels
   , channel
   , users
+  -- ** Push notifications
+  , notify
   -- * Authentication
   , AuthString
   , AuthSignature
@@ -85,11 +96,12 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
 import Network.Pusher.Data
-       (AppID, AppKey, AppSecret, Channel(..), ChannelName,
-        ChannelType(..), Credentials(..), Cluster(..), Event, EventData,
-        Pusher(..), SocketID, getPusher, getPusherWithHost,
-        getPusherWithConnManager, parseChannel, renderChannel,
-        renderChannelPrefix)
+       (AppID, APNSPayload(..), AppKey, AppSecret, Channel(..),
+        ChannelName, ChannelType(..), Credentials(..), Cluster(..), Event,
+        EventData, FCMPayload(..), GCMPayload(..), Interest,
+        Notification(..), Pusher(..), SocketID, WebhookLevel(..),
+        WebhookURL, getPusher, getPusherWithConnManager, getPusherWithHost,
+        mkInterest, parseChannel, renderChannel, renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import qualified Network.Pusher.Internal as Pusher
 import Network.Pusher.Internal.Auth
@@ -165,3 +177,14 @@ users pusher chan =
   runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
+
+-- |Send a push notification
+notify
+  :: MonadIO m
+  => Pusher -> Notification -> m (Either PusherError ())
+notify pusher notification =
+  liftIO $
+  runExceptT $ do
+    (requestParams, requestBody) <-
+      ExceptT $ Pusher.mkNotifyRequest pusher notification <$> getTime
+    HTTP.post (pusherConnectionManager pusher) requestParams requestBody
