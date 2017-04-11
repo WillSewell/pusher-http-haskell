@@ -45,6 +45,7 @@ module Network.Pusher (
   -- ** Pusher config type
     Pusher(..)
   , Credentials(..)
+  , Cluster(..)
   , AppID
   , AppKey
   , AppSecret
@@ -90,6 +91,7 @@ import Network.Pusher.Data
   , ChannelName
   , ChannelType(..)
   , Credentials(..)
+  , Cluster(..)
   , Event
   , EventData
   , Pusher(..)

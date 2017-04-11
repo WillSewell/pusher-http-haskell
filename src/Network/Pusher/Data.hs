@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings, MultiWayIf #-}
 
 {-|
 Module      : Network.Pusher.Data
@@ -20,6 +20,7 @@ module Network.Pusher.Data (
   , AppSecret
   , Pusher(..)
   , Credentials(..)
+  , Cluster(..)
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
@@ -37,7 +38,7 @@ module Network.Pusher.Data (
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.:))
+import Data.Aeson ((.:),(.:?))
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
@@ -49,7 +50,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 
-import Network.Pusher.Internal.Util (failExpectObj, show')
+import Network.Pusher.Internal.Util (failExpectObj, failExpectStr, show')
 
 type AppID = Integer
 
@@ -59,17 +60,18 @@ type AppSecret = B.ByteString
 
 -- |All the required configuration needed to interact with the API.
 data Pusher = Pusher
-  { pusherHost :: T.Text
-  , pusherPath :: T.Text
-  , pusherCredentials :: Credentials
+  { pusherHost              :: T.Text
+  , pusherPath              :: T.Text
+  , pusherCredentials       :: Credentials
   , pusherConnectionManager :: Manager
   }
 
 -- |The credentials for the current app.
 data Credentials = Credentials
-  { credentialsAppID :: AppID
-  , credentialsAppKey :: AppKey
+  { credentialsAppID     :: AppID
+  , credentialsAppKey    :: AppKey
   , credentialsAppSecret :: AppSecret
+  , credentialsCluster   :: Maybe Cluster
   }
 
 instance A.FromJSON Credentials where
@@ -77,7 +79,34 @@ instance A.FromJSON Credentials where
     <$> v .: "app-id"
     <*> (encodeUtf8 <$> v .: "app-key")
     <*> (encodeUtf8 <$> v .: "app-secret")
+    <*> v.:? "app-cluster"
   parseJSON v2 = failExpectObj v2
+
+-- |The cluster the current app resides on.
+data Cluster
+  = Mt1 -- ^ us-east-1
+  | Eu  -- ^ eu-west-1
+  | Ap1 -- ^ ap-southeast-1 (Singapore)
+  | Ap2 -- ^ ap-south-1 (Mumbai)
+
+-- The possible cluster suffix given in a host name
+renderClusterSuffix :: Cluster -> T.Text
+renderClusterSuffix cluster = case cluster of
+  Mt1 -> ""
+  Eu  -> "-eu"
+  Ap1 -> "-ap1"
+  Ap2 -> "-ap2"
+
+instance A.FromJSON Cluster where
+  parseJSON v = case v of
+    A.String txt
+      -> let c = T.toLower txt
+            in if | c `elem` ["mt1","us-east-1"]      -> pure Mt1
+                  | c `elem` ["eu" ,"eu-west-1"]      -> pure Eu
+                  | c `elem` ["ap1","ap-southeast-1"] -> pure Ap1
+                  | c `elem` ["ap2","ap-south-1"]     -> pure Ap2
+                  | otherwise -> fail "Unrecognised cluster name"
+    _ -> failExpectStr v
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
 -- automatically.
@@ -96,13 +125,20 @@ getPusherWithHost apiHost cred = do
 -- if you want to share a connection with your application code.
 getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost cred =
-  let path = "/apps/" <> show' (credentialsAppID cred) <> "/" in
-  Pusher
-    { pusherHost = fromMaybe "http://api.pusherapp.com" apiHost
-    , pusherPath = path
-    , pusherCredentials = cred
-    , pusherConnectionManager = connManager
-    }
+  let path     = "/apps/"    <> show' (credentialsAppID cred) <> "/"
+      mCluster = credentialsCluster cred
+     in Pusher
+        { pusherHost              = fromMaybe (mkHost mCluster) apiHost
+        , pusherPath              = path
+        , pusherCredentials       = cred
+        , pusherConnectionManager = connManager
+        }
+
+-- |Given a possible cluster, return the corresponding host
+mkHost :: Maybe Cluster -> T.Text
+mkHost mCluster = case mCluster of
+  Nothing -> "http://api.pusherapp.com"
+  Just c  -> "http://api"<>renderClusterSuffix c<>".pusher.com"
 
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
@@ -115,8 +151,8 @@ data ChannelType = Public | Private | Presence deriving (Eq, Generic, Show)
 instance Hashable ChannelType
 
 renderChannelPrefix :: ChannelType -> T.Text
-renderChannelPrefix Public = ""
-renderChannelPrefix Private = "private-"
+renderChannelPrefix Public   = ""
+renderChannelPrefix Private  = "private-"
 renderChannelPrefix Presence = "presence-"
 
 -- |The channel name (not including the channel type prefix) and its type.
