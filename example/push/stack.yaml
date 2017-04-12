@@ -1,0 +1,5 @@
+packages:
+- '.'
+- '../..'
+extra-deps:
+resolver: nightly-2017-04-14
