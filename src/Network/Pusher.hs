@@ -30,14 +30,42 @@ An example of how you would use these functions:
       , credentialsCluster   = Nothing
       }
   pusher <- getPusher credentials
-  result <-
-    trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
-  case result of
-    Left e -> error e
-    Right resp -> print resp
-@
 
-There is a simple working example in the example/ directory.
+  triggerRes <-
+    trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
+
+  case triggerRes of
+    Left e -> putStrLn $ displayException e
+    Right resp -> print resp
+
+  -- import qualified Data.HashMap.Strict as H
+  -- import qualified Data.Aeson          as A
+  let
+    -- A Firebase Cloud Messaging notification payload
+    fcmObject = H.fromList [("notification", A.Object $ H.fromList
+                                [("title", A.String "TITLE")
+                                ,("body" , A.String "BODY")
+                                ,("icon" , A.String "logo.png")
+                                ]
+                            )]
+    Just interest = mkInterest "INTEREST"
+
+    -- A Pusher notification
+    notification = Notification
+      { notificationInterest     = interest
+      , notificationWebhookURL   = Nothing
+      , notificationWebhookLevel = Nothing
+      , notificationAPNSPayload  = Nothing
+      , notificationGCMPayload   = Nothing
+      , notificationFCMPayload   = Just $ FCMPayload fcmObject
+      }
+
+  notifyRes <- notify pusher notification
+
+  @
+
+
+There are simple working examples in the example/ directory.
 
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
