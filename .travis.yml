@@ -15,6 +15,20 @@ cache:
 
 matrix:
   include:
+  - env: GHCVER=7.8.3 STACK_YAML=stack-0.7.yaml
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-7.8.3
+  - env: GHCVER=7.8.4 STACK_YAML=stack-2.22.yaml
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-7.8.4
   - env: GHCVER=7.10.3 STACK_YAML=stack-3.22.yaml
     addons:
       apt:
