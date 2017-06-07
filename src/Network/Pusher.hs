@@ -24,9 +24,10 @@ An example of how you would use these functions:
 @
   let
     credentials = Credentials
-      { credentialsAppID = 123
-      , credentialsAppKey = wrd12344rcd234
+      { credentialsAppID     = 123
+      , credentialsAppKey    = wrd12344rcd234
       , credentialsAppSecret = 124df34d545v
+      , credentialsCluster   = Nothing
       }
   pusher <- getPusher credentials
   result <-
