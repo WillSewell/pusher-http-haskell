@@ -82,30 +82,18 @@ instance A.FromJSON Credentials where
     <*> v.:? "app-cluster"
   parseJSON v2 = failExpectObj v2
 
--- |The cluster the current app resides on.
-data Cluster
-  = Mt1 -- ^ us-east-1
-  | Eu  -- ^ eu-west-1
-  | Ap1 -- ^ ap-southeast-1 (Singapore)
-  | Ap2 -- ^ ap-south-1 (Mumbai)
+-- | The cluster the current app resides on. Common clusters include: mt1,eu,ap1,ap2
+newtype Cluster = Cluster {clusterName :: T.Text}
 
 -- The possible cluster suffix given in a host name
 renderClusterSuffix :: Cluster -> T.Text
-renderClusterSuffix cluster = case cluster of
-  Mt1 -> ""
-  Eu  -> "-eu"
-  Ap1 -> "-ap1"
-  Ap2 -> "-ap2"
+renderClusterSuffix cluster = "-" <> clusterName cluster
 
 instance A.FromJSON Cluster where
   parseJSON v = case v of
     A.String txt
-      -> let c = T.toLower txt
-            in if | c `elem` ["mt1","us-east-1"]      -> pure Mt1
-                  | c `elem` ["eu" ,"eu-west-1"]      -> pure Eu
-                  | c `elem` ["ap1","ap-southeast-1"] -> pure Ap1
-                  | c `elem` ["ap2","ap-south-1"]     -> pure Ap2
-                  | otherwise -> fail "Unrecognised cluster name"
+      -> return . Cluster $ txt
+
     _ -> failExpectStr v
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
