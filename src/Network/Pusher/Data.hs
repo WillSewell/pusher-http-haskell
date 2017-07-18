@@ -21,6 +21,10 @@ module Network.Pusher.Data (
   , Pusher(..)
   , Credentials(..)
   , Cluster(..)
+  , clusterMt1
+  , clusterEu
+  , clusterAp1
+  , clusterAp2
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
@@ -84,6 +88,12 @@ instance A.FromJSON Credentials where
 
 -- | The cluster the current app resides on. Common clusters include: mt1,eu,ap1,ap2
 newtype Cluster = Cluster {clusterName :: T.Text}
+
+clusterMt1, clusterEu, clusterAp1, clusterAp2 :: Cluster
+clusterMt1 = Cluster "mt1"
+clusterEu  = Cluster "eu"
+clusterAp1 = Cluster "ap1"
+clusterAp2 = Cluster "ap2"
 
 -- The possible cluster suffix given in a host name
 renderClusterSuffix :: Cluster -> T.Text
