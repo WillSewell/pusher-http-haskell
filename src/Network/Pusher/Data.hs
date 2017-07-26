@@ -20,6 +20,11 @@ module Network.Pusher.Data
   , AppSecret
   , Pusher(..)
   , Credentials(..)
+  , Cluster(..)
+  , clusterMt1
+  , clusterEu
+  , clusterAp1
+  , clusterAp2
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
@@ -37,7 +42,7 @@ module Network.Pusher.Data
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.:))
+import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import Data.Foldable (asum)
@@ -50,7 +55,8 @@ import GHC.Generics (Generic)
 import Network.HTTP.Client
        (Manager, defaultManagerSettings, newManager)
 
-import Network.Pusher.Internal.Util (failExpectObj, show')
+import Network.Pusher.Internal.Util
+       (failExpectObj, failExpectStr, show')
 
 type AppID = Integer
 
@@ -71,23 +77,53 @@ data Credentials = Credentials
   { credentialsAppID :: AppID
   , credentialsAppKey :: AppKey
   , credentialsAppSecret :: AppSecret
+  , credentialsCluster :: Maybe Cluster
   }
 
 instance A.FromJSON Credentials where
   parseJSON (A.Object v) =
     Credentials <$> v .: "app-id" <*> (encodeUtf8 <$> v .: "app-key") <*>
-    (encodeUtf8 <$> v .: "app-secret")
+    (encodeUtf8 <$> v .: "app-secret") <*>
+    v .:? "app-cluster"
   parseJSON v2 = failExpectObj v2
+
+-- | The cluster the current app resides on. Common clusters include: mt1,eu,ap1,ap2
+newtype Cluster = Cluster
+  { clusterName :: T.Text
+  }
+
+clusterMt1, clusterEu, clusterAp1, clusterAp2 :: Cluster
+clusterMt1 = Cluster "mt1"
+
+clusterEu = Cluster "eu"
+
+clusterAp1 = Cluster "ap1"
+
+clusterAp2 = Cluster "ap2"
+
+-- The possible cluster suffix given in a host name
+renderClusterSuffix :: Cluster -> T.Text
+renderClusterSuffix cluster = "-" <> clusterName cluster
+
+instance A.FromJSON Cluster where
+  parseJSON v =
+    case v of
+      A.String txt -> return . Cluster $ txt
+      _ -> failExpectStr v
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
 -- automatically.
-getPusher :: MonadIO m => Credentials -> m Pusher
+getPusher
+  :: MonadIO m
+  => Credentials -> m Pusher
 getPusher cred = do
   connManager <- getConnManager
   return $ getPusherWithConnManager connManager Nothing cred
 
 -- |Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost :: MonadIO m => T.Text -> Credentials -> m Pusher
+getPusherWithHost
+  :: MonadIO m
+  => T.Text -> Credentials -> m Pusher
 getPusherWithHost apiHost cred = do
   connManager <- getConnManager
   return $ getPusherWithConnManager connManager (Just apiHost) cred
@@ -97,14 +133,24 @@ getPusherWithHost apiHost cred = do
 getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost cred =
   let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
+      mCluster = credentialsCluster cred
   in Pusher
-     { pusherHost = fromMaybe "http://api.pusherapp.com" apiHost
+     { pusherHost = fromMaybe (mkHost mCluster) apiHost
      , pusherPath = path
      , pusherCredentials = cred
      , pusherConnectionManager = connManager
      }
 
-getConnManager :: MonadIO m => m Manager
+-- |Given a possible cluster, return the corresponding host
+mkHost :: Maybe Cluster -> T.Text
+mkHost mCluster =
+  case mCluster of
+    Nothing -> "http://api.pusherapp.com"
+    Just c -> "http://api" <> renderClusterSuffix c <> ".pusher.com"
+
+getConnManager
+  :: MonadIO m
+  => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
 
 type ChannelName = T.Text

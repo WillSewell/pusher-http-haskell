@@ -22,12 +22,13 @@ a 'Left' 'PusherError' when run.
 An example of how you would use these functions:
 
 @
-  let credentials =
-        Credentials
-        { credentialsAppID = 123
-        , credentialsAppKey = "wrd12344rcd234"
-        , credentialsAppSecret = "124df34d545v"
-        }
+  let
+    credentials = Credentials
+      { credentialsAppID     = 123
+      , credentialsAppKey    = wrd12344rcd234
+      , credentialsAppSecret = 124df34d545v
+      , credentialsCluster   = Nothing
+      }
   pusher <- getPusher credentials
   result <-
     trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
@@ -45,6 +46,7 @@ module Network.Pusher
   -- ** Pusher config type
   ( Pusher(..)
   , Credentials(..)
+  , Cluster(..)
   , AppID
   , AppKey
   , AppSecret
@@ -83,12 +85,26 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
 import Network.Pusher.Data
-       (AppID, AppKey, AppSecret, Channel(..), ChannelName,
-        ChannelType(..), Credentials(..), Event, EventData, Pusher(..),
-        SocketID, getPusher, getPusherWithConnManager, getPusherWithHost,
-        parseChannel, renderChannel, renderChannelPrefix)
-import Network.Pusher.Error (PusherError(..))
-import qualified Network.Pusher.Internal as Pusher
+  ( AppID
+  , AppKey
+  , AppSecret
+  , Channel(..)
+  , ChannelName
+  , ChannelType(..)
+  , Credentials(..)
+  , Cluster(..)
+  , Event
+  , EventData
+  , Pusher(..)
+  , SocketID
+  , getPusher
+  , getPusherWithHost
+  , getPusherWithConnManager
+  , parseChannel
+  , renderChannel
+  , renderChannelPrefix
+  )
+import Network.Pusher.Error(PusherError(..))
 import Network.Pusher.Internal.Auth
        (AuthSignature, AuthString, authenticatePresence,
         authenticatePrivate)
