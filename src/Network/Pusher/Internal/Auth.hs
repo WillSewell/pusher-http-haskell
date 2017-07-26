@@ -18,42 +18,38 @@ module Network.Pusher.Internal.Auth
   , AuthSignature
   , authenticatePresence
   , authenticatePresenceWithEncoder
-  , authenticatePrivate, makeQS
+  , authenticatePrivate
+  , makeQS
   ) where
 
+import qualified Data.Aeson as A
 import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
-import qualified Data.Aeson as A
 #if MIN_VERSION_aeson(1,0,0)
 import qualified Data.Aeson.Text as A
 #else
 import qualified Data.Aeson.Encode as A
 #endif
+import qualified Crypto.Hash.MD5 as MD5
+import qualified Crypto.Hash.SHA256 as SHA256
+import qualified Crypto.MAC.HMAC as HMAC
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
-import qualified Crypto.Hash.MD5 as MD5
-import qualified Crypto.Hash.SHA256 as SHA256
-import qualified Crypto.MAC.HMAC as HMAC
 
 import Network.Pusher.Data
-  ( AppKey
-  , AppSecret
-  , Channel
-  , Credentials(..)
-  , SocketID
-  , renderChannel
-  )
+       (AppKey, AppSecret, Channel, Credentials(..), SocketID,
+        renderChannel)
 import Network.Pusher.Internal.HTTP (RequestQueryString)
 import Network.Pusher.Internal.Util (show')
 
 -- |Generate the required query string parameters required to send API requests
 -- to Pusher.
-makeQS
-  :: AppKey
+makeQS ::
+     AppKey
   -> AppSecret
   -> T.Text
   -> T.Text
@@ -62,28 +58,29 @@ makeQS
   -> Int -- ^Current UNIX timestamp
   -> RequestQueryString
 makeQS appKey appSecret method path params body ts =
-  let
-    -- Generate all required parameters and add them to the list of existing ones
-    allParams = sortWith fst $ params ++
-      [ ("auth_key", appKey)
-      , ("auth_timestamp", show' ts)
-      , ("auth_version", "1.0")
-      , ("body_md5", B16.encode (MD5.hash body))
-      ]
+  let allParams
+    -- Generate all required parameters and add them to the list of existing
+    -- ones
+       =
+        sortWith fst $
+        params ++
+        [ ("auth_key", appKey)
+        , ("auth_timestamp", show' ts)
+        , ("auth_version", "1.0")
+        , ("body_md5", B16.encode (MD5.hash body))
+        ]
     -- Generate the auth signature from the list of parameters
-    authSig = authSignature appSecret $ B.intercalate "\n"
-      [ encodeUtf8 method
-      , encodeUtf8 path
-      , formQueryString allParams
-      ]
-  in
+      authSig =
+        authSignature appSecret $
+        B.intercalate
+          "\n"
+          [encodeUtf8 method, encodeUtf8 path, formQueryString allParams]
     -- Add the auth string to the list
-    ("auth_signature", authSig) : allParams
+  in ("auth_signature", authSig) : allParams
 
 -- |Render key-value tuple mapping of query string parameters into a string.
 formQueryString :: RequestQueryString -> B.ByteString
-formQueryString =
-  B.intercalate "&" . map (\(a, b) -> a <> "=" <> b)
+formQueryString = B.intercalate "&" . map (\(a, b) -> a <> "=" <> b)
 
 -- | The bytestring to sign with the app secret to create a signature from.
 type AuthString = B.ByteString
@@ -96,31 +93,20 @@ authSignature :: AppSecret -> AuthString -> AuthSignature
 authSignature appSecret authString =
   B16.encode $ HMAC.hmac SHA256.hash 64 appSecret authString
 
-
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- private channel.
-authenticatePrivate
-  :: Credentials
-  -> SocketID
-  -> Channel
-  -> AuthSignature
+authenticatePrivate :: Credentials -> SocketID -> Channel -> AuthSignature
 authenticatePrivate cred socketID channel =
-  let
-    sig = authSignature
-      (credentialsAppSecret cred)
-      (encodeUtf8 $ socketID <> ":" <> renderChannel channel)
-  in
-    credentialsAppKey cred <> ":" <> sig
+  let sig =
+        authSignature
+          (credentialsAppSecret cred)
+          (encodeUtf8 $ socketID <> ":" <> renderChannel channel)
+  in credentialsAppKey cred <> ":" <> sig
 
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- presence channel.
-authenticatePresence
-  :: A.ToJSON a
-  => Credentials
-  -> SocketID
-  -> Channel
-  -> a
-  -> AuthSignature
+authenticatePresence ::
+     A.ToJSON a => Credentials -> SocketID -> Channel -> a -> AuthSignature
 authenticatePresence =
   authenticatePresenceWithEncoder
     (TL.toStrict . TL.toLazyText . A.encodeToTextBuilder . A.toJSON)
@@ -128,17 +114,16 @@ authenticatePresence =
 -- |As above, but allows the encoder of the user data to be specified. This is
 -- useful for testing because the encoder can be mocked; aeson's encoder enodes
 -- JSON object fields in arbitrary orders, which makes it impossible to test.
-authenticatePresenceWithEncoder
-  :: (a -> T.Text) -- ^The encoder of the user data.
+authenticatePresenceWithEncoder ::
+     (a -> T.Text) -- ^The encoder of the user data.
   -> Credentials
   -> SocketID
   -> Channel
   -> a
   -> AuthSignature
 authenticatePresenceWithEncoder userEncoder cred socketID channel userData =
-  let
-    authString =
-      encodeUtf8 $ socketID <> ":" <> renderChannel channel <> ":" <> userEncoder userData
-    sig = authSignature (credentialsAppSecret cred) authString
-  in
-    credentialsAppKey cred <> ":" <> sig
+  let authString =
+        encodeUtf8 $
+        socketID <> ":" <> renderChannel channel <> ":" <> userEncoder userData
+      sig = authSignature (credentialsAppSecret cred) authString
+  in credentialsAppKey cred <> ":" <> sig

@@ -14,40 +14,26 @@ module Network.Pusher.Internal
   ) where
 
 import Control.Monad (when)
-import Data.Maybe (maybeToList)
-import Data.Monoid ((<>))
-import Data.Text.Encoding (encodeUtf8)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+import Data.Maybe (maybeToList)
+import Data.Monoid ((<>))
 import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8)
 
 import Network.Pusher.Data
-  ( Channel
-  , ChannelType
-  , Credentials(..)
-  , Event
-  , EventData
-  , Pusher(..)
-  , SocketID
-  , renderChannel
-  , renderChannelPrefix
-  )
-import Network.Pusher.Error(PusherError(..))
+       (Channel, ChannelType, Credentials(..), Event, EventData,
+        Pusher(..), SocketID, renderChannel, renderChannelPrefix)
+import Network.Pusher.Error (PusherError(..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Internal.HTTP
-  ( RequestBody
-  , RequestParams(RequestParams)
-  , RequestQueryString
-  )
+       (RequestBody, RequestParams(RequestParams), RequestQueryString)
 import Network.Pusher.Protocol
-  ( ChannelInfoQuery
-  , ChannelsInfoQuery
-  , toURLParam
-  )
+       (ChannelInfoQuery, ChannelsInfoQuery, toURLParam)
 
-mkTriggerRequest
-  :: Pusher
+mkTriggerRequest ::
+     Pusher
   -> [Channel]
   -> Event
   -> EventData
@@ -55,99 +41,79 @@ mkTriggerRequest
   -> Int
   -> Either PusherError (RequestParams, RequestBody)
 mkTriggerRequest pusher chans event dat socketId time = do
-    when
-      (length chans > 10)
-      (Left $ PusherArgumentError "Must be less than 10 channels")
-    let
-      body = A.object $
+  when
+    (length chans > 10)
+    (Left $ PusherArgumentError "Must be less than 10 channels")
+  let body =
+        A.object $
         [ ("name", A.String event)
         , ("channels", A.toJSON (map (A.String . renderChannel) chans))
         , ("data", A.String dat)
-        ] ++ maybeToList (fmap (\sID ->  ("socket_id", A.String sID)) socketId)
+        ] ++
+        maybeToList (fmap (\sID -> ("socket_id", A.String sID)) socketId)
       bodyBS = BL.toStrict $ A.encode body
-    when
-      (B.length bodyBS > 10000)
-      (Left $ PusherArgumentError "Body must be less than 10000KB")
-    return (mkPostRequest pusher "events" [] bodyBS time, body)
+  when
+    (B.length bodyBS > 10000)
+    (Left $ PusherArgumentError "Body must be less than 10000KB")
+  return (mkPostRequest pusher "events" [] bodyBS time, body)
 
-mkChannelsRequest
-  :: Pusher
+mkChannelsRequest ::
+     Pusher
   -> Maybe ChannelType
   -> T.Text
   -> ChannelsInfoQuery
   -> Int
   -> RequestParams
 mkChannelsRequest pusher channelTypeFilter prefixFilter attributes time =
-  let
-    prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
-    params =
-      [ ("info", encodeUtf8 $ toURLParam attributes)
-      , ("filter_by_prefix", encodeUtf8 prefix)
-      ]
-  in
-    mkGetRequest pusher "channels" params time
+  let prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
+      params =
+        [ ("info", encodeUtf8 $ toURLParam attributes)
+        , ("filter_by_prefix", encodeUtf8 prefix)
+        ]
+  in mkGetRequest pusher "channels" params time
 
-mkChannelRequest
-  :: Pusher
-  -> Channel
-  -> ChannelInfoQuery
-  -> Int
-  -> RequestParams
+mkChannelRequest ::
+     Pusher -> Channel -> ChannelInfoQuery -> Int -> RequestParams
 mkChannelRequest pusher chan attributes time =
-  let
-    params = [("info", encodeUtf8 $ toURLParam attributes)]
-    subPath = "channels/" <> renderChannel chan
-  in
-    mkGetRequest pusher subPath params time
+  let params = [("info", encodeUtf8 $ toURLParam attributes)]
+      subPath = "channels/" <> renderChannel chan
+  in mkGetRequest pusher subPath params time
 
 mkUsersRequest :: Pusher -> Channel -> Int -> RequestParams
 mkUsersRequest pusher chan time =
-  let
-    subPath = "channels/" <> renderChannel chan <> "/users"
-  in
-    mkGetRequest pusher subPath [] time
+  let subPath = "channels/" <> renderChannel chan <> "/users"
+  in mkGetRequest pusher subPath [] time
 
-mkGetRequest
-  :: Pusher
-  -> T.Text
-  -> RequestQueryString
-  -> Int
-  -> RequestParams
+mkGetRequest :: Pusher -> T.Text -> RequestQueryString -> Int -> RequestParams
 mkGetRequest pusher subPath params time =
-  let
-    (ep, fullPath) = mkEndpoint pusher subPath
-    qs = mkQS pusher "GET" fullPath params "" time
-  in
-    RequestParams ep qs
+  let (ep, fullPath) = mkEndpoint pusher subPath
+      qs = mkQS pusher "GET" fullPath params "" time
+  in RequestParams ep qs
 
-mkPostRequest
-  :: Pusher
+mkPostRequest ::
+     Pusher
   -> T.Text
   -> RequestQueryString
   -> B.ByteString
   -> Int
   -> RequestParams
 mkPostRequest pusher subPath params bodyBS time =
-  let
-    (ep, fullPath) = mkEndpoint pusher subPath
-    qs = mkQS pusher "POST" fullPath params bodyBS time
-  in
-    RequestParams ep qs
+  let (ep, fullPath) = mkEndpoint pusher subPath
+      qs = mkQS pusher "POST" fullPath params bodyBS time
+  in RequestParams ep qs
 
 -- |Build a full endpoint from the details in Pusher and the subPath.
-mkEndpoint
-  :: Pusher
+mkEndpoint ::
+     Pusher
   -> T.Text -- ^The subpath of the specific request, e.g "events/channel-name"
   -> (T.Text, T.Text) -- ^The full endpoint, and just the path component
 mkEndpoint pusher subPath =
-  let
-    fullPath = pusherPath pusher <> subPath
-    endpoint = pusherHost pusher <> fullPath
-  in
-    (endpoint, fullPath)
+  let fullPath = pusherPath pusher <> subPath
+      endpoint = pusherHost pusher <> fullPath
+  in (endpoint, fullPath)
 
-mkQS
-  :: Pusher
+mkQS ::
+     Pusher
   -> T.Text
   -> T.Text
   -> RequestQueryString
@@ -155,9 +121,5 @@ mkQS
   -> Int
   -> RequestQueryString
 mkQS pusher =
-  let
-    credentials = pusherCredentials pusher
-  in
-    makeQS
-      (credentialsAppKey credentials)
-      (credentialsAppSecret credentials)
+  let credentials = pusherCredentials pusher
+  in makeQS (credentialsAppKey credentials) (credentialsAppSecret credentials)

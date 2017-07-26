@@ -1,4 +1,6 @@
-module Network.Pusher.Error (PusherError(..)) where
+module Network.Pusher.Error
+  ( PusherError(..)
+  ) where
 
 import Control.Exception (Exception)
 import qualified Data.Text as T
@@ -10,6 +12,6 @@ data PusherError
   | PusherNon200ResponseError T.Text
   -- |Received unexpected data from Pusher.
   | PusherInvalidResponseError T.Text
-  deriving Show
+  deriving (Show)
 
 instance Exception PusherError
