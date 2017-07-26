@@ -12,10 +12,10 @@ module Network.Pusher.Internal.Util
   , show'
   ) where
 
-import Data.String (IsString, fromString)
-import Data.Time.Clock.POSIX (getPOSIXTime)
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Types as A
+import Data.String (IsString, fromString)
+import Data.Time.Clock.POSIX (getPOSIXTime)
 
 -- |Get the system time as an Int.
 getTime :: IO Int

@@ -1,30 +1,28 @@
-name:                 auth-example
-version:              0.0.0.1
-cabal-version:        >=1.18
-build-type:           Simple
-license:              MIT
-copyright:            (c) Will Sewell, 2016
-author:               Will Sewell
-maintainer:           me@willsewell.com
-stability:            experimental
-synopsis:             Example usage auth endpoint using pusher-http-haskell
+name: auth-example
+version: 0.0.0.1
+cabal-version: >=1.18
+build-type: Simple
+license: MIT
+copyright: (c) Will Sewell, 2016
+maintainer: me@willsewell.com
+stability: experimental
+synopsis: Example usage auth endpoint using pusher-http-haskell
+author: Will Sewell
 
 executable auth-example
-  default-language:   Haskell2010
-  default-extensions: OverloadedStrings
-  main-is:            Main.hs
-  build-depends:      aeson,
-                      base,
-                      bytestring,
-                      containers,
-                      pusher-http-haskell,
-                      snap-core,
-                      snap-server,
-                      text,
-                      transformers,
-                      unordered-containers,
-                      yaml
-  ghc-options:        -Wall
-                      -Wcompat
-                      -Whi-shadowing
-                      -Wmissing-signatures
+    main-is: Main.hs
+    build-depends:
+        aeson -any,
+        base -any,
+        bytestring -any,
+        containers -any,
+        pusher-http-haskell -any,
+        snap-core -any,
+        snap-server -any,
+        text -any,
+        transformers -any,
+        unordered-containers -any,
+        yaml -any
+    default-language: Haskell2010
+    default-extensions: OverloadedStrings
+    ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures

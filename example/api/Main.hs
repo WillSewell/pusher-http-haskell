@@ -1,8 +1,8 @@
 module Main where
 
 import Control.Exception (displayException)
-import Data.Monoid ((<>))
 import qualified Data.HashSet as HS
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Yaml as Y
@@ -41,9 +41,8 @@ demoChannels pusher = do
 
 demoChannel :: P.Pusher -> IO ()
 demoChannel pusher = do
-  let
-    chanAttrs = HS.fromList [P.ChannelUserCount, P.ChannelSubscriptionCount]
-    channelInfoQuery = P.ChannelInfoQuery chanAttrs
+  let chanAttrs = HS.fromList [P.ChannelUserCount, P.ChannelSubscriptionCount]
+      channelInfoQuery = P.ChannelInfoQuery chanAttrs
   channelResult <- P.channel pusher channel channelInfoQuery
   case channelResult of
     Left e -> T.putStrLn $ "channel failed: " <> T.pack (displayException e)

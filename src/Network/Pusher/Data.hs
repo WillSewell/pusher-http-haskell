@@ -13,9 +13,9 @@ app credentials in order to run the main API functions.
 
 The other types represent Pusher channels and Pusher event fields.
 -}
-module Network.Pusher.Data (
+module Network.Pusher.Data
   -- * Pusher config data type
-    AppID
+  ( AppID
   , AppKey
   , AppSecret
   , Pusher(..)
@@ -38,16 +38,17 @@ module Network.Pusher.Data (
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:))
+import qualified Data.Aeson as A
+import qualified Data.ByteString as B
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
+import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Generics (Generic)
-import Network.HTTP.Client (Manager, defaultManagerSettings, newManager)
-import qualified Data.Aeson as A
-import qualified Data.ByteString as B
-import qualified Data.Text as T
+import Network.HTTP.Client
+       (Manager, defaultManagerSettings, newManager)
 
 import Network.Pusher.Internal.Util (failExpectObj, show')
 
@@ -73,18 +74,17 @@ data Credentials = Credentials
   }
 
 instance A.FromJSON Credentials where
-  parseJSON (A.Object v) = Credentials
-    <$> v .: "app-id"
-    <*> (encodeUtf8 <$> v .: "app-key")
-    <*> (encodeUtf8 <$> v .: "app-secret")
+  parseJSON (A.Object v) =
+    Credentials <$> v .: "app-id" <*> (encodeUtf8 <$> v .: "app-key") <*>
+    (encodeUtf8 <$> v .: "app-secret")
   parseJSON v2 = failExpectObj v2
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
 -- automatically.
 getPusher :: MonadIO m => Credentials -> m Pusher
 getPusher cred = do
-    connManager <- getConnManager
-    return $ getPusherWithConnManager connManager Nothing cred
+  connManager <- getConnManager
+  return $ getPusherWithConnManager connManager Nothing cred
 
 -- |Get a Pusher instance that uses a specific API endpoint.
 getPusherWithHost :: MonadIO m => T.Text -> Credentials -> m Pusher
@@ -96,13 +96,13 @@ getPusherWithHost apiHost cred = do
 -- if you want to share a connection with your application code.
 getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost cred =
-  let path = "/apps/" <> show' (credentialsAppID cred) <> "/" in
-  Pusher
-    { pusherHost = fromMaybe "http://api.pusherapp.com" apiHost
-    , pusherPath = path
-    , pusherCredentials = cred
-    , pusherConnectionManager = connManager
-    }
+  let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
+  in Pusher
+     { pusherHost = fromMaybe "http://api.pusherapp.com" apiHost
+     , pusherPath = path
+     , pusherCredentials = cred
+     , pusherConnectionManager = connManager
+     }
 
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
@@ -110,7 +110,11 @@ getConnManager = liftIO $ newManager defaultManagerSettings
 type ChannelName = T.Text
 
 -- |The possible types of Pusher channe.
-data ChannelType = Public | Private | Presence deriving (Eq, Generic, Show)
+data ChannelType
+  = Public
+  | Private
+  | Presence
+  deriving (Eq, Generic, Show)
 
 instance Hashable ChannelType
 
@@ -132,19 +136,19 @@ renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
 
 -- |Convert string representation, e.g. private-chan into the datatype
 parseChannel :: T.Text -> Channel
-parseChannel chan =
+parseChannel chan
   -- Attempt to parse it as a private or presence channel; default to public
+ =
   fromMaybe
     (Channel Public chan)
-    (asum [parseChanAs Private,  parseChanAs Presence])
- where
-  parseChanAs chanType =
-    let split = T.splitOn (renderChannelPrefix chanType) chan in
+    (asum [parseChanAs Private, parseChanAs Presence])
+  where
+    parseChanAs chanType =
+      let split = T.splitOn (renderChannelPrefix chanType) chan
     -- If the prefix appears at the start, then the first element will be empty
-    if length split > 1 && T.null (head split) then
-      Just $ Channel chanType (T.concat $ tail split)
-    else
-      Nothing
+      in if length split > 1 && T.null (head split)
+           then Just $ Channel chanType (T.concat $ tail split)
+           else Nothing
 
 type Event = T.Text
 

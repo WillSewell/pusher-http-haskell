@@ -1,24 +1,22 @@
-name:                 api-example
-version:              0.0.0.1
-cabal-version:        >=1.18
-build-type:           Simple
-license:              MIT
-copyright:            (c) Will Sewell, 2016
-author:               Will Sewell
-maintainer:           me@willsewell.com
-stability:            experimental
-synopsis:             Example usage of pusher-http-haskell to trigger and query
+name: api-example
+version: 0.0.0.1
+cabal-version: >=1.18
+build-type: Simple
+license: MIT
+copyright: (c) Will Sewell, 2016
+maintainer: me@willsewell.com
+stability: experimental
+synopsis: Example usage of pusher-http-haskell to trigger and query
+author: Will Sewell
 
 executable api-example
-  default-language:   Haskell2010
-  default-extensions: OverloadedStrings
-  main-is:            Main.hs
-  build-depends:      base,
-                      pusher-http-haskell,
-                      text,
-                      unordered-containers,
-                      yaml
-  ghc-options:        -Wall
-                      -Wcompat
-                      -Whi-shadowing
-                      -Wmissing-signatures
+    main-is: Main.hs
+    build-depends:
+        base -any,
+        pusher-http-haskell -any,
+        text -any,
+        unordered-containers -any,
+        yaml -any
+    default-language: Haskell2010
+    default-extensions: OverloadedStrings
+    ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures

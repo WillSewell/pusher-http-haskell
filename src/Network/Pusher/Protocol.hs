@@ -29,23 +29,24 @@ module Network.Pusher.Protocol
   ) where
 
 import Data.Aeson ((.:), (.:?))
-import Data.Hashable (Hashable)
-import GHC.Generics (Generic)
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
+import Data.Hashable (Hashable)
 import qualified Data.Text as T
+import GHC.Generics (Generic)
 
-import Network.Pusher.Internal.Util (failExpectObj)
 import Network.Pusher.Data (Channel, parseChannel)
+import Network.Pusher.Internal.Util (failExpectObj)
 
 -- |Types that can be serialised to a querystring parameter value.
 class ToURLParam a where
-  -- |Convert the data into a querystring parameter value.
   toURLParam :: a -> T.Text
 
 -- |Enumeration of the attributes that can be queried about multiple channels.
-data ChannelsInfoAttributes = ChannelsUserCount deriving (Eq, Generic)
+data ChannelsInfoAttributes =
+  ChannelsUserCount
+  deriving (Eq, Generic)
 
 instance ToURLParam ChannelsInfoAttributes where
   toURLParam ChannelsUserCount = "user_count"
@@ -55,10 +56,12 @@ instance Hashable ChannelsInfoAttributes
 -- |A set of requested ChannelsInfoAttributes.
 newtype ChannelsInfoQuery =
   ChannelsInfoQuery (HS.HashSet ChannelsInfoAttributes)
-  deriving ToURLParam
+  deriving (ToURLParam)
 
 -- |Enumeration of the attributes that can be queried about a single channel.
-data ChannelInfoAttributes = ChannelUserCount | ChannelSubscriptionCount
+data ChannelInfoAttributes
+  = ChannelUserCount
+  | ChannelSubscriptionCount
   deriving (Eq, Generic)
 
 instance ToURLParam ChannelInfoAttributes where
@@ -68,9 +71,9 @@ instance ToURLParam ChannelInfoAttributes where
 instance Hashable ChannelInfoAttributes
 
 -- |A set of requested ChannelInfoAttributes.
-newtype ChannelInfoQuery = ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
-  deriving ToURLParam
-
+newtype ChannelInfoQuery =
+  ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
+  deriving (ToURLParam)
 
 instance ToURLParam a => ToURLParam (HS.HashSet a) where
   toURLParam hs = T.intercalate "," $ toURLParam <$> HS.toList hs
@@ -85,12 +88,13 @@ instance A.FromJSON ChannelsInfo where
   parseJSON (A.Object v) = do
     chansV <- v .: "channels"
     case chansV of
-      A.Object cs ->
+      A.Object cs
         -- Need to go to and from list in order to map (parse) the keys
-        ChannelsInfo . HM.fromList
-          <$> mapM
-            (\(channel, info) -> (parseChannel channel,) <$> A.parseJSON info)
-            (HM.toList cs)
+       ->
+        ChannelsInfo . HM.fromList <$>
+        mapM
+          (\(channel, info) -> (parseChannel channel, ) <$> A.parseJSON info)
+          (HM.toList cs)
       v1 -> failExpectObj v1
   parseJSON v2 = failExpectObj v2
 
@@ -113,14 +117,14 @@ data FullChannelInfo = FullChannelInfo
 
 instance A.FromJSON FullChannelInfo where
   parseJSON (A.Object v) =
-    FullChannelInfo
-      <$> v .: "occupied"
-      <*> v .:? "user_count"
-      <*> v .:? "subscription_count"
+    FullChannelInfo <$> v .: "occupied" <*> v .:? "user_count" <*>
+    v .:? "subscription_count"
   parseJSON v = failExpectObj v
 
 -- |A list of users returned by querying for users in a presence channel.
-newtype Users = Users [User] deriving (Eq, Show)
+newtype Users =
+  Users [User]
+  deriving (Eq, Show)
 
 instance A.FromJSON Users where
   parseJSON (A.Object v) = do
@@ -128,8 +132,11 @@ instance A.FromJSON Users where
     Users <$> A.parseJSON users
   parseJSON v = failExpectObj v
 
--- |The data about a user returned when querying for users in a presence channel.
-data User = User { userID :: T.Text } deriving (Eq, Show)
+-- |The data about a user returned when querying for users in a presence
+-- channel.
+data User = User
+  { userID :: T.Text
+  } deriving (Eq, Show)
 
 instance A.FromJSON User where
   parseJSON (A.Object v) = User <$> v .: "id"
