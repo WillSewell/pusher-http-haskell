@@ -48,8 +48,8 @@ import Network.Pusher.Internal.Util (show')
 
 -- |Generate the required query string parameters required to send API requests
 -- to Pusher.
-makeQS ::
-     AppKey
+makeQS
+  :: AppKey
   -> AppSecret
   -> T.Text
   -> T.Text
@@ -105,8 +105,9 @@ authenticatePrivate cred socketID channel =
 
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- presence channel.
-authenticatePresence ::
-     A.ToJSON a => Credentials -> SocketID -> Channel -> a -> AuthSignature
+authenticatePresence
+  :: A.ToJSON a
+  => Credentials -> SocketID -> Channel -> a -> AuthSignature
 authenticatePresence =
   authenticatePresenceWithEncoder
     (TL.toStrict . TL.toLazyText . A.encodeToTextBuilder . A.toJSON)
@@ -114,8 +115,8 @@ authenticatePresence =
 -- |As above, but allows the encoder of the user data to be specified. This is
 -- useful for testing because the encoder can be mocked; aeson's encoder enodes
 -- JSON object fields in arbitrary orders, which makes it impossible to test.
-authenticatePresenceWithEncoder ::
-     (a -> T.Text) -- ^The encoder of the user data.
+authenticatePresenceWithEncoder
+  :: (a -> T.Text) -- ^The encoder of the user data.
   -> Credentials
   -> SocketID
   -> Channel

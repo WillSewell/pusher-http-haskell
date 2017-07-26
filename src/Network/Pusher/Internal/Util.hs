@@ -33,5 +33,7 @@ failExpectStr :: A.Value -> A.Parser a
 failExpectStr = fail . ("Expected JSON string, got " ++) . show
 
 -- | Generalised version of show
-show' :: (Show a, IsString b) => a -> b
+show'
+  :: (Show a, IsString b)
+  => a -> b
 show' = fromString . show
