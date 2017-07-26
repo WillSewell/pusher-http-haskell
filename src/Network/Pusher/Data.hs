@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, OverloadedStrings, MultiWayIf #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 Module      : Network.Pusher.Data
