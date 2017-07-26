@@ -52,4 +52,5 @@ credentials =
   { credentialsAppID = 3
   , credentialsAppKey = "278d425bdf160c739803"
   , credentialsAppSecret = "7ad3773142a6692b25b8"
+  , credentialsCluster = Nothing
   }

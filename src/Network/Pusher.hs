@@ -22,12 +22,13 @@ a 'Left' 'PusherError' when run.
 An example of how you would use these functions:
 
 @
-  let credentials =
-        Credentials
-        { credentialsAppID = 123
-        , credentialsAppKey = "wrd12344rcd234"
-        , credentialsAppSecret = "124df34d545v"
-        }
+  let
+    credentials = Credentials
+      { credentialsAppID     = 123
+      , credentialsAppKey    = wrd12344rcd234
+      , credentialsAppSecret = 124df34d545v
+      , credentialsCluster   = Nothing
+      }
   pusher <- getPusher credentials
   result <-
     trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
@@ -45,6 +46,7 @@ module Network.Pusher
   -- ** Pusher config type
   ( Pusher(..)
   , Credentials(..)
+  , Cluster(..)
   , AppID
   , AppKey
   , AppSecret
@@ -84,9 +86,10 @@ import qualified Data.Text as T
 
 import Network.Pusher.Data
        (AppID, AppKey, AppSecret, Channel(..), ChannelName,
-        ChannelType(..), Credentials(..), Event, EventData, Pusher(..),
-        SocketID, getPusher, getPusherWithConnManager, getPusherWithHost,
-        parseChannel, renderChannel, renderChannelPrefix)
+        ChannelType(..), Credentials(..), Cluster(..), Event, EventData,
+        Pusher(..), SocketID, getPusher, getPusherWithHost,
+        getPusherWithConnManager, parseChannel, renderChannel,
+        renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import qualified Network.Pusher.Internal as Pusher
 import Network.Pusher.Internal.Auth
@@ -99,8 +102,8 @@ import Network.Pusher.Protocol
         FullChannelInfo, Users)
 
 -- |Trigger an event to one or more channels.
-trigger ::
-     MonadIO m
+trigger
+  :: MonadIO m
   => Pusher
   -> [Channel]
   -- ^The list of channels to trigger to
@@ -119,8 +122,8 @@ trigger pusher chans event dat socketId =
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Query a list of channels for information.
-channels ::
-     MonadIO m
+channels
+  :: MonadIO m
   => Pusher
   -> Maybe ChannelType
   -- ^Filter by the type of channel
@@ -139,8 +142,8 @@ channels pusher channelTypeFilter prefixFilter attributes =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Query for information on a single channel.
-channel ::
-     MonadIO m
+channel
+  :: MonadIO m
   => Pusher
   -> Channel
   -> ChannelInfoQuery
@@ -154,7 +157,9 @@ channel pusher chan attributes =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Get a list of users in a presence channel.
-users :: MonadIO m => Pusher -> Channel -> m (Either PusherError Users)
+users
+  :: MonadIO m
+  => Pusher -> Channel -> m (Either PusherError Users)
 users pusher chan =
   liftIO $
   runExceptT $ do
