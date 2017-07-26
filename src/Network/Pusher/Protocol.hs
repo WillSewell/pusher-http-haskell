@@ -100,7 +100,7 @@ instance A.FromJSON ChannelsInfo where
 
 -- |The possible returned channel attributes when multiple when multiple
 -- channels are queried.
-data ChannelInfo = ChannelInfo
+newtype ChannelInfo = ChannelInfo
   { channelInfoUserCount :: Maybe Int
   } deriving (Eq, Show)
 
@@ -134,7 +134,7 @@ instance A.FromJSON Users where
 
 -- |The data about a user returned when querying for users in a presence
 -- channel.
-data User = User
+newtype User = User
   { userID :: T.Text
   } deriving (Eq, Show)
 
