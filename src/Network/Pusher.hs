@@ -22,12 +22,12 @@ a 'Left' 'PusherError' when run.
 An example of how you would use these functions:
 
 @
-  let
-    credentials = Credentials
-      { credentialsAppID = 123
-      , credentialsAppKey = wrd12344rcd234
-      , credentialsAppSecret = 124df34d545v
-      }
+  let credentials =
+        Credentials
+        { credentialsAppID = 123
+        , credentialsAppKey = "wrd12344rcd234"
+        , credentialsAppSecret = "124df34d545v"
+        }
   pusher <- getPusher credentials
   result <-
     trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
@@ -128,7 +128,7 @@ channels ::
   -- ^A channel prefix you wish to filter on
   -> ChannelsInfoQuery
   -- ^Data you wish to query for, currently just the user count
-  -> m (Either PusherError ChannelsInfo)-- ^The returned data
+  -> m (Either PusherError ChannelsInfo) -- ^The returned data
 channels pusher channelTypeFilter prefixFilter attributes =
   liftIO $
   runExceptT $ do
