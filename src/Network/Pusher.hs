@@ -62,7 +62,7 @@ An example of how you would use these functions:
 
   notifyRes <- notify pusher notification
 
-  @
+@
 
 
 There are simple working examples in the example/ directory.
