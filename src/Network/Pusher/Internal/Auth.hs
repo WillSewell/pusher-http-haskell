@@ -37,7 +37,7 @@ import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Crypto.MAC.HMAC as HMAC
 import qualified Data.ByteString as B hiding (map)
 import qualified Data.ByteString.Base16 as B16
-import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
@@ -86,7 +86,7 @@ makeQS appKey appSecret method fullPath params body ts
   in ("auth_signature", authSig) : allParams
   where
     alphabeticalOrder = sortWith fst
-    lowercaseKeys = map (\(k, v) -> (B.map toLower k, v))
+    lowercaseKeys = map (\(k, v) -> (BC.map toLower k, v))
 
 -- |Render key-value tuple mapping of query string parameters into a string.
 formQueryString :: RequestQueryString -> B.ByteString
