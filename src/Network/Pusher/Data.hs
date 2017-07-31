@@ -236,7 +236,7 @@ newtype Interest =
 
 mkInterest :: T.Text -> Maybe Interest
 mkInterest txt
-  | T.length txt <= 164 &&
+  |  0 < T.length txt && T.length txt <= 164 &&
       T.all (\c -> isAlphaNum c || HS.member c permitted) txt =
     Just . Interest $ txt
   | otherwise = Nothing

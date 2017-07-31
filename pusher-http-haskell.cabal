@@ -80,4 +80,5 @@ test-suite tests
     other-modules:
         Auth
         Protocol
+        Push
     ghc-options: -Wall
