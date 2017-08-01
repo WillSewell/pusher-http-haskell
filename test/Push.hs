@@ -1,8 +1,13 @@
 module Push where
 
+import qualified Data.Aeson as A
+import Data.Aeson ((.=))
+import qualified Data.ByteString.Lazy.Char8 as B
+import qualified Data.HashMap.Strict as HM
+import Data.Maybe (fromJust)
 import qualified Data.Text as T
 
-import Test.Hspec (Spec, describe, it)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (elements, property, Gen, vectorOf, oneof)
 
 import Network.Pusher
@@ -24,6 +29,47 @@ test = do
           case mkInterest txt of
             Nothing -> True
             Just _ -> False
+  describe "Notifications parse" $
+    it "Notification JSON parses correctly" $
+    property $
+    let (inputBS, expected) = validFCMDecoding
+    in A.decode inputBS == Just expected
+
+-- A single example of a FCM notification which we expect to aeson decode to
+-- the paired Notification value.
+validFCMDecoding :: (B.ByteString, Notification)
+validFCMDecoding =
+  let bs =
+        B.unlines
+          [ "{"
+          , "\"interests\": [\"interestOne\"],"
+          , "\"fcm\": { \"notification\": {"
+          , "              \"body\": \"bodyText\","
+          , "              \"title\": \"titleText\""
+          , "                             }"
+          , "         }"
+          , "}"
+          ]
+      notification =
+        Notification
+        { notificationInterest = fromJust . mkInterest $ "interestOne"
+        , notificationWebhookURL = Nothing
+        , notificationWebhookLevel = Nothing
+        , notificationAPNSPayload = Nothing
+        , notificationGCMPayload = Nothing
+        , notificationFCMPayload =
+            Just $
+            FCMPayload $
+            HM.fromList
+              [ ("notification" :: T.Text) .=
+                (A.Object $
+                 HM.fromList
+                   [ ("title" :: T.Text) .= ("titleText" :: T.Text)
+                   , ("body" :: T.Text) .= ("bodyText" :: T.Text)
+                   ])
+              ]
+        }
+  in (bs, notification)
 
 -- Valid interest names
 arbitraryInterestText :: Gen T.Text

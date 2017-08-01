@@ -233,6 +233,7 @@ type SocketID = T.Text
 -- interest names with prefixes such as private- or presence-
 newtype Interest =
   Interest T.Text
+  deriving (Eq,Show)
 
 mkInterest :: T.Text -> Maybe Interest
 mkInterest txt
@@ -264,6 +265,7 @@ type WebhookURL = T.Text
 data WebhookLevel
   = Info -- ^ Errors only
   | Debug -- ^ Everything
+  deriving (Eq,Show)
 
 instance A.FromJSON WebhookLevel where
   parseJSON v =
@@ -284,6 +286,7 @@ instance A.ToJSON WebhookLevel where
 -- TODO: Replace JSON object with a stronger encoding.
 data APNSPayload =
   APNSPayload A.Object
+  deriving (Eq,Show)
 
 instance A.FromJSON APNSPayload where
   parseJSON v =
@@ -298,6 +301,7 @@ instance A.ToJSON APNSPayload where
 -- TODO: Replace JSON object with a stronger encoding.
 data GCMPayload =
   GCMPayload A.Object
+  deriving (Eq,Show)
 
 instance A.FromJSON GCMPayload where
   parseJSON v =
@@ -312,6 +316,7 @@ instance A.ToJSON GCMPayload where
 -- TODO: Replace JSON object with a stronger encoding.
 data FCMPayload =
   FCMPayload A.Object
+  deriving (Eq,Show)
 
 instance A.FromJSON FCMPayload where
   parseJSON v =
@@ -330,6 +335,7 @@ data Notification = Notification
   , notificationGCMPayload :: Maybe GCMPayload
   , notificationFCMPayload :: Maybe FCMPayload
   }
+  deriving (Eq,Show)
 
 instance A.FromJSON Notification where
   parseJSON (A.Object v) =
