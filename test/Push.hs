@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances, OverloadedStrings, ScopedTypeVariables #-}
 
 module Push where
 
@@ -8,8 +8,10 @@ import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromJust)
+import Data.Scientific
 import Data.Monoid ((<>))
 import qualified Data.Text as T
+import qualified Data.Vector as V
 
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck
@@ -110,13 +112,50 @@ newtype GCMDecoding =
   GCMDecoding (Decoding (Maybe GCMPayload))
 
 instance Arbitrary APNSDecoding where
-  arbitrary = return $ APNSDecoding ("", Nothing)
+  arbitrary = do
+    titleText <- arbitraryInterestText
+    bodyText  <- arbitraryInterestText
+
+    dataJSON  :: A.Value <- arbitrary
+    let alert :: A.Object
+        alert = HM.fromList
+                  [ "title" .= titleText
+                  , "body"  .= bodyText
+                  ]
+
+        aps :: A.Object
+        aps = HM.fromList
+                ["alert" .= alert
+                ]
+
+        payload :: A.Object
+        payload = HM.fromList
+          ["aps"  .= aps
+          ,"data" .= dataJSON
+          ]
+
+    let apns = APNSPayload payload
+
+        bs :: ByteString
+        bs = mconcat
+               ["{"
+               ,"\"aps\":", "{"
+               ,"              \"alert\":{\"title\":\"",(B.pack . T.unpack $ titleText),"\""
+               ,"                        ,\"body\":\"",(B.pack . T.unpack $ bodyText),"\""
+               ,"                        }"
+               ,"            }"
+               ,",\"data\":",(A.encode dataJSON)
+               ,"}"
+               ]
+
+        in return $ APNSDecoding (bs,Just apns)
 
 instance Arbitrary GCMDecoding where
   arbitrary = return $ GCMDecoding ("", Nothing)
 
 instance Arbitrary FCMDecoding where
   arbitrary = return $ FCMDecoding ("", Nothing)
+
 
 instance Arbitrary NotificationDecoding where
   arbitrary = do
@@ -199,3 +238,55 @@ arbitraryInvalidInterestText =
     invalidCharactersInterestText = do
       n <- elements [1 .. 165]
       vectorOf n $ elements "!\"£$%^&*()+}{~:?><¬` `}\""
+
+
+-- Our arbitrary JSON values don't nest recursive objects. A better solution
+-- would be to used 'sized' or similar to set a recursion depth.
+instance Arbitrary A.Value where
+  arbitrary = oneof [arbitraryJSONPrimitives
+                    ,arbitraryObject
+                    ,arbitraryArray
+                    ]
+    where
+      arbitraryObject = A.Object <$> arbitrary
+      arbitraryArray  = A.Array  <$> arbitrary
+
+-- Strings, numbers, bools and null. No arrays or objects
+arbitraryJSONPrimitives :: Gen A.Value
+arbitraryJSONPrimitives = oneof
+  [arbitraryString
+  ,arbitraryNumber
+  ,arbitraryBool
+  ,arbitraryNull
+  ]
+  where
+    arbitraryString = A.String <$> arbitraryInterestText
+    arbitraryNumber = A.Number <$> arbitrary
+    arbitraryBool   = A.Bool   <$> arbitrary
+    arbitraryNull   = pure A.Null
+
+-- Our arbitrary text is restricted by size and charset to be valid interest
+-- names, although we use it elsewhere
+instance Arbitrary T.Text where
+  arbitrary = arbitraryInterestText
+
+-- The internal type of JSON objects is hashmap of text keys to values.
+-- We only nest primitives.
+instance Arbitrary (HM.HashMap T.Text A.Value) where
+  arbitrary = do
+    o <- vectorOf 10 $ do k <- arbitrary
+                          v <- arbitraryJSONPrimitives
+                          return (k,v)
+    return . HM.fromList $ o
+
+-- The internal type of JSON arrays is a Vector of values.
+-- We only nest primitives.
+instance Arbitrary (V.Vector A.Value) where
+  arbitrary = do
+    xs <- vectorOf 10 arbitraryJSONPrimitives
+    return . V.fromList $ xs
+    
+-- The internal type of JSON numbers is a Scientific number.
+instance Arbitrary Scientific where
+  arbitrary = scientific <$> arbitrary <*> arbitrary
+
