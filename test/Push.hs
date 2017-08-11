@@ -113,8 +113,8 @@ newtype GCMDecoding =
 
 instance Arbitrary APNSDecoding where
   arbitrary = do
-    titleText <- arbitraryInterestText
-    bodyText  <- arbitraryInterestText
+    titleText <- arbitrary
+    bodyText  <- arbitrary
 
     dataJSON  :: A.Value <- arbitrary
     let alert :: A.Object
@@ -151,7 +151,36 @@ instance Arbitrary APNSDecoding where
         in return $ APNSDecoding (bs,Just apns)
 
 instance Arbitrary GCMDecoding where
-  arbitrary = return $ GCMDecoding ("", Nothing)
+  arbitrary = do
+    titleText <- arbitrary
+    bodyText  <- arbitrary
+
+    dataJSON :: A.Value <- arbitrary
+
+    let notification :: A.Object
+        notification = HM.fromList
+          ["title" .= titleText
+          ,"body"  .= bodyText
+          ]
+    
+        payload :: A.Object
+        payload = HM.fromList
+          ["notification" .= notification
+          ,"data"         .= dataJSON
+          ]
+
+        gcm = GCMPayload payload
+
+        bs :: ByteString
+        bs = mconcat
+               ["{"
+               ,"\"notification\":", "{\"title\":\"", (B.pack . T.unpack $ titleText),"\""
+               ,"                     ,\"body\":\"",(B.pack . T.unpack $ bodyText),"\""
+               ,"                     }"
+               ,",\"data\":",(A.encode dataJSON)
+               ,"}"
+               ]
+       in return $ GCMDecoding (bs,Just gcm)
 
 instance Arbitrary FCMDecoding where
   arbitrary = return $ FCMDecoding ("", Nothing)
