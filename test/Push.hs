@@ -1,15 +1,16 @@
-{-# LANGUAGE FlexibleInstances, OverloadedStrings, ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances, OverloadedStrings,
+  ScopedTypeVariables #-}
 
 module Push where
 
-import qualified Data.Aeson as A
 import Data.Aeson ((.=))
+import qualified Data.Aeson as A
 import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromJust)
-import Data.Scientific
 import Data.Monoid ((<>))
+import Data.Scientific
 import qualified Data.Text as T
 import qualified Data.Vector as V
 
@@ -113,108 +114,93 @@ newtype GCMDecoding =
 
 instance Arbitrary APNSDecoding where
   arbitrary = do
-    titleText <- arbitrary
-    bodyText  <- arbitrary
-
-    dataJSON  :: A.Value <- arbitrary
+    InterestText titleText <- arbitrary
+    InterestText bodyText <- arbitrary
+    NonRecJSON dataJSON <- arbitrary
     let alert :: A.Object
-        alert = HM.fromList
-                  [ "title" .= titleText
-                  , "body"  .= bodyText
-                  ]
-
+        alert = HM.fromList ["title" .= titleText, "body" .= bodyText]
         aps :: A.Object
-        aps = HM.fromList
-                ["alert" .= alert
-                ]
-
+        aps = HM.fromList ["alert" .= alert]
         payload :: A.Object
-        payload = HM.fromList
-          ["aps"  .= aps
-          ,"data" .= dataJSON
-          ]
-
+        payload = HM.fromList ["aps" .= aps, "data" .= dataJSON]
     let apns = APNSPayload payload
-
         bs :: ByteString
-        bs = mconcat
-               ["{"
-               ,"\"aps\":", "{"
-               ,"              \"alert\":{\"title\":\"",(B.pack . T.unpack $ titleText),"\""
-               ,"                        ,\"body\":\"",(B.pack . T.unpack $ bodyText),"\""
-               ,"                        }"
-               ,"            }"
-               ,",\"data\":",(A.encode dataJSON)
-               ,"}"
-               ]
-
-        in return $ APNSDecoding (bs,Just apns)
+        bs =
+          mconcat
+            [ "{"
+            , "\"aps\":"
+            , "{"
+            , "              \"alert\":{\"title\":\""
+            , (B.pack . T.unpack $ titleText)
+            , "\""
+            , "                        ,\"body\":\""
+            , (B.pack . T.unpack $ bodyText)
+            , "\""
+            , "                        }"
+            , "            }"
+            , ",\"data\":"
+            , (A.encode dataJSON)
+            , "}"
+            ]
+    return $ APNSDecoding (bs, Just apns)
 
 instance Arbitrary GCMDecoding where
   arbitrary = do
-    titleText <- arbitrary
-    bodyText  <- arbitrary
-
-    dataJSON :: A.Value <- arbitrary
-
+    InterestText titleText <- arbitrary
+    InterestText bodyText <- arbitrary
+    NonRecJSON dataJSON <- arbitrary
     let notification :: A.Object
-        notification = HM.fromList
-          ["title" .= titleText
-          ,"body"  .= bodyText
-          ]
-    
+        notification = HM.fromList ["title" .= titleText, "body" .= bodyText]
         payload :: A.Object
-        payload = HM.fromList
-          ["notification" .= notification
-          ,"data"         .= dataJSON
-          ]
-
+        payload =
+          HM.fromList ["notification" .= notification, "data" .= dataJSON]
         gcm = GCMPayload payload
-
         bs :: ByteString
-        bs = mconcat
-               ["{"
-               ,"\"notification\":", "{\"title\":\"", (B.pack . T.unpack $ titleText),"\""
-               ,"                     ,\"body\":\"",(B.pack . T.unpack $ bodyText),"\""
-               ,"                     }"
-               ,",\"data\":",(A.encode dataJSON)
-               ,"}"
-               ]
-       in return $ GCMDecoding (bs,Just gcm)
+        bs =
+          mconcat
+            [ "{"
+            , "\"notification\":"
+            , "{\"title\":\""
+            , (B.pack . T.unpack $ titleText)
+            , "\""
+            , "                     ,\"body\":\""
+            , (B.pack . T.unpack $ bodyText)
+            , "\""
+            , "                     }"
+            , ",\"data\":"
+            , (A.encode dataJSON)
+            , "}"
+            ]
+    return $ GCMDecoding (bs, Just gcm)
 
 instance Arbitrary FCMDecoding where
   arbitrary = do
-    titleText <- arbitrary
-    bodyText  <- arbitrary
-
-    dataJSON :: A.Value <- arbitrary
-
+    InterestText titleText <- arbitrary
+    InterestText bodyText <- arbitrary
+    NonRecJSON dataJSON <- arbitrary
     let notification :: A.Object
-        notification = HM.fromList
-          ["title" .= titleText
-          ,"body"  .= bodyText
-          ]
-    
+        notification = HM.fromList ["title" .= titleText, "body" .= bodyText]
         payload :: A.Object
-        payload = HM.fromList
-          ["notification" .= notification
-          ,"data"         .= dataJSON
-          ]
-
+        payload =
+          HM.fromList ["notification" .= notification, "data" .= dataJSON]
         gcm = FCMPayload payload
-
         bs :: ByteString
-        bs = mconcat
-               ["{"
-               ,"\"notification\":", "{\"title\":\"", (B.pack . T.unpack $ titleText),"\""
-               ,"                     ,\"body\":\"",(B.pack . T.unpack $ bodyText),"\""
-               ,"                     }"
-               ,",\"data\":",(A.encode dataJSON)
-               ,"}"
-               ]
-       in return $ FCMDecoding (bs,Just gcm)
-
-
+        bs =
+          mconcat
+            [ "{"
+            , "\"notification\":"
+            , "{\"title\":\""
+            , (B.pack . T.unpack $ titleText)
+            , "\""
+            , "                     ,\"body\":\""
+            , (B.pack . T.unpack $ bodyText)
+            , "\""
+            , "                     }"
+            , ",\"data\":"
+            , (A.encode dataJSON)
+            , "}"
+            ]
+    return $ FCMDecoding (bs, Just gcm)
 
 instance Arbitrary NotificationDecoding where
   arbitrary = do
@@ -298,54 +284,84 @@ arbitraryInvalidInterestText =
       n <- elements [1 .. 165]
       vectorOf n $ elements "!\"£$%^&*()+}{~:?><¬` `}\""
 
+-- JSON but with no nested objects or nested arrays to make generating arbitrary
+-- structures simpler. A better solution would be to used 'sized' or similar to
+-- limit the size.
+newtype NonRecJSON =
+  NonRecJSON A.Value
 
--- Our arbitrary JSON values don't nest recursive objects. A better solution
--- would be to used 'sized' or similar to set a recursion depth.
-instance Arbitrary A.Value where
-  arbitrary = oneof [arbitraryJSONPrimitives
-                    ,arbitraryObject
-                    ,arbitraryArray
-                    ]
+instance Arbitrary NonRecJSON where
+  arbitrary =
+    NonRecJSON <$>
+    oneof [arbitraryJSONPrimitives, arbitraryObject, arbitraryArray]
     where
-      arbitraryObject = A.Object <$> arbitrary
-      arbitraryArray  = A.Array  <$> arbitrary
+      arbitraryObject = A.Object . _unNonRecObject <$> arbitrary
+      arbitraryArray = A.Array . _unNonRecArray <$> arbitrary
 
 -- Strings, numbers, bools and null. No arrays or objects
 arbitraryJSONPrimitives :: Gen A.Value
-arbitraryJSONPrimitives = oneof
-  [arbitraryString
-  ,arbitraryNumber
-  ,arbitraryBool
-  ,arbitraryNull
-  ]
+arbitraryJSONPrimitives =
+  oneof [arbitraryString, arbitraryNumber, arbitraryBool, arbitraryNull]
   where
-    arbitraryString = A.String <$> arbitraryInterestText
-    arbitraryNumber = A.Number <$> arbitrary
-    arbitraryBool   = A.Bool   <$> arbitrary
-    arbitraryNull   = pure A.Null
+    arbitraryString = A.String . _unInterestText <$> arbitrary
+    arbitraryNumber = A.Number . _unOurNumber <$> arbitrary
+    arbitraryBool = A.Bool <$> arbitrary
+    arbitraryNull = pure A.Null
 
--- Our arbitrary text is restricted by size and charset to be valid interest
--- names, although we use it elsewhere
-instance Arbitrary T.Text where
-  arbitrary = arbitraryInterestText
+-- Valid interest text has a certain size and character set although we use
+-- this as a general source of 'safe' random text elsewhere.
+newtype InterestText = InterestText
+  { _unInterestText :: T.Text
+  }
+
+instance Arbitrary InterestText where
+  arbitrary =
+    InterestText <$> do
+      n <- elements [1 .. 164]
+      str <-
+        vectorOf n $
+        elements $
+        concat
+          [ ['a' .. 'z']
+          , ['A' .. 'Z']
+          , ['0' .. '1']
+          , ['_', '=', '@', ',', '.', ';']
+          ]
+      return . T.pack $ str
 
 -- The internal type of JSON objects is hashmap of text keys to values.
 -- We only nest primitives.
-instance Arbitrary (HM.HashMap T.Text A.Value) where
-  arbitrary = do
-    o <- vectorOf 10 $ do k <- arbitrary
-                          v <- arbitraryJSONPrimitives
-                          return (k,v)
-    return . HM.fromList $ o
+newtype NonRecObject = NonRecObject
+  { _unNonRecObject :: HM.HashMap T.Text A.Value
+  }
+
+instance Arbitrary NonRecObject where
+  arbitrary =
+    NonRecObject <$> do
+      o <-
+        vectorOf 10 $ do
+          InterestText k <- arbitrary
+          v <- arbitraryJSONPrimitives
+          return (k, v)
+      return . HM.fromList $ o
 
 -- The internal type of JSON arrays is a Vector of values.
 -- We only nest primitives.
-instance Arbitrary (V.Vector A.Value) where
-  arbitrary = do
-    xs <- vectorOf 10 arbitraryJSONPrimitives
-    return . V.fromList $ xs
-    
--- The internal type of JSON numbers is a Scientific number.
-instance Arbitrary Scientific where
-  arbitrary = scientific <$> arbitrary <*> arbitrary
+newtype NonRecArray = NonRecArray
+  { _unNonRecArray :: V.Vector A.Value
+  }
 
+instance Arbitrary NonRecArray where
+  arbitrary =
+    NonRecArray <$> do
+      xs <- vectorOf 10 arbitraryJSONPrimitives
+      return . V.fromList $ xs
+
+-- The internal type of JSON numbers is a Scientific number.
+-- We generate arbitrary values with the 'scientific' function.
+newtype OurNumber = OurNumber
+  { _unOurNumber :: Scientific
+  }
+
+instance Arbitrary OurNumber where
+  arbitrary = OurNumber <$> (scientific <$> arbitrary <*> arbitrary)
