@@ -47,7 +47,8 @@ library
         unordered-containers ==0.2.*,
         containers,
         http-server ==1.0.*,
-        HTTP
+        HTTP,
+        monadIO
 
     default-language: Haskell2010
     default-extensions: OverloadedStrings

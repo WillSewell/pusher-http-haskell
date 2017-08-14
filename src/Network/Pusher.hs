@@ -78,12 +78,22 @@ module Network.Pusher
   , authenticatePrivate
   -- * Errors
   , PusherError(..)
+  -- * Webhooks
+  , handleWebhooks
+  , handleWebhooks'
+  , WebhookEv(..)
+  , parseWebhookPayloadReq
+  , WebhookPayload(..)
+  , Webhooks(..)
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
+import Control.Concurrent.MonadIO (forkIO)
+import Data.Time (UTCTime(..))
+import qualified Network.HTTP.Server as HTTP
 import Network.Pusher.Data
        (AppID, AppKey, AppSecret, Channel(..), ChannelName,
         ChannelType(..), Credentials(..), Cluster(..), Event, EventData,
@@ -100,6 +110,9 @@ import Network.Pusher.Internal.Util (getTime)
 import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
+import Network.Pusher.Webhook
+       (Webhooks(..), WebhookEv(..), WebhookPayload(..),
+        parseWebhookPayloadReq)
 
 -- |Trigger an event to one or more channels.
 trigger
@@ -165,3 +178,40 @@ users pusher chan =
   runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
+
+-- Handle webhooks asynchronously given their AppKey matches the one in our Pusher credential
+-- and the WebhookEv is encrypted by the matching AppSecret.
+handleWebhooks
+  :: MonadIO m
+  => Pusher -> (UTCTime -> WebhookEv -> IO ()) -> m ()
+handleWebhooks pusher webhookF =
+  handleWebhooks'
+    (\whAppKey ->
+       let credentials = pusherCredentials pusher
+           ourAppKey = credentialsAppKey credentials
+           ourAppSecret = credentialsAppSecret credentials
+       in if whAppKey == ourAppKey
+            then Just ourAppSecret
+            else Nothing)
+    (const webhookF)
+
+-- Handle webhooks asyncronously given their AppKey has a corresponding
+-- AppSecret which the WebhookEv has been encrypted by.
+handleWebhooks'
+  :: MonadIO m
+  => (AppKey -> Maybe AppSecret)
+  -> (AppKey -> UTCTime -> WebhookEv -> IO ())
+  -> m ()
+handleWebhooks' lookupKeysSecret webhookF =
+  liftIO $
+  let config = HTTP.defaultConfig {HTTP.srvPort = 80}
+  in HTTP.serverWith config $ \_ _url req -> do
+       _ <-
+         forkIO $
+         case parseWebhookPayloadReq req lookupKeysSecret
+            -- Malformed or unauthenticated webhook
+               of
+           Nothing -> return ()
+           Just (WebhookPayload appKey _verifiedSignature (Webhooks time evs)) ->
+             mapM_ (webhookF appKey time) evs
+       return . HTTP.respond $ HTTP.OK
