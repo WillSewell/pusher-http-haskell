@@ -1,14 +1,29 @@
 module Network.Pusher.Webhook
   (Webhooks(..)
   ,WebhookEv(..)
+
+  ,WebhookPayload(..)
+  ,parseWebhookPayloadReq
   )
   where
 
 import           Data.Text (Text)
 import           Data.Time (UTCTime(..))
-import           Network.Pusher.Data (Channel(..),SocketID)
+
+import           Network.Pusher.Internal.Auth (AuthSignature)
+import           Network.Pusher.Data (Channel(..),SocketID,AppKey,AppSecret)
 import           Network.Pusher.Protocol (User(..))
+import           Network.Pusher.Internal.Util
+
+import           Data.Aeson ((.:))
 import qualified Data.Aeson as A
+import qualified Network.HTTP.Server as HTTP
+import qualified Crypto.Hash.SHA256 as SHA256
+import qualified Crypto.MAC.HMAC as HMAC
+import qualified Data.ByteString.Base16 as B16
+
+import Data.ByteString.Lazy (fromStrict)
+import qualified Data.ByteString.Char8 as B
 
 
 -- | A Webhook is received by POST request from Pusher to notify your server of
@@ -19,6 +34,14 @@ data Webhooks = Webhooks
   ,webhookEvs :: [WebhookEv]
   }
 
+instance A.FromJSON Webhooks where
+  parseJSON o = case o of
+    A.Object v
+      -> Webhooks
+           <$> (v .: "time_ms")
+           <*> (v .: "events")
+
+    _ -> failExpectObj o
 
 -- | A 'WebhookEv'ent is one of several events Pusher may send to your server
 -- in response to events your users may trigger.
@@ -54,4 +77,84 @@ data WebhookEv
      ,withSocketId :: SocketID
      ,withPossibleUser :: Maybe User
      }
+
+instance A.FromJSON WebhookEv where
+  parseJSON o = case o of
+    A.Object v
+      -> do name <- v .: "name"
+            case name :: Text of
+              "channel_occupied"
+                -> ChannelOccupiedEv
+                     <$> v .: "channel"
+
+              "channel_vacated"
+                -> ChannelVacatedEv
+                     <$> v .: "channel"
+
+              "member_added"
+                -> MemberAddedEv
+                     <$> v .: "channel"
+                     <*> v .: "user_id"
+
+              "member_removed"
+                -> MemberRemovedEv
+                     <$> v .: "channel"
+                     <*> v .: "user_id"
+
+              "client_event"
+                -> ClientEv
+                     <$> v .: "channel"
+                     <*> v .: "event"
+                     <*> v .: "data"
+                     <*> v .: "socket_id"
+                     <*> v .: "user_id"
+
+              _ -> fail . ("Unknown client event. Got: " ++ ) . show $ o
+
+    _ -> failExpectObj o
+
+data WebhookPayload = WebhookPayload
+  {
+   -- | Authentication header. The oldest active token is used, identified by
+   -- this key.
+   xPusherKey :: AppKey
+
+   -- | A HMAC SHA256 formed by signing the payload with the tokens secret.
+  ,xPusherSignature :: AuthSignature
+
+  ,webhooks :: Webhooks
+  }
+
+-- Pass a HTTP Request, we've recieved and attempt to parse it as a WebhookPayload.
+-- Will return Nothing if the request is malformed or if the auth string does not validate.
+parseWebhookPayloadReq
+  :: HTTP.Request B.ByteString
+  -> (AppKey -> Maybe AppSecret)
+  -> Maybe WebhookPayload
+parseWebhookPayloadReq req lookupKeysSecret = do
+  -- Per the Maybe Monad instance, any of these failing shortcircuits
+  -- the computation.
+  ()              <- if HTTP.rqMethod req == HTTP.POST then Just () else Nothing
+  pusherKey       <- B.pack <$> HTTP.findHeader (HTTP.HdrCustom "X-Pusher-Key")       req
+  pusherSignature <- B.pack <$> HTTP.findHeader (HTTP.HdrCustom "X-Pusher-Signature") req
+
+  -- Body must match the given hash where we use the given public key to lookup
+  -- the secret private key.
+  let body = HTTP.rqBody req
+  pusherSecret <- lookupKeysSecret pusherKey
+  () <- if verifyWebhookBody pusherSecret pusherSignature body then Just () else Nothing
+
+  ws <- A.decode $ fromStrict body
+  return $ WebhookPayload pusherKey pusherSignature ws
+
+-- Does a webhook body hash with our secret key to the given signature?
+verifyWebhookBody
+  :: AppSecret
+  -> AuthSignature
+  -> B.ByteString
+  -> Bool
+verifyWebhookBody appSecret authSignature body =
+  let actualSignature = B16.encode $ HMAC.hmac SHA256.hash 64 appSecret body
+     in authSignature == actualSignature
+
 

@@ -177,6 +177,13 @@ data Channel = Channel
 
 instance Hashable Channel
 
+instance A.FromJSON Channel where
+  parseJSON s = case s of
+    A.String txt
+      -> return $ parseChannel txt
+
+    _ -> failExpectStr s
+
 renderChannel :: Channel -> T.Text
 renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
 
