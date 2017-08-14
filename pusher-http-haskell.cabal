@@ -52,6 +52,7 @@ library
         Network.Pusher.Data
         Network.Pusher.Error
         Network.Pusher.Internal.Util
+        Network.Pusher.Webhook
     ghc-options: -Wall
 
 test-suite tests
