@@ -91,7 +91,7 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
-import Control.Concurrent.MonadIO (forkIO)
+import Control.Concurrent.MonadIO (forkIO,ThreadId)
 import Data.Time (UTCTime(..))
 import qualified Network.HTTP.Server as HTTP
 import Network.Pusher.Data
@@ -183,7 +183,7 @@ users pusher chan =
 -- and the WebhookEv is encrypted by the matching AppSecret.
 handleWebhooks
   :: MonadIO m
-  => Pusher -> (UTCTime -> WebhookEv -> IO ()) -> m ()
+  => Pusher -> (UTCTime -> WebhookEv -> IO ()) -> m ThreadId
 handleWebhooks pusher webhookF =
   handleWebhooks'
     (\whAppKey ->
@@ -201,17 +201,17 @@ handleWebhooks'
   :: MonadIO m
   => (AppKey -> Maybe AppSecret)
   -> (AppKey -> UTCTime -> WebhookEv -> IO ())
-  -> m ()
+  -> m ThreadId
 handleWebhooks' lookupKeysSecret webhookF =
   liftIO $
   let config = HTTP.defaultConfig {HTTP.srvPort = 80}
-  in HTTP.serverWith config $ \_ _url req -> do
-       _ <-
-         forkIO $
-         case parseWebhookPayloadReq req lookupKeysSecret
-            -- Malformed or unauthenticated webhook
-               of
-           Nothing -> return ()
-           Just (WebhookPayload appKey _verifiedSignature (Webhooks time evs)) ->
-             mapM_ (webhookF appKey time) evs
-       return . HTTP.respond $ HTTP.OK
+  in forkIO $ HTTP.serverWith config $ \_ _url req -> do
+           _ <-
+             forkIO $
+             case parseWebhookPayloadReq req lookupKeysSecret
+                -- Malformed or unauthenticated webhook
+                   of
+               Nothing -> return ()
+               Just (WebhookPayload appKey _verifiedSignature (Webhooks time evs)) ->
+                 mapM_ (webhookF appKey time) evs
+           return . HTTP.respond $ HTTP.OK

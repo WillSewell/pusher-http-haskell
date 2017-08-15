@@ -9,6 +9,7 @@ module Network.Pusher.Webhook
 
 import           Data.Text (Text)
 import           Data.Time (UTCTime(..))
+import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 
 import           Network.Pusher.Internal.Auth (AuthSignature)
 import           Network.Pusher.Data (Channel(..),SocketID,AppKey,AppSecret)
@@ -25,7 +26,6 @@ import qualified Data.ByteString.Base16 as B16
 import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Char8 as B
 
-
 -- | A Webhook is received by POST request from Pusher to notify your server of
 -- a number of 'WebhookEv'ents. Multiple events are received under the same
 -- timestamp if batch events is enabled.
@@ -33,12 +33,13 @@ data Webhooks = Webhooks
   {timeMs :: UTCTime
   ,webhookEvs :: [WebhookEv]
   }
+  deriving (Eq,Show)
 
 instance A.FromJSON Webhooks where
   parseJSON o = case o of
     A.Object v
       -> Webhooks
-           <$> (v .: "time_ms")
+           <$> (posixSecondsToUTCTime <$> v .: "time_ms")
            <*> (v .: "events")
 
     _ -> failExpectObj o
@@ -77,6 +78,7 @@ data WebhookEv
      ,withSocketId :: SocketID
      ,withPossibleUser :: Maybe User
      }
+  deriving (Eq,Show)
 
 instance A.FromJSON WebhookEv where
   parseJSON o = case o of
@@ -124,6 +126,7 @@ data WebhookPayload = WebhookPayload
 
   ,webhooks :: Webhooks
   }
+  deriving (Eq,Show)
 
 -- Pass a HTTP Request, we've recieved and attempt to parse it as a WebhookPayload.
 -- Will return Nothing if the request is malformed or if the auth string does not validate.
