@@ -7,24 +7,24 @@ module Network.Pusher.Webhook
   )
   where
 
+import           Data.Aeson ((.:))
+import           Data.ByteString.Lazy (fromStrict)
 import           Data.Text (Text)
+import           Data.Text.Encoding
 import           Data.Time (UTCTime(..))
 import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
-
-import           Network.Pusher.Internal.Auth (AuthSignature)
 import           Network.Pusher.Data (Channel(..),SocketID,AppKey,AppSecret)
-import           Network.Pusher.Protocol (User(..))
+import           Network.Pusher.Internal.Auth (AuthSignature)
 import           Network.Pusher.Internal.Util
-
-import           Data.Aeson ((.:))
-import qualified Data.Aeson as A
-import qualified Network.HTTP.Server as HTTP
+import           Network.Pusher.Protocol (User(..))
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Crypto.MAC.HMAC as HMAC
+import qualified Data.Aeson as A
 import qualified Data.ByteString.Base16 as B16
-
-import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString.Lazy.Char8 as LB
+import qualified Network.HTTP.Server as HTTP
+
 
 -- | A Webhook is received by POST request from Pusher to notify your server of
 -- a number of 'WebhookEv'ents. Multiple events are received under the same
@@ -74,7 +74,7 @@ data WebhookEv
   | ClientEv
      {onChannel :: Channel
      ,clientEvName :: Text
-     ,clientEvBody :: A.Value
+     ,clientEvBody :: Maybe A.Value
      ,withSocketId :: SocketID
      ,withPossibleUser :: Maybe User
      }
@@ -96,20 +96,20 @@ instance A.FromJSON WebhookEv where
               "member_added"
                 -> MemberAddedEv
                      <$> v .: "channel"
-                     <*> v .: "user_id"
+                     <*> (User <$> v .: "user_id")
 
               "member_removed"
                 -> MemberRemovedEv
                      <$> v .: "channel"
-                     <*> v .: "user_id"
+                     <*> (User <$> v .: "user_id")
 
               "client_event"
                 -> ClientEv
                      <$> v .: "channel"
                      <*> v .: "event"
-                     <*> v .: "data"
+                     <*> (A.decode . LB.fromStrict . encodeUtf8 <$> v .: "data")
                      <*> v .: "socket_id"
-                     <*> v .: "user_id"
+                     <*> (fmap User <$> v .: "user_id")
 
               _ -> fail . ("Unknown client event. Got: " ++ ) . show $ o
 
