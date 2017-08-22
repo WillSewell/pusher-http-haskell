@@ -65,16 +65,15 @@ test = do
 validFCMDecoding :: (B.ByteString, Notification)
 validFCMDecoding =
   let bs =
-        B.unlines
-          [ "{"
-          , "\"interests\": [\"interestOne\"],"
-          , "\"fcm\": { \"notification\": {"
-          , "              \"body\": \"bodyText\","
-          , "              \"title\": \"titleText\""
-          , "                             }"
-          , "         }"
-          , "}"
-          ]
+        "{\
+          \ \"interests\": [\"interestOne\"]\
+          \ ,\"fcm\": {\
+          \     \"notification\":\
+          \        {\"title\":\"titleText\"\
+          \        ,\"body\":\"bodyText\"\
+          \        }\
+          \  }\
+          \}"
       notification =
         Notification
         { notificationInterest = fromJust . mkInterest $ "interestOne"
@@ -126,22 +125,22 @@ instance Arbitrary APNSDecoding where
     let apns = APNSPayload payload
         bs :: ByteString
         bs =
-          mconcat
-            [ "{"
-            , "\"aps\":"
-            , "{"
-            , "              \"alert\":{\"title\":\""
-            , (B.pack . T.unpack $ titleText)
-            , "\""
-            , "                        ,\"body\":\""
-            , (B.pack . T.unpack $ bodyText)
-            , "\""
-            , "                        }"
-            , "            }"
-            , ",\"data\":"
-            , (A.encode dataJSON)
-            , "}"
-            ]
+          "{\
+          \  \"aps\":\
+          \   {\
+          \     \"alert\":\
+          \       {\"title\":\"" <>
+          (B.pack . T.unpack $ titleText) <>
+          "\"\
+          \       ,\"body\":\"" <>
+          (B.pack . T.unpack $ bodyText) <>
+          "\"\
+          \       }\
+          \   }\
+          \   ,\"data\":" <>
+          (A.encode dataJSON) <>
+          "\
+          \}"
     return $ APNSDecoding (bs, Just apns)
 
 instance Arbitrary GCMDecoding where
@@ -157,20 +156,19 @@ instance Arbitrary GCMDecoding where
         gcm = GCMPayload payload
         bs :: ByteString
         bs =
-          mconcat
-            [ "{"
-            , "\"notification\":"
-            , "{\"title\":\""
-            , (B.pack . T.unpack $ titleText)
-            , "\""
-            , "                     ,\"body\":\""
-            , (B.pack . T.unpack $ bodyText)
-            , "\""
-            , "                     }"
-            , ",\"data\":"
-            , (A.encode dataJSON)
-            , "}"
-            ]
+          "{\
+          \  \"notification\":\
+          \    {\"title\":\"" <>
+          (B.pack . T.unpack $ titleText) <>
+          "\"\
+          \    ,\"body\":\"" <>
+          (B.pack . T.unpack $ bodyText) <>
+          "\"\
+          \    }\
+          \    ,\"data\":" <>
+          (A.encode dataJSON) <>
+          "\
+          \}"
     return $ GCMDecoding (bs, Just gcm)
 
 instance Arbitrary FCMDecoding where
@@ -186,20 +184,19 @@ instance Arbitrary FCMDecoding where
         gcm = FCMPayload payload
         bs :: ByteString
         bs =
-          mconcat
-            [ "{"
-            , "\"notification\":"
-            , "{\"title\":\""
-            , (B.pack . T.unpack $ titleText)
-            , "\""
-            , "                     ,\"body\":\""
-            , (B.pack . T.unpack $ bodyText)
-            , "\""
-            , "                     }"
-            , ",\"data\":"
-            , (A.encode dataJSON)
-            , "}"
-            ]
+          "{\
+          \  \"notification\":\
+          \    {\"title\":\"" <>
+          (B.pack . T.unpack $ titleText) <>
+          "\"\
+          \    ,\"body\":\"" <>
+          (B.pack . T.unpack $ bodyText) <>
+          "\"\
+          \    }\
+          \    ,\"data\":" <>
+          (A.encode dataJSON) <>
+          "\
+          \}"
     return $ FCMDecoding (bs, Just gcm)
 
 instance Arbitrary NotificationDecoding where
