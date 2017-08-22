@@ -32,13 +32,27 @@ data Webhooks = Webhooks
   , webhookEvs :: [WebhookEv]
   } deriving (Eq, Show)
 
+
+
 instance A.FromJSON Webhooks where
   parseJSON o =
     case o of
       A.Object v ->
-        Webhooks <$> (posixSecondsToUTCTime <$> v .: "time_ms") <*>
+        Webhooks <$> (_unOurTime <$> A.parseJSON o) <*>
         (v .: "events")
       _ -> failExpectObj o
+
+-- Exists only so we can define our own FromJSON instance on NominalDiffTime.
+-- This is useful because it didnt exist before a certain GHC version that we
+-- support and allows us to avoid CPP and orphan instances.
+newtype OurTime = OurTime {_unOurTime :: UTCTime}
+-- posixSecondsToUTCTime <$>
+
+instance A.FromJSON OurTime where
+  parseJSON o = case o of
+    A.Object v
+      -> A.withScientific "NominalDiffTime" (pure . OurTime . posixSecondsToUTCTime . realToFrac) =<< v.: "time_ms"
+    _ -> failExpectObj o
 
 -- | A 'WebhookEv'ent is one of several events Pusher may send to your server
 -- in response to events your users may trigger.
