@@ -153,6 +153,18 @@ clientEventPayload =
       }
     ]
 
+batchEventPayload :: TestWebhookPayload
+batchEventPayload =
+  mkSimpleTestWebhookPayload
+    "ebc2cca5d18f3cf01d99"
+    "6f87cba29d7b8f6f4a36"
+    1503397088953
+    "{\"time_ms\":1503397088953,\"events\":[{\"channel\":\"private-foo\",\"name\":\"channel_occupied\"},{\"channel\":\"presence-foo\",\"name\":\"channel_occupied\"}]}"
+    "7a9803e1ca598dac4750a60fbb017d4f34fc44eaf0aea26c694ca0d7060e6477"
+    [ ChannelOccupiedEv { onChannel = parseChannel "private-foo" }
+    , ChannelOccupiedEv { onChannel = parseChannel "presence-foo" }
+    ]
+
 test :: Spec
 test =
   describe "Webhook.parseWebhookPayloadReq" $ do
@@ -166,3 +178,5 @@ test =
       property $ testWebhookPayloadParses memberRemovedPayload
     it "A client event payload parses and validates" $
       property $ testWebhookPayloadParses clientEventPayload
+    it "Multiple batch events parse and validate" $
+      property $ testWebhookPayloadParses batchEventPayload
