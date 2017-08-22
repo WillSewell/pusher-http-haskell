@@ -10,7 +10,7 @@ import Data.Time.Clock.POSIX
 import qualified Network.HTTP.Server as HTTP
 import Network.Pusher
        (parseChannel, AppKey, AppSecret, WebhookPayload(..), Webhooks(..),
-        WebhookEv(..), parseWebhookPayloadReq, AuthSignature, SocketID)
+        WebhookEv(..), parseWebhookPayloadReq, AuthSignature)
 import Network.Pusher.Protocol (User(..))
 import Network.URI
 import Test.Hspec (Spec, describe, it)
@@ -161,22 +161,22 @@ batchEventPayload =
     1503397088953
     "{\"time_ms\":1503397088953,\"events\":[{\"channel\":\"private-foo\",\"name\":\"channel_occupied\"},{\"channel\":\"presence-foo\",\"name\":\"channel_occupied\"}]}"
     "7a9803e1ca598dac4750a60fbb017d4f34fc44eaf0aea26c694ca0d7060e6477"
-    [ ChannelOccupiedEv { onChannel = parseChannel "private-foo" }
-    , ChannelOccupiedEv { onChannel = parseChannel "presence-foo" }
+    [ ChannelOccupiedEv {onChannel = parseChannel "private-foo"}
+    , ChannelOccupiedEv {onChannel = parseChannel "presence-foo"}
     ]
 
 test :: Spec
 test =
   describe "Webhook.parseWebhookPayloadReq" $ do
-    it "A channel_occupied payload parses and validates" $
+    it "parses and validates a channel_occupied event" $
       property $ testWebhookPayloadParses channelOccupiedPayload
-    it "A channel_vacated payload parses and validates" $
+    it "parses and validates a Channel_vacated event" $
       property $ testWebhookPayloadParses channelVacatedPayload
-    it "A member_added payload parses and validates" $
+    it "parses and validates a member_added event" $
       property $ testWebhookPayloadParses memberAddedPayload
-    it "A member_removed payload parses and validates" $
+    it "parses and validates a member_removed event" $
       property $ testWebhookPayloadParses memberRemovedPayload
-    it "A client event payload parses and validates" $
+    it "parses and validates a client event" $
       property $ testWebhookPayloadParses clientEventPayload
-    it "Multiple batch events parse and validate" $
+    it "parses and validates multiple batched events" $
       property $ testWebhookPayloadParses batchEventPayload
