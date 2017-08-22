@@ -22,37 +22,37 @@ import Network.Pusher
 
 test :: Spec
 test = do
-  describe "Interest names are validated" $ do
-    it "Correct Interest names are accepted" $
+  describe "Interest names" $ do
+    it "are accepted when using valid characters" $
       property $ do
         txt <- arbitraryInterestText
         return $
           case mkInterest txt of
             Nothing -> False
             Just _ -> True
-    it "Invalid Interest names are rejected" $
+    it "are rejected when using invalid characters" $
       property $ do
         txt <- arbitraryInvalidInterestText
         return $
           case mkInterest txt of
             Nothing -> True
             Just _ -> False
-  describe "Notifications parse" $ do
-    it "A specific FCM Notification JSON parses correctly" $
+  describe "Notification JSON parser" $ do
+    it "correctly parses a specific FCM Notification." $
       property $
       let (inputBS, expected) = validFCMDecoding
       in A.decode inputBS == Just expected
     it "Random Notifications JSON parses correctly" $
       property $ \(NotificationDecoding (bs, notification)) ->
         A.decode bs == Just notification
-  describe "Notifications encode" $ do
-    it "A specific FCM Notification encodes to JSON correctly" $
+  describe "Notification JSON encoder" $ do
+    it "encodes a specific FCM Notification correctly" $
       property $
       let (bs, notification) = validFCMDecoding
       in (A.encode notification) ==
          (A.encode . fromJust . (A.decode :: ByteString -> Maybe Notification) $
           bs)
-    it "Random Notifications encode to JSON correctly" $
+    it "encodes random Notifications correctly" $
       -- NOTE: We put the expected string through a round trip to normalise trivial
       -- differences such as ordering and spacing in the JSON Aeson generates
       property $ \(NotificationDecoding (bs, notification)) ->
