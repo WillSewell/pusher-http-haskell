@@ -1,6 +1,3 @@
-{-# LANGUAGE FlexibleInstances, OverloadedStrings,
-  ScopedTypeVariables #-}
-
 module Push where
 
 import Data.Aeson ((.=))
