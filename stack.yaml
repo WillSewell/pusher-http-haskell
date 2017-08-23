@@ -3,4 +3,4 @@ packages:
 - '.'
 extra-deps:
 - aeson-1.2.0.0
-resolver: nightly-2017-04-14
+resolver: nightly-2017-07-25

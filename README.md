@@ -1,7 +1,6 @@
 # Pusher Haskell HTTP client library
 
-[![Build Status](https://travis-ci.org/pusher-community/pusher-http-haskell.svg?branch=master)]
-(https://travis-ci.org/pusher-community/pusher-http-haskell)
+[![Build Status](https://travis-ci.org/pusher-community/pusher-http-haskell.svg?branch=master)](https://travis-ci.org/pusher-community/pusher-http-haskell)
 
 *This is currently in the alpha stage of development*
 

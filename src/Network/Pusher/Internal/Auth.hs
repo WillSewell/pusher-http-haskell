@@ -32,10 +32,10 @@ import qualified Data.Aeson.Text as A
 #else
 import qualified Data.Aeson.Encode as A
 #endif
-import qualified Crypto.Hash.MD5 as MD5
-import qualified Crypto.Hash.SHA256 as SHA256
+import qualified Crypto.Hash as Hash
 import qualified Crypto.MAC.HMAC as HMAC
-import qualified Data.ByteString as B hiding (map)
+import qualified Data.ByteArray as BA
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
@@ -50,8 +50,8 @@ import Network.Pusher.Internal.Util (show')
 
 -- |Generate the required query string parameters required to send API requests
 -- to Pusher.
-makeQS
-  :: AppKey
+makeQS ::
+     AppKey
   -> AppSecret
   -> T.Text
   -> T.Text
@@ -70,7 +70,8 @@ makeQS appKey appSecret method fullPath params body ts
         [ ("auth_key", appKey)
         , ("auth_timestamp", show' ts)
         , ("auth_version", "1.0")
-        , ("body_md5", B16.encode (MD5.hash body))
+        , ( "body_md5"
+          , B16.encode $ BA.convert (Hash.hash body :: Hash.Digest Hash.MD5))
         ]
     -- Generate the auth signature from the list of parameters
     -- - Method name is upper case
@@ -101,7 +102,8 @@ type AuthSignature = B.ByteString
 -- |Create a Pusher auth signature of a string using the provided credentials.
 authSignature :: AppSecret -> AuthString -> AuthSignature
 authSignature appSecret authString =
-  B16.encode $ HMAC.hmac SHA256.hash 64 appSecret authString
+  B16.encode $
+  BA.convert (HMAC.hmac appSecret authString :: HMAC.HMAC Hash.SHA256)
 
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- private channel.
@@ -115,9 +117,8 @@ authenticatePrivate cred socketID channel =
 
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- presence channel.
-authenticatePresence
-  :: A.ToJSON a
-  => Credentials -> SocketID -> Channel -> a -> AuthSignature
+authenticatePresence ::
+     A.ToJSON a => Credentials -> SocketID -> Channel -> a -> AuthSignature
 authenticatePresence =
   authenticatePresenceWithEncoder
     (TL.toStrict . TL.toLazyText . A.encodeToTextBuilder . A.toJSON)
@@ -125,8 +126,8 @@ authenticatePresence =
 -- |As above, but allows the encoder of the user data to be specified. This is
 -- useful for testing because the encoder can be mocked; aeson's encoder enodes
 -- JSON object fields in arbitrary orders, which makes it impossible to test.
-authenticatePresenceWithEncoder
-  :: (a -> T.Text) -- ^The encoder of the user data.
+authenticatePresenceWithEncoder ::
+     (a -> T.Text) -- ^The encoder of the user data.
   -> Credentials
   -> SocketID
   -> Channel
