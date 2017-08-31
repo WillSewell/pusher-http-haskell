@@ -94,4 +94,5 @@ test-suite tests
     other-modules:
         Auth
         Protocol
+        Webhook
     ghc-options: -Wall
