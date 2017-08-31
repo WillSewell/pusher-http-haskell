@@ -48,7 +48,8 @@ library
         containers,
         http-server ==1.0.*,
         HTTP,
-        monadIO
+        monadIO,
+        memory >=0.7
 
     default-language: Haskell2010
     default-extensions: OverloadedStrings
@@ -73,7 +74,7 @@ test-suite tests
         base -any,
         bytestring -any,
         base16-bytestring -any,
-        cryptohash -any,
+        cryptonite -any,
         hspec -any,
         http-client -any,
         http-server -any,
@@ -85,7 +86,8 @@ test-suite tests
         network-uri -any,
         text -any,
         transformers -any,
-        unordered-containers -any
+        unordered-containers -any,
+        memory -any
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     hs-source-dirs: test

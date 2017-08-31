@@ -5,10 +5,11 @@ module Network.Pusher.Webhook
   , parseWebhookPayloadReq
   ) where
 
-import qualified Crypto.Hash.SHA256 as SHA256
+import qualified Crypto.Hash as HASH
 import qualified Crypto.MAC.HMAC as HMAC
 import Data.Aeson ((.:))
 import qualified Data.Aeson as A
+import Data.ByteArray
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as B
 import Data.ByteString.Lazy (fromStrict)
@@ -32,27 +33,30 @@ data Webhooks = Webhooks
   , webhookEvs :: [WebhookEv]
   } deriving (Eq, Show)
 
-
-
 instance A.FromJSON Webhooks where
   parseJSON o =
     case o of
       A.Object v ->
-        Webhooks <$> (_unOurTime <$> A.parseJSON o) <*>
-        (v .: "events")
+        Webhooks <$> (_unOurTime <$> A.parseJSON o) <*> (v .: "events")
       _ -> failExpectObj o
 
 -- Exists only so we can define our own FromJSON instance on NominalDiffTime.
 -- This is useful because it didnt exist before a certain GHC version that we
 -- support and allows us to avoid CPP and orphan instances.
-newtype OurTime = OurTime {_unOurTime :: UTCTime}
--- posixSecondsToUTCTime <$>
+newtype OurTime = OurTime
+  { _unOurTime :: UTCTime
+  }
 
+-- posixSecondsToUTCTime <$>
 instance A.FromJSON OurTime where
-  parseJSON o = case o of
-    A.Object v
-      -> A.withScientific "NominalDiffTime" (pure . OurTime . posixSecondsToUTCTime . realToFrac) =<< v.: "time_ms"
-    _ -> failExpectObj o
+  parseJSON o =
+    case o of
+      A.Object v ->
+        A.withScientific
+          "NominalDiffTime"
+          (pure . OurTime . posixSecondsToUTCTime . realToFrac) =<<
+        v .: "time_ms"
+      _ -> failExpectObj o
 
 -- | A 'WebhookEv'ent is one of several events Pusher may send to your server
 -- in response to events your users may trigger.
@@ -135,5 +139,7 @@ parseWebhookPayloadReq req lookupKeysSecret
 -- Does a webhook body hash with our secret key to the given signature?
 verifyWebhookBody :: AppSecret -> AuthSignature -> B.ByteString -> Bool
 verifyWebhookBody appSecret authSignature body =
-  let actualSignature = B16.encode $ HMAC.hmac SHA256.hash 64 appSecret body
+  let actualSignature =
+        B16.encode $
+        convert $ (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
   in authSignature == actualSignature
