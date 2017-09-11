@@ -11,6 +11,7 @@ module Network.Pusher.Internal
   , mkChannelsRequest
   , mkChannelRequest
   , mkUsersRequest
+  , mkNotifyRequest
   ) where
 
 import Control.Monad (when)
@@ -24,7 +25,8 @@ import Data.Text.Encoding (encodeUtf8)
 
 import Network.Pusher.Data
        (Channel, ChannelType, Credentials(..), Event, EventData,
-        Pusher(..), SocketID, renderChannel, renderChannelPrefix)
+        Pusher(..), SocketID, Notification(..), renderChannel,
+        renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Internal.HTTP
@@ -87,6 +89,17 @@ mkUsersRequest pusher chan time =
   let subPath = "channels/" <> renderChannel chan <> "/users"
   in mkGetRequest pusher subPath [] time
 
+mkNotifyRequest :: Pusher
+                -> Notification
+                -> Int
+                -> Either PusherError (RequestParams, RequestBody)
+mkNotifyRequest pusher notification time = do
+  let body = A.toJSON notification
+      bodyBS = BL.toStrict $ A.encode body
+  when (B.length bodyBS > 10000) $
+    Left $ PusherArgumentError "Body must be less than 10000KB"
+  return $ (mkNotifyPostRequest pusher "notifications" [] bodyBS time, body)
+
 mkGetRequest :: Pusher -> T.Text -> RequestQueryString -> Int -> RequestParams
 mkGetRequest pusher subPath params time =
   let (ep, fullPath) = mkEndpoint pusher subPath
@@ -104,6 +117,17 @@ mkPostRequest pusher subPath params bodyBS time =
       qs = mkQS pusher "POST" fullPath params bodyBS time
   in RequestParams ep qs
 
+mkNotifyPostRequest :: Pusher
+                    -> T.Text
+                    -> RequestQueryString
+                    -> B.ByteString
+                    -> Int
+                    -> RequestParams
+mkNotifyPostRequest pusher subPath params bodyBS time =
+  let (ep, fullPath) = mkNotifyEndpoint pusher subPath
+      qs = mkQS pusher "POST" fullPath params bodyBS time
+  in RequestParams ep qs
+
 -- |Build a full endpoint from the details in Pusher and the subPath.
 mkEndpoint
   :: Pusher
@@ -112,6 +136,17 @@ mkEndpoint
 mkEndpoint pusher subPath =
   let fullPath = pusherPath pusher <> subPath
       endpoint = pusherHost pusher <> fullPath
+  in (endpoint, fullPath)
+
+-- |Build a full endpoint for push notifications from the details in Pusher and
+-- the subPath
+mkNotifyEndpoint
+  :: Pusher
+  -> T.Text -- ^ The subpath of the specific request
+  -> (T.Text, T.Text) -- ^ The full endpoint and just the path component
+mkNotifyEndpoint pusher subPath =
+  let fullPath = pusherNotifyPath pusher <> subPath
+      endpoint = pusherNotifyHost pusher <> fullPath
   in (endpoint, fullPath)
 
 mkQS

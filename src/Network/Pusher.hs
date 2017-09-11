@@ -30,14 +30,42 @@ An example of how you would use these functions:
       , credentialsCluster   = Nothing
       }
   pusher <- getPusher credentials
-  result <-
+
+  triggerRes <-
     trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
-  case result of
-    Left e -> error e
+
+  case triggerRes of
+    Left e -> putStrLn $ displayException e
     Right resp -> print resp
+
+  -- import qualified Data.HashMap.Strict as H
+  -- import qualified Data.Aeson          as A
+  let
+    -- A Firebase Cloud Messaging notification payload
+    fcmObject = H.fromList [("notification", A.Object $ H.fromList
+                                [("title", A.String "TITLE")
+                                ,("body" , A.String "BODY")
+                                ,("icon" , A.String "logo.png")
+                                ]
+                            )]
+    Just interest = mkInterest "INTEREST"
+
+    -- A Pusher notification
+    notification = Notification
+      { notificationInterest     = interest
+      , notificationWebhookURL   = Nothing
+      , notificationWebhookLevel = Nothing
+      , notificationAPNSPayload  = Nothing
+      , notificationGCMPayload   = Nothing
+      , notificationFCMPayload   = Just $ FCMPayload fcmObject
+      }
+
+  notifyRes <- notify pusher notification
+
 @
 
-There is a simple working example in the example/ directory.
+
+There are simple working examples in the example/ directory.
 
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
@@ -64,6 +92,15 @@ module Network.Pusher
   , Event
   , EventData
   , SocketID
+  -- ** Notifications
+  , Notification(..)
+  , Interest
+  , mkInterest
+  , WebhookURL
+  , WebhookLevel(..)
+  , APNSPayload(..)
+  , GCMPayload(..)
+  , FCMPayload(..)
   -- * HTTP Requests
   -- ** Trigger events
   , trigger
@@ -71,6 +108,8 @@ module Network.Pusher
   , channels
   , channel
   , users
+  -- ** Push notifications
+  , notify
   -- * Authentication
   , AuthString
   , AuthSignature
@@ -85,11 +124,12 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
 import Network.Pusher.Data
-       (AppID, AppKey, AppSecret, Channel(..), ChannelName,
-        ChannelType(..), Credentials(..), Cluster(..), Event, EventData,
-        Pusher(..), SocketID, getPusher, getPusherWithHost,
-        getPusherWithConnManager, parseChannel, renderChannel,
-        renderChannelPrefix)
+       (AppID, APNSPayload(..), AppKey, AppSecret, Channel(..),
+        ChannelName, ChannelType(..), Credentials(..), Cluster(..), Event,
+        EventData, FCMPayload(..), GCMPayload(..), Interest,
+        Notification(..), Pusher(..), SocketID, WebhookLevel(..),
+        WebhookURL, getPusher, getPusherWithConnManager, getPusherWithHost,
+        mkInterest, parseChannel, renderChannel, renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import qualified Network.Pusher.Internal as Pusher
 import Network.Pusher.Internal.Auth
@@ -165,3 +205,14 @@ users pusher chan =
   runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
+
+-- |Send a push notification
+notify
+  :: MonadIO m
+  => Pusher -> Notification -> m (Either PusherError ())
+notify pusher notification =
+  liftIO $
+  runExceptT $ do
+    (requestParams, requestBody) <-
+      ExceptT $ Pusher.mkNotifyRequest pusher notification <$> getTime
+    HTTP.post (pusherConnectionManager pusher) requestParams requestBody
