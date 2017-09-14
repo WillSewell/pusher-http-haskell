@@ -1,7 +1,11 @@
 module Main where
 
+import qualified Data.ByteString.Char8 as B
 import qualified Data.Yaml as Y
+import qualified Network.HTTP.Server as HTTP
 import qualified Network.Pusher as P
+
+import Control.Monad (when)
 
 main :: IO ()
 main = do
@@ -17,10 +21,15 @@ main = do
       return ()
 
 echoWebhooks :: P.Pusher -> IO ()
-echoWebhooks pusher = do
-  _threadId <-
-    P.handleWebhooks pusher $ \_utcTime ev ->
-      putStrLn . mconcat $
+echoWebhooks pusher =
+  let config = HTTP.defaultConfig {HTTP.srvPort = 80}
+     in HTTP.serverWith config  $ \_ _url req -> do success <- P.handleWebhooks pusher (return req) parseReq webhookF
+                                                    if success then return $ HTTP.respond HTTP.OK else undefined
+  where
+    parseReq :: HTTP.Request B.ByteString -> Maybe ([(B.ByteString,B.ByteString)],B.ByteString)
+    parseReq req = Just ([],"")
+
+    webhookF _utcTime ev = putStrLn . mconcat $
       case ev of
         P.ChannelOccupiedEv c -> ["channel ", show c, " is now occupied."]
         P.ChannelVacatedEv c -> ["channel ", show c, " is now vacated."]
@@ -37,4 +46,4 @@ echoWebhooks pusher = do
           , " with data "
           , show evBody
           ]
-  return ()
+

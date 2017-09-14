@@ -5,19 +5,16 @@ module Webhook where
 import qualified Data.Aeson as A
 import qualified Data.ByteString.Char8 as B
 import qualified Data.HashMap.Strict as HM
-import Data.Maybe (fromJust)
 import Data.Time.Clock.POSIX
-import qualified Network.HTTP.Server as HTTP
 import Network.Pusher
        (parseChannel, AppKey, AppSecret, WebhookPayload(..), Webhooks(..),
-        WebhookEv(..), parseWebhookPayloadReq, AuthSignature)
+        WebhookEv(..), AuthSignature,parseWebhookPayloadReq)
 import Network.Pusher.Protocol (User(..))
-import Network.URI
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (property)
 
 data TestWebhookPayload = TestWebhookPayload
-  { _webhookRequest :: HTTP.Request B.ByteString -- ^ A Request recieved from Pusher
+  { _webhookRequest :: ([(B.ByteString,B.ByteString)],B.ByteString) -- ^ A Request recieved from Pusher
   , _hasKey :: AppKey -- ^ Must have this key
   , _hasSecret :: AppSecret -- ^ Which must correspond to this secret
   , _payload :: Maybe WebhookPayload -- ^ And which must parse to this Payload
@@ -28,10 +25,11 @@ data TestWebhookPayload = TestWebhookPayload
 -- - The body must be correctly signed by our secret.
 -- - The parsed payload must then further be identical to the one we expect.
 testWebhookPayloadParses :: TestWebhookPayload -> Bool
-testWebhookPayloadParses (TestWebhookPayload req hasKey correspondingSecret expectedPayload) =
+testWebhookPayloadParses (TestWebhookPayload (headers,body) hasKey correspondingSecret expectedPayload) =
   let parseResult =
         parseWebhookPayloadReq
-          req
+          headers
+          body
           (\k ->
              if k == hasKey
                then Just correspondingSecret
@@ -65,18 +63,7 @@ mkSimpleTestWebhookPayload
   -> TestWebhookPayload
 mkSimpleTestWebhookPayload key secret unixTime body signature whs =
   TestWebhookPayload
-  { _webhookRequest =
-      HTTP.Request
-      { HTTP.rqURI = fromJust . parseURI $ "somewhere"
-      , HTTP.rqMethod = HTTP.POST
-      , HTTP.rqHeaders =
-          [ HTTP.Header (HTTP.HdrCustom "X-Pusher-Key") (B.unpack key)
-          , HTTP.Header
-              (HTTP.HdrCustom "X-Pusher-Signature")
-              (B.unpack signature)
-          ]
-      , HTTP.rqBody = body
-      }
+  { _webhookRequest = ([("X-Pusher-Key",key),("X-Pusher-Signature",signature)],body)
   , _hasKey = key
   , _hasSecret = secret
   , _payload =

@@ -2,6 +2,11 @@ module Network.Pusher.Webhook
   ( Webhooks(..)
   , WebhookEv(..)
   , WebhookPayload(..)
+
+  , parseAppKeyHdr
+  , parseAuthSignatureHdr
+  , parseWebhooksBody
+  , verifyWebhooksBody
   , parseWebhookPayloadReq
   ) where
 
@@ -14,11 +19,13 @@ import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as B
 import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Lazy.Char8 as LB
+import Data.Maybe (mapMaybe)
+import Data.Function (on)
+import Data.Char (toLower)
 import Data.Text (Text)
 import Data.Text.Encoding
 import Data.Time (UTCTime(..))
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
-import qualified Network.HTTP.Server as HTTP
 import Network.Pusher.Data
        (Channel(..), SocketID, AppKey, AppSecret)
 import Network.Pusher.Internal.Auth (AuthSignature)
@@ -109,37 +116,56 @@ data WebhookPayload = WebhookPayload
   , webhooks :: Webhooks
   } deriving (Eq, Show)
 
--- Pass a HTTP Request, we've recieved and attempt to parse it as a WebhookPayload.
--- Will return Nothing if the request is malformed or if the auth string does not validate.
-parseWebhookPayloadReq :: HTTP.Request B.ByteString
-                       -> (AppKey -> Maybe AppSecret)
-                       -> Maybe WebhookPayload
-parseWebhookPayloadReq req lookupKeysSecret
-  -- Per the Maybe Monad instance, any of these failing shortcircuits
-  -- the computation.
- = do
-  () <-
-    if HTTP.rqMethod req == HTTP.POST
-      then Just ()
-      else Nothing
-  pusherKey <- B.pack <$> HTTP.findHeader (HTTP.HdrCustom "X-Pusher-Key") req
-  pusherSignature <-
-    B.pack <$> HTTP.findHeader (HTTP.HdrCustom "X-Pusher-Signature") req
-  -- Body must match the given hash where we use the given public key to lookup
-  -- the secret private key.
-  let body = HTTP.rqBody req
-  pusherSecret <- lookupKeysSecret pusherKey
-  () <-
-    if verifyWebhookBody pusherSecret pusherSignature body
-      then Just ()
-      else Nothing
-  ws <- A.decode $ fromStrict body
-  return $ WebhookPayload pusherKey pusherSignature ws
+-- | Given a HTTP Header and its associated value, parse a AppKey.
+parseAppKeyHdr :: B.ByteString -> B.ByteString -> Maybe AppKey
+parseAppKeyHdr key value
+  | on (==) (B.map toLower) key "X-Pusher-Key" = Just value
+  | otherwise                                   = Nothing
+
+-- | Given a HTTP Header and its associated value, parse a AuthSignature.
+parseAuthSignatureHdr :: B.ByteString -> B.ByteString -> Maybe AuthSignature
+parseAuthSignatureHdr key value
+  | on (==) (B.map toLower) key "X-Pusher-Signature" = Just value
+  | otherwise                                        = Nothing
+
+-- | Given a HTTP body, parse the contained webhooks
+parseWebhooksBody :: B.ByteString -> Maybe Webhooks
+parseWebhooksBody = A.decode . fromStrict
 
 -- Does a webhook body hash with our secret key to the given signature?
-verifyWebhookBody :: AppSecret -> AuthSignature -> B.ByteString -> Bool
-verifyWebhookBody appSecret authSignature body =
+verifyWebhooksBody :: AppSecret -> AuthSignature -> B.ByteString -> Bool
+verifyWebhooksBody appSecret authSignature body =
   let actualSignature =
         B16.encode $
-        convert $ (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
+        convert (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
   in authSignature == actualSignature
+
+safeHead :: [a] -> Maybe a
+safeHead (x:_) = Just x
+safeHead _     = Nothing
+
+-- Given a list of http header key:values, a http body and a lookup function
+-- for an apps secret, parse and validate a  potential webhook payload.
+parseWebhookPayloadReq
+  :: [(B.ByteString,B.ByteString)]
+  -> B.ByteString
+  -> (AppKey -> Maybe AppSecret)
+  -> Maybe WebhookPayload
+parseWebhookPayloadReq headers body lookupKeysSecret = do
+   appKey         <- safeHead
+                   . mapMaybe (uncurry parseAppKeyHdr)
+                   $ headers
+
+   authSignature  <- safeHead
+                   . mapMaybe (uncurry parseAuthSignatureHdr)
+                   $ headers
+
+   appSecret      <- lookupKeysSecret appKey
+
+   ()             <- if verifyWebhooksBody appSecret authSignature body
+                       then Just ()
+                       else Nothing
+
+   whs <- parseWebhooksBody body
+   Just $ WebhookPayload appKey authSignature whs
+

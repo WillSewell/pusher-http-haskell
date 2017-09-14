@@ -82,18 +82,20 @@ module Network.Pusher
   , handleWebhooks
   , handleWebhooks'
   , WebhookEv(..)
-  , parseWebhookPayloadReq
   , WebhookPayload(..)
   , Webhooks(..)
+  , parseAppKeyHdr
+  , parseAuthSignatureHdr
+  , parseWebhooksBody
+  , verifyWebhooksBody
+  , parseWebhookPayloadReq
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
-import Control.Concurrent.MonadIO (forkIO,ThreadId)
 import Data.Time (UTCTime(..))
-import qualified Network.HTTP.Server as HTTP
 import Network.Pusher.Data
        (AppID, AppKey, AppSecret, Channel(..), ChannelName,
         ChannelType(..), Credentials(..), Cluster(..), Event, EventData,
@@ -111,8 +113,8 @@ import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
 import Network.Pusher.Webhook
-       (Webhooks(..), WebhookEv(..), WebhookPayload(..),
-        parseWebhookPayloadReq)
+       (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadReq)
+import qualified Data.ByteString.Char8 as B
 
 -- |Trigger an event to one or more channels.
 trigger
@@ -179,13 +181,17 @@ users pusher chan =
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
 
--- Handle webhooks asynchronously given their AppKey matches the one in our Pusher credential
+-- Handle webhooks given their AppKey matches the one in our Pusher credential
 -- and the WebhookEv is encrypted by the matching AppSecret.
 handleWebhooks
   :: MonadIO m
-  => Pusher -> (UTCTime -> WebhookEv -> IO ()) -> m ThreadId
-handleWebhooks pusher webhookF =
-  handleWebhooks'
+  => Pusher
+  -> m req
+  -> (req -> Maybe ([(B.ByteString,B.ByteString)],B.ByteString))
+  -> (UTCTime -> WebhookEv -> m ())
+  -> m Bool
+handleWebhooks pusher getReq parseReq webhookF =
+    handleWebhooks' getReq parseReq
     (\whAppKey ->
        let credentials = pusherCredentials pusher
            ourAppKey = credentialsAppKey credentials
@@ -195,23 +201,29 @@ handleWebhooks pusher webhookF =
             else Nothing)
     (const webhookF)
 
--- Handle webhooks asyncronously given their AppKey has a corresponding
--- AppSecret which the WebhookEv has been encrypted by.
+-- Handle webhooks given their AppKey has a corresponding AppSecret which the 
+-- WebhookEv has been encrypted by.
 handleWebhooks'
   :: MonadIO m
-  => (AppKey -> Maybe AppSecret)
-  -> (AppKey -> UTCTime -> WebhookEv -> IO ())
-  -> m ThreadId
-handleWebhooks' lookupKeysSecret webhookF =
-  liftIO $
-  let config = HTTP.defaultConfig {HTTP.srvPort = 80}
-  in forkIO $ HTTP.serverWith config $ \_ _url req -> do
-           _ <-
-             forkIO $
-             case parseWebhookPayloadReq req lookupKeysSecret
-                -- Malformed or unauthenticated webhook
-                   of
-               Nothing -> return ()
-               Just (WebhookPayload appKey _verifiedSignature (Webhooks time evs)) ->
-                 mapM_ (webhookF appKey time) evs
-           return . HTTP.respond $ HTTP.OK
+  => m req
+  -> (req -> Maybe ([(B.ByteString,B.ByteString)],B.ByteString))
+  -> (AppKey -> Maybe AppSecret)
+  -> (AppKey -> UTCTime -> WebhookEv -> m ())
+  -> m Bool
+handleWebhooks' getReq parseReq lookupKeysSecret webhookF = do
+  req <- getReq
+  case parseReq req of
+    Nothing
+      -> return False
+
+    Just (headers,body)
+      -> let mWebhooks = parseWebhookPayloadReq headers body lookupKeysSecret
+            in case mWebhooks of
+                  -- Malformed or unauthorized webhook
+                  Nothing
+                    -> return False
+
+                  Just (WebhookPayload appKey _verifiedSignature (Webhooks time evs))
+                    -> do mapM_ (webhookF appKey time) evs
+                          return True
+

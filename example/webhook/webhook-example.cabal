@@ -16,7 +16,9 @@ executable webhook-example
         pusher-http-haskell -any,
         text -any,
         unordered-containers -any,
-        yaml -any
+        http-server -any,
+        yaml -any,
+        bytestring -any
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures
