@@ -16,7 +16,7 @@ import Data.Aeson ((.:))
 import qualified Data.Aeson as A
 import Data.ByteArray
 import qualified Data.ByteString.Base16 as B16
-import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString.Char8 as BC
 import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Lazy.Char8 as LB
 import Data.Maybe (mapMaybe)
@@ -117,23 +117,23 @@ data WebhookPayload = WebhookPayload
   } deriving (Eq, Show)
 
 -- | Given a HTTP Header and its associated value, parse a AppKey.
-parseAppKeyHdr :: B.ByteString -> B.ByteString -> Maybe AppKey
+parseAppKeyHdr :: BC.ByteString -> BC.ByteString -> Maybe AppKey
 parseAppKeyHdr key value
-  | on (==) (B.map toLower) key "X-Pusher-Key" = Just value
+  | on (==) (BC.map toLower) key "X-Pusher-Key" = Just value
   | otherwise                                   = Nothing
 
 -- | Given a HTTP Header and its associated value, parse a AuthSignature.
-parseAuthSignatureHdr :: B.ByteString -> B.ByteString -> Maybe AuthSignature
+parseAuthSignatureHdr :: BC.ByteString -> BC.ByteString -> Maybe AuthSignature
 parseAuthSignatureHdr key value
-  | on (==) (B.map toLower) key "X-Pusher-Signature" = Just value
+  | on (==) (BC.map toLower) key "X-Pusher-Signature" = Just value
   | otherwise                                        = Nothing
 
 -- | Given a HTTP body, parse the contained webhooks
-parseWebhooksBody :: B.ByteString -> Maybe Webhooks
+parseWebhooksBody :: BC.ByteString -> Maybe Webhooks
 parseWebhooksBody = A.decode . fromStrict
 
 -- Does a webhook body hash with our secret key to the given signature?
-verifyWebhooksBody :: AppSecret -> AuthSignature -> B.ByteString -> Bool
+verifyWebhooksBody :: AppSecret -> AuthSignature -> BC.ByteString -> Bool
 verifyWebhooksBody appSecret authSignature body =
   let actualSignature =
         B16.encode $
@@ -148,8 +148,8 @@ safeHead _     = Nothing
 -- for an apps secret, parse and validate a  potential webhook payload.
 parseWebhookPayloadWith
   :: (AppKey -> Maybe AppSecret)
-  -> [(B.ByteString,B.ByteString)]
-  -> B.ByteString
+  -> [(BC.ByteString,BC.ByteString)]
+  -> BC.ByteString
   -> Maybe WebhookPayload
 parseWebhookPayloadWith lookupKeysSecret headers body = do
    appKey         <- safeHead

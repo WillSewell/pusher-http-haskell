@@ -112,7 +112,7 @@ import Network.Pusher.Protocol
         FullChannelInfo, Users)
 import Network.Pusher.Webhook
        (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadWith)
-import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString.Char8 as BC
 
 -- |Trigger an event to one or more channels.
 trigger
@@ -184,8 +184,8 @@ users pusher chan =
 -- encrypted by the corresponding AppSecret.
 parseWebhookPayload
   :: Pusher
-  -> [(B.ByteString,B.ByteString)]
-  -> B.ByteString
+  -> [(BC.ByteString,BC.ByteString)]
+  -> BC.ByteString
   -> Maybe WebhookPayload
 parseWebhookPayload pusher =
   let credentials = pusherCredentials pusher
