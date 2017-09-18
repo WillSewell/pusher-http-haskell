@@ -8,7 +8,7 @@ import qualified Data.HashMap.Strict as HM
 import Data.Time.Clock.POSIX
 import Network.Pusher
        (parseChannel, AppKey, AppSecret, WebhookPayload(..), Webhooks(..),
-        WebhookEv(..), AuthSignature,parseWebhookPayloadReq)
+        WebhookEv(..), AuthSignature,parseWebhookPayloadWith)
 import Network.Pusher.Protocol (User(..))
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (property)
@@ -26,14 +26,14 @@ data TestWebhookPayload = TestWebhookPayload
 -- - The parsed payload must then further be identical to the one we expect.
 testWebhookPayloadParses :: TestWebhookPayload -> Bool
 testWebhookPayloadParses (TestWebhookPayload (headers,body) hasKey correspondingSecret expectedPayload) =
-  let parseResult =
-        parseWebhookPayloadReq
-          headers
-          body
-          (\k ->
-             if k == hasKey
-               then Just correspondingSecret
-               else Nothing)
+  let parseResult = parseWebhookPayloadWith
+                      (\k -> if k == hasKey
+                               then Just correspondingSecret
+                               else Nothing
+                      )
+                      headers
+                      body
+
   in parseResult == expectedPayload
 
 -- Build a _simple_ TestWebhookPayload which contains:
@@ -154,7 +154,7 @@ batchEventPayload =
 
 test :: Spec
 test =
-  describe "Webhook.parseWebhookPayloadReq" $ do
+  describe "Webhook.parseWebhookPayloadWith" $ do
     it "parses and validates a channel_occupied event" $
       property $ testWebhookPayloadParses channelOccupiedPayload
     it "parses and validates a Channel_vacated event" $

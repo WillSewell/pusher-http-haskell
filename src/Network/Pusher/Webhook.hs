@@ -7,7 +7,7 @@ module Network.Pusher.Webhook
   , parseAuthSignatureHdr
   , parseWebhooksBody
   , verifyWebhooksBody
-  , parseWebhookPayloadReq
+  , parseWebhookPayloadWith
   ) where
 
 import qualified Crypto.Hash as HASH
@@ -146,12 +146,12 @@ safeHead _     = Nothing
 
 -- Given a list of http header key:values, a http body and a lookup function
 -- for an apps secret, parse and validate a  potential webhook payload.
-parseWebhookPayloadReq
-  :: [(B.ByteString,B.ByteString)]
+parseWebhookPayloadWith
+  :: (AppKey -> Maybe AppSecret)
+  -> [(B.ByteString,B.ByteString)]
   -> B.ByteString
-  -> (AppKey -> Maybe AppSecret)
   -> Maybe WebhookPayload
-parseWebhookPayloadReq headers body lookupKeysSecret = do
+parseWebhookPayloadWith lookupKeysSecret headers body = do
    appKey         <- safeHead
                    . mapMaybe (uncurry parseAppKeyHdr)
                    $ headers

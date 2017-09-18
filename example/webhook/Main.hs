@@ -2,7 +2,9 @@ module Main where
 
 import qualified Data.ByteString.Char8 as B
 import qualified Data.Yaml as Y
+import qualified Network.URL as URL
 import qualified Network.HTTP.Server as HTTP
+import qualified Network.Socket.Internal as Sock
 import qualified Network.Pusher as P
 
 import Control.Monad (when)
@@ -21,13 +23,22 @@ main = do
       return ()
 
 echoWebhooks :: P.Pusher -> IO ()
-echoWebhooks pusher =
-  let config = HTTP.defaultConfig {HTTP.srvPort = 80}
-     in HTTP.serverWith config  $ \_ _url req -> do success <- P.handleWebhooks pusher (return req) parseReq webhookF
-                                                    if success then return $ HTTP.respond HTTP.OK else undefined
+echoWebhooks pusher = HTTP.serverWith config handler
   where
-    parseReq :: HTTP.Request B.ByteString -> Maybe ([(B.ByteString,B.ByteString)],B.ByteString)
-    parseReq req = Just ([],"")
+    config = HTTP.defaultConfig {HTTP.srvPort = 80}
+
+    handler :: Sock.SockAddr -> URL.URL -> HTTP.Request B.ByteString -> IO (HTTP.Response B.ByteString)
+    handler _ _url req =
+      let headers         = map (\(HTTP.Header k v) -> (B.pack . show $ k, B.pack . show $ v)) . HTTP.rqHeaders $ req
+          body            = HTTP.rqBody req
+          mWebhookPayload = P.parseWebhookPayload pusher headers body
+         in case mWebhookPayload of
+              Nothing
+                -> return . HTTP.respond $ HTTP.Forbidden
+
+              Just (P.WebhookPayload _key _verifiedSignature (P.Webhooks time webhookEvs))
+                -> do mapM_ (webhookF time) webhookEvs
+                      return . HTTP.respond $ HTTP.OK
 
     webhookF _utcTime ev = putStrLn . mconcat $
       case ev of

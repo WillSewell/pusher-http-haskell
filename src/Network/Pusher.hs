@@ -79,8 +79,7 @@ module Network.Pusher
   -- * Errors
   , PusherError(..)
   -- * Webhooks
-  , handleWebhooks
-  , handleWebhooks'
+  , parseWebhookPayload
   , WebhookEv(..)
   , WebhookPayload(..)
   , Webhooks(..)
@@ -88,14 +87,13 @@ module Network.Pusher
   , parseAuthSignatureHdr
   , parseWebhooksBody
   , verifyWebhooksBody
-  , parseWebhookPayloadReq
+  , parseWebhookPayloadWith
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
-import Data.Time (UTCTime(..))
 import Network.Pusher.Data
        (AppID, AppKey, AppSecret, Channel(..), ChannelName,
         ChannelType(..), Credentials(..), Cluster(..), Event, EventData,
@@ -113,7 +111,7 @@ import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
 import Network.Pusher.Webhook
-       (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadReq)
+       (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadWith)
 import qualified Data.ByteString.Char8 as B
 
 -- |Trigger an event to one or more channels.
@@ -181,49 +179,18 @@ users pusher chan =
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
 
--- Handle webhooks given their AppKey matches the one in our Pusher credential
--- and the WebhookEv is encrypted by the matching AppSecret.
-handleWebhooks
-  :: MonadIO m
-  => Pusher
-  -> m req
-  -> (req -> Maybe ([(B.ByteString,B.ByteString)],B.ByteString))
-  -> (UTCTime -> WebhookEv -> m ())
-  -> m Bool
-handleWebhooks pusher getReq parseReq webhookF =
-    handleWebhooks' getReq parseReq
-    (\whAppKey ->
-       let credentials = pusherCredentials pusher
-           ourAppKey = credentialsAppKey credentials
-           ourAppSecret = credentialsAppSecret credentials
-       in if whAppKey == ourAppKey
-            then Just ourAppSecret
-            else Nothing)
-    (const webhookF)
-
--- Handle webhooks given their AppKey has a corresponding AppSecret which the 
--- WebhookEv has been encrypted by.
-handleWebhooks'
-  :: MonadIO m
-  => m req
-  -> (req -> Maybe ([(B.ByteString,B.ByteString)],B.ByteString))
-  -> (AppKey -> Maybe AppSecret)
-  -> (AppKey -> UTCTime -> WebhookEv -> m ())
-  -> m Bool
-handleWebhooks' getReq parseReq lookupKeysSecret webhookF = do
-  req <- getReq
-  case parseReq req of
-    Nothing
-      -> return False
-
-    Just (headers,body)
-      -> let mWebhooks = parseWebhookPayloadReq headers body lookupKeysSecret
-            in case mWebhooks of
-                  -- Malformed or unauthorized webhook
-                  Nothing
-                    -> return False
-
-                  Just (WebhookPayload appKey _verifiedSignature (Webhooks time evs))
-                    -> do mapM_ (webhookF appKey time) evs
-                          return True
+-- Parse webhooks from a list of HTTP headers and a HTTP body given their AppKey
+-- matches the one in our Pusher credentials and the webhook is correctly
+-- encrypted by the corresponding AppSecret.
+parseWebhookPayload
+  :: Pusher
+  -> [(B.ByteString,B.ByteString)]
+  -> B.ByteString
+  -> Maybe WebhookPayload
+parseWebhookPayload pusher =
+  let credentials = pusherCredentials pusher
+      ourAppKey = credentialsAppKey credentials
+      ourAppSecret = credentialsAppSecret credentials
+      lookupKeysSecret whAppKey = if whAppKey == ourAppKey then Just ourAppSecret else Nothing
+    in parseWebhookPayloadWith lookupKeysSecret
 
