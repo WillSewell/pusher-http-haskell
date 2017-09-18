@@ -15,12 +15,11 @@ executable webhook-example
         base -any,
         pusher-http-haskell -any,
         text -any,
-        unordered-containers -any,
-        http-server -any,
         yaml -any,
         bytestring -any,
-        url -any,
-        network -any
+        snap-core -any,
+        snap-server -any,
+        case-insensitive -any
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures

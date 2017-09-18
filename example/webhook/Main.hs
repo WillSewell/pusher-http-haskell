@@ -1,13 +1,15 @@
 module Main where
 
-import qualified Data.ByteString.Char8 as B
+import Control.Arrow
+import Control.Monad.IO.Class (liftIO)
+import Data.CaseInsensitive (original)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.Yaml as Y
-import qualified Network.URL as URL
-import qualified Network.HTTP.Server as HTTP
-import qualified Network.Socket.Internal as Sock
-import qualified Network.Pusher as P
+import qualified Snap.Core as Snap
+import qualified Snap.Http.Server as Snap
 
-import Control.Monad (when)
+import qualified Network.Pusher as P
 
 main :: IO ()
 main = do
@@ -16,31 +18,23 @@ main = do
     Left e -> print e
     Right cred -> do
       pusher <- P.getPusher cred
-      echoWebhooks pusher
-      putStrLn "Waiting for newline"
-      -- Wait for a newline to terminate the program
-      _ <- getLine
-      return ()
+      Snap.quickHttpServe $ Snap.method Snap.POST $ webhookHandler pusher
 
-echoWebhooks :: P.Pusher -> IO ()
-echoWebhooks pusher = HTTP.serverWith config handler
+webhookHandler :: P.Pusher -> Snap.Snap ()
+webhookHandler pusher = do
+  req <- Snap.getRequest
+  body <- Snap.readRequestBody 2048
+  let headers :: [(BS.ByteString, BS.ByteString)]
+      headers = map (first original) . Snap.listHeaders . Snap.rqHeaders $ req
+      mWebhookPayload = P.parseWebhookPayload pusher headers (BL.toStrict body)
+  case mWebhookPayload of
+    Nothing -> Snap.modifyResponse $ Snap.setResponseStatus 403 "FORBIDDEN"
+    Just (P.WebhookPayload _key _verifiedSignature (P.Webhooks time webhookEvs)) -> do
+      liftIO $ mapM_ (webhookF time) webhookEvs
+      Snap.modifyResponse $ Snap.setResponseStatus 200 "OK"
   where
-    config = HTTP.defaultConfig {HTTP.srvPort = 80}
-
-    handler :: Sock.SockAddr -> URL.URL -> HTTP.Request B.ByteString -> IO (HTTP.Response B.ByteString)
-    handler _ _url req =
-      let headers         = map (\(HTTP.Header k v) -> (B.pack . show $ k, B.pack . show $ v)) . HTTP.rqHeaders $ req
-          body            = HTTP.rqBody req
-          mWebhookPayload = P.parseWebhookPayload pusher headers body
-         in case mWebhookPayload of
-              Nothing
-                -> return . HTTP.respond $ HTTP.Forbidden
-
-              Just (P.WebhookPayload _key _verifiedSignature (P.Webhooks time webhookEvs))
-                -> do mapM_ (webhookF time) webhookEvs
-                      return . HTTP.respond $ HTTP.OK
-
-    webhookF _utcTime ev = putStrLn . mconcat $
+    webhookF _utcTime ev =
+      putStrLn . mconcat $
       case ev of
         P.ChannelOccupiedEv c -> ["channel ", show c, " is now occupied."]
         P.ChannelVacatedEv c -> ["channel ", show c, " is now vacated."]
@@ -57,4 +51,3 @@ echoWebhooks pusher = HTTP.serverWith config handler
           , " with data "
           , show evBody
           ]
-

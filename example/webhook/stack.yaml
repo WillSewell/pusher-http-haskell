@@ -3,6 +3,4 @@ packages:
 - .
 - ../..
 extra-deps:
-- http-server-1.0.6
-- mime-0.4.0.2
 resolver: nightly-2017-09-14
