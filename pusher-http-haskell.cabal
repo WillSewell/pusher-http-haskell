@@ -47,7 +47,7 @@ library
         unordered-containers ==0.2.*,
         containers,
         HTTP,
-        memory >=0.7
+        memory >=0.7,
         vector >=0.10.0.0 && <0.13
     default-language: Haskell2010
     default-extensions: OverloadedStrings
@@ -84,7 +84,7 @@ test-suite tests
         text -any,
         transformers -any,
         unordered-containers -any,
-        memory -any
+        memory -any,
         vector -any,
         scientific
     default-language: Haskell2010
