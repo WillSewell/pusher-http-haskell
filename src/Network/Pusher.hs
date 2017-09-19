@@ -117,6 +117,16 @@ module Network.Pusher
   , authenticatePrivate
   -- * Errors
   , PusherError(..)
+  -- * Webhooks
+  , parseWebhookPayload
+  , WebhookEv(..)
+  , WebhookPayload(..)
+  , Webhooks(..)
+  , parseAppKeyHdr
+  , parseAuthSignatureHdr
+  , parseWebhooksBody
+  , verifyWebhooksBody
+  , parseWebhookPayloadWith
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -140,6 +150,9 @@ import Network.Pusher.Internal.Util (getTime)
 import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
+import Network.Pusher.Webhook
+       (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadWith)
+import qualified Data.ByteString.Char8 as BC
 
 -- |Trigger an event to one or more channels.
 trigger
@@ -216,3 +229,18 @@ notify pusher notification =
     (requestParams, requestBody) <-
       ExceptT $ Pusher.mkNotifyRequest pusher notification <$> getTime
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
+
+-- |Parse webhooks from a list of HTTP headers and a HTTP body given their AppKey
+-- matches the one in our Pusher credentials and the webhook is correctly
+-- encrypted by the corresponding AppSecret.
+parseWebhookPayload
+  :: Pusher
+  -> [(BC.ByteString,BC.ByteString)]
+  -> BC.ByteString
+  -> Maybe WebhookPayload
+parseWebhookPayload pusher =
+  let credentials = pusherCredentials pusher
+      ourAppKey = credentialsAppKey credentials
+      ourAppSecret = credentialsAppSecret credentials
+      lookupKeysSecret whAppKey = if whAppKey == ourAppKey then Just ourAppSecret else Nothing
+    in parseWebhookPayloadWith lookupKeysSecret

@@ -36,15 +36,18 @@ library
         base >=4.7 && <4.11,
         bytestring ==0.10.*,
         base16-bytestring ==0.1.*,
-        cryptonite >= 0.6 && <0.24,
+        cryptonite >= 0.6 && <0.25,
         hashable ==1.2.*,
         http-client >=0.4 && <0.6,
         http-types >=0.8 && <0.10,
         memory >= 0.7 && <0.15,
         text ==1.2.*,
-        time >=1.5 && <1.7,
+        time >=1.5 && <1.9,
         transformers >=0.4 && <0.6,
         unordered-containers ==0.2.*,
+        containers,
+        HTTP,
+        memory >=0.7,
         vector >=0.10.0.0 && <0.13
     default-language: Haskell2010
     default-extensions: OverloadedStrings
@@ -53,6 +56,7 @@ library
         Network.Pusher.Data
         Network.Pusher.Error
         Network.Pusher.Internal.Util
+        Network.Pusher.Webhook
     ghc-options: -Wall
 
 test-suite tests
@@ -67,14 +71,20 @@ test-suite tests
         aeson -any,
         base -any,
         bytestring -any,
+        base16-bytestring -any,
+        cryptonite -any,
         hspec -any,
         http-client -any,
         http-types -any,
         pusher-http-haskell -any,
         QuickCheck -any,
+        time -any,
+        HTTP -any,
+        network-uri -any,
         text -any,
         transformers -any,
         unordered-containers -any,
+        memory -any,
         vector -any,
         scientific
     default-language: Haskell2010
@@ -83,5 +93,6 @@ test-suite tests
     other-modules:
         Auth
         Protocol
+        Webhook
         Push
     ghc-options: -Wall

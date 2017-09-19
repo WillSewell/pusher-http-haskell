@@ -1,0 +1,25 @@
+name: webhook-example
+version: 0.0.0.1
+cabal-version: >=1.18
+build-type: Simple
+license: MIT
+copyright: (c) Samuel Yallop, 2017
+maintainer: me@willsewell.com
+stability: experimental
+synopsis: Example usage of pusher-http-haskell to listen for webhooks
+author: Samuel A Yallop
+
+executable webhook-example
+    main-is: Main.hs
+    build-depends:
+        base -any,
+        pusher-http-haskell -any,
+        text -any,
+        yaml -any,
+        bytestring -any,
+        snap-core -any,
+        snap-server -any,
+        case-insensitive -any
+    default-language: Haskell2010
+    default-extensions: OverloadedStrings
+    ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures
