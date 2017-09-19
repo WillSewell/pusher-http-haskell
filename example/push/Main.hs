@@ -45,5 +45,5 @@ demoPushNotification pusher = do
   notifyResult <- P.notify pusher notification
   T.putStrLn $
     case notifyResult of
-      Left e -> "Notify failed: " <> (T.pack $ displayException e)
+      Left e -> "Notify failed: " <> T.pack (displayException e)
       Right () -> "Notify success"
