@@ -50,4 +50,6 @@ webhookHandler pusher = do
           , show evName
           , " with data "
           , show evBody
+          , " on channel "
+          , show c
           ]
