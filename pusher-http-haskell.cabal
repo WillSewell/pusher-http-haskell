@@ -1,5 +1,5 @@
 name: pusher-http-haskell
-version: 1.3.0.0
+version: 1.4.0.0
 cabal-version: >=1.18
 build-type: Simple
 license: MIT
@@ -48,7 +48,7 @@ library
         containers,
         HTTP,
         memory >=0.7
-
+        vector >=0.10.0.0 && <0.13
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     hs-source-dirs: src
@@ -85,6 +85,8 @@ test-suite tests
         transformers -any,
         unordered-containers -any,
         memory -any
+        vector -any,
+        scientific
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     hs-source-dirs: test
@@ -92,4 +94,5 @@ test-suite tests
         Auth
         Protocol
         Webhook
+        Push
     ghc-options: -Wall
