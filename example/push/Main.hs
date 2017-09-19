@@ -1,17 +1,14 @@
 module Main where
 
 import Control.Exception (displayException)
-import Data.Aeson ((.=))
 import Data.Monoid ((<>))
 
 import qualified Data.Aeson as A
-import qualified Data.ByteString.Lazy as BS
 import qualified Data.HashMap.Strict as H
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Yaml as Y
 import qualified Network.Pusher as P
-import qualified Network.Pusher.Protocol as P
 
 main :: IO ()
 main = do
