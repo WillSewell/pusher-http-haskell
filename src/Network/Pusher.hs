@@ -68,10 +68,10 @@ There are simple working examples in the example/ directory.
 
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
-module Network.Pusher
+module Network.Pusher (
   -- * Data types
   -- ** Pusher config type
-  ( Pusher(..)
+    Pusher(..)
   , Credentials(..)
   , Cluster(..)
   , AppID

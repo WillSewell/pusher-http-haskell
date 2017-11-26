@@ -13,9 +13,9 @@ app credentials in order to run the main API functions.
 
 The other types represent Pusher channels and Pusher event fields.
 -}
-module Network.Pusher.Data
+module Network.Pusher.Data (
   -- * Pusher config data type
-  ( AppID
+    AppID
   , AppKey
   , AppSecret
   , Pusher(..)

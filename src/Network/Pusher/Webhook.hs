@@ -106,10 +106,10 @@ instance A.FromJSON WebhookEv where
           _ -> fail . ("Unknown client event. Got: " ++) . show $ o
       _ -> failExpectObj o
 
-data WebhookPayload = WebhookPayload
+data WebhookPayload = WebhookPayload {
    -- | Authentication header. The oldest active token is used, identified by
    -- this key.
-  { xPusherKey :: AppKey
+    xPusherKey :: AppKey
    -- | A HMAC SHA256 formed by signing the payload with the tokens secret.
   , xPusherSignature :: AuthSignature
   , webhooks :: Webhooks
