@@ -139,7 +139,7 @@ mkEndpoint pusher subPath =
   in (endpoint, fullPath)
 
 -- |Build a full endpoint for push notifications from the details in Pusher and
--- the subPath
+-- the subPath.
 mkNotifyEndpoint ::
      Pusher
   -> T.Text -- ^ The subpath of the specific request

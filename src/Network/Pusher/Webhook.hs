@@ -127,7 +127,7 @@ parseAuthSignatureHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Signature" = Just value
   | otherwise = Nothing
 
--- | Given a HTTP body, parse the contained webhooks
+-- | Given a HTTP body, parse the contained webhooks.
 parseWebhooksBody :: BC.ByteString -> Maybe Webhooks
 parseWebhooksBody = A.decode . fromStrict
 

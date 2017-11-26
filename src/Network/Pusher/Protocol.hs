@@ -108,7 +108,7 @@ instance A.FromJSON ChannelInfo where
   parseJSON (A.Object v) = ChannelInfo <$> v .:? "user_count"
   parseJSON v = failExpectObj v
 
--- |The possible values returned by a query to a single channel
+-- |The possible values returned by a query to a single channel.
 data FullChannelInfo = FullChannelInfo
   { fullChannelInfoOccupied :: Bool
   , fullChannelInfoUserCount :: Maybe Int

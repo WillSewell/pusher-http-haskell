@@ -218,7 +218,7 @@ users pusher chan =
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
 
--- |Send a push notification
+-- |Send a push notification.
 notify :: MonadIO m => Pusher -> Notification -> m (Either PusherError ())
 notify pusher notification =
   liftIO $

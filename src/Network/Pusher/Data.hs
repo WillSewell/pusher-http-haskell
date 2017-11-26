@@ -102,7 +102,8 @@ instance A.FromJSON Credentials where
     v .:? "app-cluster"
   parseJSON v2 = failExpectObj v2
 
--- | The cluster the current app resides on. Common clusters include: mt1,eu,ap1,ap2
+-- | The cluster the current app resides on. Common clusters include:
+-- mt1,eu,ap1,ap2.
 newtype Cluster = Cluster
   { clusterName :: T.Text
   }
@@ -159,7 +160,7 @@ getPusherWithConnManager connManager apiHost notifyAPIHost cred =
      , pusherConnectionManager = connManager
      }
 
--- |Given a possible cluster, return the corresponding host
+-- |Given a possible cluster, return the corresponding host.
 mkHost :: Maybe Cluster -> T.Text
 mkHost mCluster =
   case mCluster of
@@ -202,7 +203,7 @@ instance A.FromJSON Channel where
 renderChannel :: Channel -> T.Text
 renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
 
--- |Convert string representation, e.g. private-chan into the datatype
+-- |Convert string representation, e.g. private-chan into the datatype.
 parseChannel :: T.Text -> Channel
 parseChannel chan
   -- Attempt to parse it as a private or presence channel; default to public
@@ -228,7 +229,7 @@ type SocketID = T.Text
 -- number or one of _=@,.;
 --
 -- Note: hyphen - is NOT valid as it is reserved for the possibility of marking
--- interest names with prefixes such as private- or presence-
+-- interest names with prefixes such as private- or presence-.
 newtype Interest =
   Interest T.Text
   deriving (Eq, Show)
@@ -257,10 +258,10 @@ instance A.FromJSON Interest where
 instance A.ToJSON Interest where
   toJSON (Interest txt) = A.String txt
 
--- | URL to which pusher will send information about sent push notifications
+-- | URL to which pusher will send information about sent push notifications.
 type WebhookURL = T.Text
 
--- | Level of detail sent to WebhookURL. Defaults to Info
+-- | Level of detail sent to WebhookURL. Defaults to Info.
 data WebhookLevel
   = Info -- ^ Errors only
   | Debug -- ^ Everything
@@ -281,9 +282,9 @@ instance A.ToJSON WebhookLevel where
       Info -> "INFO"
       Debug -> "DEBUG"
 
--- | Apple push notification service payload
+-- | Apple push notification service payload.
 data APNSPayload =
-  -- TODO: Replace JSON object with a stronger encoding.
+  -- TODO: Replace JSON object with a stronger encoding
   APNSPayload A.Object
   deriving (Eq, Show)
 
@@ -296,9 +297,9 @@ instance A.FromJSON APNSPayload where
 instance A.ToJSON APNSPayload where
   toJSON (APNSPayload o) = A.Object o
 
--- | Google Cloud Messaging payload
+-- | Google Cloud Messaging payload.
 data GCMPayload =
-  -- TODO: Replace JSON object with a stronger encoding.
+  -- TODO: Replace JSON object with a stronger encoding
   GCMPayload A.Object
   deriving (Eq, Show)
 
@@ -311,9 +312,9 @@ instance A.FromJSON GCMPayload where
 instance A.ToJSON GCMPayload where
   toJSON (GCMPayload o) = A.Object o
 
--- | Firebase Cloud Messaging payload
+-- | Firebase Cloud Messaging payload.
 data FCMPayload =
-  -- TODO: Replace JSON object with a stronger encoding.
+  -- TODO: Replace JSON object with a stronger encoding
   FCMPayload A.Object
   deriving (Eq, Show)
 
