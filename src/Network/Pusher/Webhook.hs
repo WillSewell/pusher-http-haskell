@@ -106,11 +106,11 @@ instance A.FromJSON WebhookEv where
       _ -> failExpectObj o
 
 data WebhookPayload = WebhookPayload {
-  -- |Authentication header. The oldest active token is used, identified by
-  -- this key.
     xPusherKey :: AppKey
-  -- |A HMAC SHA256 formed by signing the payload with the tokens secret.
+  -- ^Authentication header. The oldest active token is used, identified by
+  -- this key.
   , xPusherSignature :: AuthSignature
+  -- ^A HMAC SHA256 formed by signing the payload with the tokens secret.
   , webhooks :: Webhooks
   } deriving (Eq, Show)
 

@@ -14,11 +14,15 @@ import Network.Pusher.Protocol (User(..))
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (property)
 
-data TestWebhookPayload = TestWebhookPayload
-  { _webhookRequest :: ([(B.ByteString, B.ByteString)], B.ByteString) -- ^ A Request recieved from Pusher
-  , _hasKey :: AppKey -- ^ Must have this key
-  , _hasSecret :: AppSecret -- ^ Which must correspond to this secret
-  , _payload :: Maybe WebhookPayload -- ^ And which must parse to this Payload
+data TestWebhookPayload = TestWebhookPayload {
+  -- A Request recieved from Pusher
+    _webhookRequest :: ([(B.ByteString, B.ByteString)], B.ByteString)
+  -- Must have this key
+  , _hasKey :: AppKey
+  -- Which must correspond to this secret
+  , _hasSecret :: AppSecret
+  -- And which must parse to this Payload
+  , _payload :: Maybe WebhookPayload
   }
 
 -- Attempt to parse the contained req.
