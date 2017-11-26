@@ -42,12 +42,12 @@ An example of how you would use these functions:
   let
     -- A Firebase Cloud Messaging notification payload
     fcmObject = H.fromList [("notification", A.Object $ H.fromList
-                                [("title", A.String "TITLE")
-                                ,("body" , A.String "BODY")
+                                [("title", A.String "a title")
+                                ,("body" , A.String "some text")
                                 ,("icon" , A.String "logo.png")
                                 ]
                             )]
-    Just interest = mkInterest "INTEREST"
+    Just interest = mkInterest "some-interest"
 
     -- A Pusher notification
     notification = Notification
