@@ -131,8 +131,8 @@ mkNotifyPostRequest pusher subPath params bodyBS time =
 -- |Build a full endpoint from the details in Pusher and the subPath.
 mkEndpoint ::
      Pusher
-  -> T.Text -- ^The subpath of the specific request, e.g "events/channel-name"
-  -> (T.Text, T.Text) -- ^The full endpoint, and just the path component
+  -> T.Text -- ^The subpath of the specific request, e.g "events/channel-name".
+  -> (T.Text, T.Text) -- ^The full endpoint, and just the path component.
 mkEndpoint pusher subPath =
   let fullPath = pusherPath pusher <> subPath
       endpoint = pusherHost pusher <> fullPath
@@ -142,8 +142,8 @@ mkEndpoint pusher subPath =
 -- the subPath.
 mkNotifyEndpoint ::
      Pusher
-  -> T.Text -- ^ The subpath of the specific request
-  -> (T.Text, T.Text) -- ^ The full endpoint and just the path component
+  -> T.Text -- ^ The subpath of the specific request.
+  -> (T.Text, T.Text) -- ^ The full endpoint and just the path component.
 mkNotifyEndpoint pusher subPath =
   let fullPath = pusherNotifyPath pusher <> subPath
       endpoint = pusherNotifyHost pusher <> fullPath

@@ -160,12 +160,12 @@ trigger ::
      MonadIO m
   => Pusher
   -> [Channel]
-  -- ^The list of channels to trigger to
+  -- ^The list of channels to trigger to.
   -> Event
   -> EventData
-  -- ^Often encoded JSON
+  -- ^Often encoded JSON.
   -> Maybe SocketID
-  -- ^An optional socket ID of a connection you wish to exclude
+  -- ^An optional socket ID of a connection you wish to exclude.
   -> m (Either PusherError ())
 trigger pusher chans event dat socketId =
   liftIO $
@@ -180,12 +180,12 @@ channels ::
      MonadIO m
   => Pusher
   -> Maybe ChannelType
-  -- ^Filter by the type of channel
+  -- ^Filter by the type of channel.
   -> T.Text
-  -- ^A channel prefix you wish to filter on
+  -- ^A channel prefix you wish to filter on.
   -> ChannelsInfoQuery
-  -- ^Data you wish to query for, currently just the user count
-  -> m (Either PusherError ChannelsInfo) -- ^The returned data
+  -- ^Data you wish to query for, currently just the user count.
+  -> m (Either PusherError ChannelsInfo) -- ^The returned data.
 channels pusher channelTypeFilter prefixFilter attributes =
   liftIO $
   runExceptT $ do
@@ -201,7 +201,7 @@ channel ::
   => Pusher
   -> Channel
   -> ChannelInfoQuery
-  -- ^Can query user count and also subscription count (if enabled)
+  -- ^Can query user count and also subscription count (if enabled).
   -> m (Either PusherError FullChannelInfo)
 channel pusher chan attributes =
   liftIO $

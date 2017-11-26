@@ -41,9 +41,9 @@ import Network.Pusher.Error (PusherError(..))
 
 data RequestParams = RequestParams
   { requestEndpoint :: T.Text
-  -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events
+  -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events.
   , requestQueryString :: RequestQueryString
-  -- ^List of query string parameters as key-value tuples
+  -- ^List of query string parameters as key-value tuples.
   } deriving (Show)
 
 type RequestQueryString = [(B.ByteString, B.ByteString)]
@@ -56,7 +56,7 @@ get ::
      A.FromJSON a
   => HTTP.Client.Manager
   -> RequestParams
-  -> ExceptT PusherError IO a -- ^The body of the response
+  -> ExceptT PusherError IO a -- ^The body of the response.
 get connManager (RequestParams ep qs) = do
   req <- ExceptT $ return $ mkRequest ep qs
   resp <- doRequest connManager req

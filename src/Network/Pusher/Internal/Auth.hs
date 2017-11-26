@@ -55,9 +55,9 @@ makeQS ::
   -> AppSecret
   -> T.Text
   -> T.Text
-  -> RequestQueryString -- ^Any additional parameters
+  -> RequestQueryString -- ^Any additional parameters.
   -> B.ByteString
-  -> Int -- ^Current UNIX timestamp
+  -> Int -- ^Current UNIX timestamp.
   -> RequestQueryString
 makeQS appKey appSecret method fullPath params body ts
     -- Generate all required parameters and add them to the list of existing ones
