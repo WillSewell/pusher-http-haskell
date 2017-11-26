@@ -226,6 +226,7 @@ type SocketID = T.Text
 
 -- | Up to 164 characters where each character is ASCII upper or lower case, a
 -- number or one of _=@,.;
+--
 -- Note: hyphen - is NOT valid as it is reserved for the possibility of marking
 -- interest names with prefixes such as private- or presence-
 newtype Interest =
