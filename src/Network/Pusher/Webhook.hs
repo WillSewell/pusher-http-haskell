@@ -32,7 +32,7 @@ import Network.Pusher.Internal.Util
 import Network.Pusher.Protocol (User(..))
 
 -- |A Webhook is received by POST request from Pusher to notify your server of
--- a number of 'WebhookEv'ents. Multiple events are received under the same
+-- a number of 'WebhookEv's. Multiple events are received under the same
 -- timestamp if batch events is enabled.
 data Webhooks = Webhooks
   { timeMs :: UTCTime
@@ -46,9 +46,9 @@ instance A.FromJSON Webhooks where
         Webhooks <$> (_unOurTime <$> A.parseJSON o) <*> (v .: "events")
       _ -> failExpectObj o
 
--- |Exists only so we can define our own FromJSON instance on NominalDiffTime.
--- This is useful because it didnt exist before a certain GHC version that we
--- support and allows us to avoid CPP and orphan instances.
+-- |Exists only so we can define our own 'FromJSON' instance on
+-- 'NominalDiffTime'. This is useful because it didnt exist before a certain
+-- GHC version that we support and allows us to avoid CPP and orphan instances.
 newtype OurTime = OurTime
   { _unOurTime :: UTCTime
   }
@@ -63,21 +63,21 @@ instance A.FromJSON OurTime where
         v .: "time_ms"
       _ -> failExpectObj o
 
--- |A 'WebhookEv'ent is one of several events Pusher may send to your server
--- in response to events your users may trigger.
+-- |A 'WebhookEv' is one of several events Pusher may send to your server in
+-- response to events your users may trigger.
 data WebhookEv
-  -- |A Channel has become occupied. There is > 1 subscriber.
+  -- |A channel has become occupied. There is > 1 subscriber.
   = ChannelOccupiedEv { onChannel :: Channel }
-  -- |A Channel has become vacated. There are 0 subscribers.
+  -- |A channel has become vacated. There are 0 subscribers.
   | ChannelVacatedEv { onChannel :: Channel }
-  -- |A new user has subscribed to a presence Channel.
+  -- |A new user has subscribed to a presence channel.
   | MemberAddedEv { onChannel :: Channel
                   , withUser :: User }
-  -- |A user has unsubscribed from a presence Channel.
+  -- |A user has unsubscribed from a presence channel.
   | MemberRemovedEv { onChannel :: Channel
                     , withUser :: User }
   -- |A client has sent a named client event with some json body. They have a
-  -- SocketID and a User if they were in a presence Channel.
+  -- 'SocketID' and a 'User' if they were in a presence channel.
   | ClientEv { onChannel :: Channel
              , clientEvName :: Text
              , clientEvBody :: Maybe A.Value
@@ -114,13 +114,13 @@ data WebhookPayload = WebhookPayload {
   , webhooks :: Webhooks
   } deriving (Eq, Show)
 
--- |Given a HTTP Header and its associated value, parse a AppKey.
+-- |Given a HTTP Header and its associated value, parse an 'AppKey'.
 parseAppKeyHdr :: BC.ByteString -> BC.ByteString -> Maybe AppKey
 parseAppKeyHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Key" = Just value
   | otherwise = Nothing
 
--- |Given a HTTP Header and its associated value, parse a AuthSignature.
+-- |Given a HTTP Header and its associated value, parse a 'AuthSignature'.
 parseAuthSignatureHdr :: BC.ByteString -> BC.ByteString -> Maybe AuthSignature
 parseAuthSignatureHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Signature" = Just value

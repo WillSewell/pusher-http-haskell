@@ -53,7 +53,7 @@ instance ToURLParam ChannelsInfoAttributes where
 
 instance Hashable ChannelsInfoAttributes
 
--- |A set of requested ChannelsInfoAttributes.
+-- |A set of requested 'ChannelsInfoAttributes'.
 newtype ChannelsInfoQuery =
   ChannelsInfoQuery (HS.HashSet ChannelsInfoAttributes)
   deriving (ToURLParam)
@@ -70,7 +70,7 @@ instance ToURLParam ChannelInfoAttributes where
 
 instance Hashable ChannelInfoAttributes
 
--- |A set of requested ChannelInfoAttributes.
+-- |A set of requested 'ChannelInfoAttributes'.
 newtype ChannelInfoQuery =
   ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
   deriving (ToURLParam)
@@ -78,7 +78,7 @@ newtype ChannelInfoQuery =
 instance ToURLParam a => ToURLParam (HS.HashSet a) where
   toURLParam hs = T.intercalate "," $ toURLParam <$> HS.toList hs
 
--- |A map of channels to their ChannelInfo. The result of querying channel
+-- |A map of channels to their 'ChannelInfo'. The result of querying channel
 -- info from multuple channels.
 newtype ChannelsInfo =
   ChannelsInfo (HM.HashMap Channel ChannelInfo)

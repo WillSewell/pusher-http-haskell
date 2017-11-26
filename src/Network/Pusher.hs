@@ -228,8 +228,8 @@ notify pusher notification =
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Parse webhooks from a list of HTTP headers and a HTTP body given their
--- AppKey matches the one in our Pusher credentials and the webhook is correctly
--- encrypted by the corresponding AppSecret.
+-- 'AppKey' matches the one in our Pusher credentials and the webhook is
+-- correctly encrypted by the corresponding 'AppSecret'.
 parseWebhookPayload ::
      Pusher
   -> [(BC.ByteString, BC.ByteString)]
