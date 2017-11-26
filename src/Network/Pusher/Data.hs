@@ -282,8 +282,8 @@ instance A.ToJSON WebhookLevel where
       Debug -> "DEBUG"
 
 -- | Apple push notification service payload
--- TODO: Replace JSON object with a stronger encoding.
 data APNSPayload =
+  -- TODO: Replace JSON object with a stronger encoding.
   APNSPayload A.Object
   deriving (Eq, Show)
 
@@ -297,8 +297,8 @@ instance A.ToJSON APNSPayload where
   toJSON (APNSPayload o) = A.Object o
 
 -- | Google Cloud Messaging payload
--- TODO: Replace JSON object with a stronger encoding.
 data GCMPayload =
+  -- TODO: Replace JSON object with a stronger encoding.
   GCMPayload A.Object
   deriving (Eq, Show)
 
@@ -312,8 +312,8 @@ instance A.ToJSON GCMPayload where
   toJSON (GCMPayload o) = A.Object o
 
 -- | Firebase Cloud Messaging payload
--- TODO: Replace JSON object with a stronger encoding.
 data FCMPayload =
+  -- TODO: Replace JSON object with a stronger encoding.
   FCMPayload A.Object
   deriving (Eq, Show)
 
