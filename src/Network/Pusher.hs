@@ -22,16 +22,16 @@ An example of how you would use these functions:
 
 @
   let
-    credentials = Credentials
-      { credentialsAppID     = 123
-      , credentialsAppKey    = wrd12344rcd234
-      , credentialsAppSecret = 124df34d545v
-      , credentialsCluster   = Nothing
+    credentials = 'Credentials'
+      { 'credentialsAppID'     = 123
+      , 'credentialsAppKey'    = wrd12344rcd234
+      , 'credentialsAppSecret' = 124df34d545v
+      , 'credentialsCluster'   = Nothing
       }
-  pusher <- getPusher credentials
+  pusher <- 'getPusher' credentials
 
   triggerRes <-
-    trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
+    'trigger' pusher ['Channel' 'Public' "my-channel"] "my-event" "my-data" Nothing
 
   case triggerRes of
     Left e -> putStrLn $ displayException e
@@ -47,19 +47,19 @@ An example of how you would use these functions:
                                 ,("icon" , A.String "logo.png")
                                 ]
                             )]
-    Just interest = mkInterest "some-interest"
+    Just interest = 'mkInterest' "some-interest"
 
     -- A Pusher notification
-    notification = Notification
-      { notificationInterest     = interest
-      , notificationWebhookURL   = Nothing
-      , notificationWebhookLevel = Nothing
-      , notificationAPNSPayload  = Nothing
-      , notificationGCMPayload   = Nothing
-      , notificationFCMPayload   = Just $ FCMPayload fcmObject
+    notification = 'Notification'
+      { 'notificationInterest'     = interest
+      , 'notificationWebhookURL'   = Nothing
+      , 'notificationWebhookLevel' = Nothing
+      , 'notificationAPNSPayload'  = Nothing
+      , 'notificationGCMPayload'   = Nothing
+      , 'notificationFCMPayload'   = Just $ 'FCMPayload' fcmObject
       }
 
-  notifyRes <- notify pusher notification
+  notifyRes <- 'notify' pusher notification
 
 @
 
