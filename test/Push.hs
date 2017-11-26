@@ -92,7 +92,7 @@ validFCMDecoding =
         }
   in (bs, notification)
 
--- | A ByteString will decode to some value 'a'.
+-- A ByteString will decode to some value 'a'.
 type Decoding a = (B.ByteString, a)
 
 newtype NotificationDecoding =

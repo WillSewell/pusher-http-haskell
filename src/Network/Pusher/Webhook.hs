@@ -31,7 +31,7 @@ import Network.Pusher.Internal.Auth (AuthSignature)
 import Network.Pusher.Internal.Util
 import Network.Pusher.Protocol (User(..))
 
--- | A Webhook is received by POST request from Pusher to notify your server of
+-- |A Webhook is received by POST request from Pusher to notify your server of
 -- a number of 'WebhookEv'ents. Multiple events are received under the same
 -- timestamp if batch events is enabled.
 data Webhooks = Webhooks
@@ -46,14 +46,13 @@ instance A.FromJSON Webhooks where
         Webhooks <$> (_unOurTime <$> A.parseJSON o) <*> (v .: "events")
       _ -> failExpectObj o
 
--- Exists only so we can define our own FromJSON instance on NominalDiffTime.
+-- |Exists only so we can define our own FromJSON instance on NominalDiffTime.
 -- This is useful because it didnt exist before a certain GHC version that we
 -- support and allows us to avoid CPP and orphan instances.
 newtype OurTime = OurTime
   { _unOurTime :: UTCTime
   }
 
--- posixSecondsToUTCTime <$>
 instance A.FromJSON OurTime where
   parseJSON o =
     case o of
@@ -64,20 +63,20 @@ instance A.FromJSON OurTime where
         v .: "time_ms"
       _ -> failExpectObj o
 
--- | A 'WebhookEv'ent is one of several events Pusher may send to your server
+-- |A 'WebhookEv'ent is one of several events Pusher may send to your server
 -- in response to events your users may trigger.
 data WebhookEv
-  -- | A Channel has become occupied. There is > 1 subscriber.
+  -- |A Channel has become occupied. There is > 1 subscriber.
   = ChannelOccupiedEv { onChannel :: Channel }
-  -- | A Channel has become vacated. There are 0 subscribers.
+  -- |A Channel has become vacated. There are 0 subscribers.
   | ChannelVacatedEv { onChannel :: Channel }
-  -- | A new user has subscribed to a presence Channel.
+  -- |A new user has subscribed to a presence Channel.
   | MemberAddedEv { onChannel :: Channel
                   , withUser :: User }
-  -- | A user has unsubscribed from a presence Channel.
+  -- |A user has unsubscribed from a presence Channel.
   | MemberRemovedEv { onChannel :: Channel
                     , withUser :: User }
-  -- | A client has sent a named client event with some json body. They have a
+  -- |A client has sent a named client event with some json body. They have a
   -- SocketID and a User if they were in a presence Channel.
   | ClientEv { onChannel :: Channel
              , clientEvName :: Text
@@ -107,31 +106,31 @@ instance A.FromJSON WebhookEv where
       _ -> failExpectObj o
 
 data WebhookPayload = WebhookPayload {
-   -- | Authentication header. The oldest active token is used, identified by
-   -- this key.
+  -- |Authentication header. The oldest active token is used, identified by
+  -- this key.
     xPusherKey :: AppKey
-   -- | A HMAC SHA256 formed by signing the payload with the tokens secret.
+  -- |A HMAC SHA256 formed by signing the payload with the tokens secret.
   , xPusherSignature :: AuthSignature
   , webhooks :: Webhooks
   } deriving (Eq, Show)
 
--- | Given a HTTP Header and its associated value, parse a AppKey.
+-- |Given a HTTP Header and its associated value, parse a AppKey.
 parseAppKeyHdr :: BC.ByteString -> BC.ByteString -> Maybe AppKey
 parseAppKeyHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Key" = Just value
   | otherwise = Nothing
 
--- | Given a HTTP Header and its associated value, parse a AuthSignature.
+-- |Given a HTTP Header and its associated value, parse a AuthSignature.
 parseAuthSignatureHdr :: BC.ByteString -> BC.ByteString -> Maybe AuthSignature
 parseAuthSignatureHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Signature" = Just value
   | otherwise = Nothing
 
--- | Given a HTTP body, parse the contained webhooks.
+-- |Given a HTTP body, parse the contained webhooks.
 parseWebhooksBody :: BC.ByteString -> Maybe Webhooks
 parseWebhooksBody = A.decode . fromStrict
 
--- Does a webhook body hash with our secret key to the given signature?
+-- |Does a webhook body hash with our secret key to the given signature?
 verifyWebhooksBody :: AppSecret -> AuthSignature -> BC.ByteString -> Bool
 verifyWebhooksBody appSecret authSignature body =
   let actualSignature =
@@ -142,7 +141,7 @@ safeHead :: [a] -> Maybe a
 safeHead (x:_) = Just x
 safeHead _ = Nothing
 
--- Given a list of http header key:values, a http body and a lookup function
+-- |Given a list of http header key:values, a http body and a lookup function
 -- for an apps secret, parse and validate a  potential webhook payload.
 parseWebhookPayloadWith ::
      (AppKey -> Maybe AppSecret)

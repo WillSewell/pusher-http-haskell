@@ -21,7 +21,7 @@ data TestWebhookPayload = TestWebhookPayload
   , _payload :: Maybe WebhookPayload -- ^ And which must parse to this Payload
   }
 
--- | Attempt to parse the contained req.
+-- Attempt to parse the contained req.
 -- - It must use our appKey which must correspond to our secret.
 -- - The body must be correctly signed by our secret.
 -- - The parsed payload must then further be identical to the one we expect.

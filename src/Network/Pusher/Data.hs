@@ -102,7 +102,7 @@ instance A.FromJSON Credentials where
     v .:? "app-cluster"
   parseJSON v2 = failExpectObj v2
 
--- | The cluster the current app resides on. Common clusters include:
+-- |The cluster the current app resides on. Common clusters include:
 -- mt1,eu,ap1,ap2.
 newtype Cluster = Cluster
   { clusterName :: T.Text
@@ -225,7 +225,7 @@ type EventData = T.Text
 
 type SocketID = T.Text
 
--- | Up to 164 characters where each character is ASCII upper or lower case, a
+-- |Up to 164 characters where each character is ASCII upper or lower case, a
 -- number or one of _=@,.;
 --
 -- Note: hyphen - is NOT valid as it is reserved for the possibility of marking
@@ -258,10 +258,10 @@ instance A.FromJSON Interest where
 instance A.ToJSON Interest where
   toJSON (Interest txt) = A.String txt
 
--- | URL to which pusher will send information about sent push notifications.
+-- |URL to which pusher will send information about sent push notifications.
 type WebhookURL = T.Text
 
--- | Level of detail sent to WebhookURL. Defaults to Info.
+-- |Level of detail sent to WebhookURL. Defaults to Info.
 data WebhookLevel
   = Info -- ^ Errors only
   | Debug -- ^ Everything
@@ -282,7 +282,7 @@ instance A.ToJSON WebhookLevel where
       Info -> "INFO"
       Debug -> "DEBUG"
 
--- | Apple push notification service payload.
+-- |Apple push notification service payload.
 data APNSPayload =
   -- TODO: Replace JSON object with a stronger encoding
   APNSPayload A.Object
@@ -297,7 +297,7 @@ instance A.FromJSON APNSPayload where
 instance A.ToJSON APNSPayload where
   toJSON (APNSPayload o) = A.Object o
 
--- | Google Cloud Messaging payload.
+-- |Google Cloud Messaging payload.
 data GCMPayload =
   -- TODO: Replace JSON object with a stronger encoding
   GCMPayload A.Object
@@ -312,7 +312,7 @@ instance A.FromJSON GCMPayload where
 instance A.ToJSON GCMPayload where
   toJSON (GCMPayload o) = A.Object o
 
--- | Firebase Cloud Messaging payload.
+-- |Firebase Cloud Messaging payload.
 data FCMPayload =
   -- TODO: Replace JSON object with a stronger encoding
   FCMPayload A.Object
