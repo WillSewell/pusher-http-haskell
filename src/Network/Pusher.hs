@@ -1,6 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-
 {-|
 Module      : Network.Pusher
 Description : Haskell interface to the Pusher HTTP API
@@ -133,9 +132,10 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
+import qualified Data.ByteString.Char8 as BC
 import Network.Pusher.Data
-       (AppID, APNSPayload(..), AppKey, AppSecret, Channel(..),
-        ChannelName, ChannelType(..), Credentials(..), Cluster(..), Event,
+       (APNSPayload(..), AppID, AppKey, AppSecret, Channel(..),
+        ChannelName, ChannelType(..), Cluster(..), Credentials(..), Event,
         EventData, FCMPayload(..), GCMPayload(..), Interest,
         Notification(..), Pusher(..), SocketID, WebhookLevel(..),
         WebhookURL, getPusher, getPusherWithConnManager, getPusherWithHost,
@@ -151,12 +151,13 @@ import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
 import Network.Pusher.Webhook
-       (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadWith)
-import qualified Data.ByteString.Char8 as BC
+       (WebhookEv(..), WebhookPayload(..), Webhooks(..), parseAppKeyHdr,
+        parseAuthSignatureHdr, parseWebhookPayloadWith, parseWebhooksBody,
+        verifyWebhooksBody)
 
 -- |Trigger an event to one or more channels.
-trigger
-  :: MonadIO m
+trigger ::
+     MonadIO m
   => Pusher
   -> [Channel]
   -- ^The list of channels to trigger to
@@ -175,8 +176,8 @@ trigger pusher chans event dat socketId =
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Query a list of channels for information.
-channels
-  :: MonadIO m
+channels ::
+     MonadIO m
   => Pusher
   -> Maybe ChannelType
   -- ^Filter by the type of channel
@@ -195,8 +196,8 @@ channels pusher channelTypeFilter prefixFilter attributes =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Query for information on a single channel.
-channel
-  :: MonadIO m
+channel ::
+     MonadIO m
   => Pusher
   -> Channel
   -> ChannelInfoQuery
@@ -210,9 +211,7 @@ channel pusher chan attributes =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Get a list of users in a presence channel.
-users
-  :: MonadIO m
-  => Pusher -> Channel -> m (Either PusherError Users)
+users :: MonadIO m => Pusher -> Channel -> m (Either PusherError Users)
 users pusher chan =
   liftIO $
   runExceptT $ do
@@ -220,9 +219,7 @@ users pusher chan =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Send a push notification
-notify
-  :: MonadIO m
-  => Pusher -> Notification -> m (Either PusherError ())
+notify :: MonadIO m => Pusher -> Notification -> m (Either PusherError ())
 notify pusher notification =
   liftIO $
   runExceptT $ do
@@ -230,17 +227,20 @@ notify pusher notification =
       ExceptT $ Pusher.mkNotifyRequest pusher notification <$> getTime
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
--- |Parse webhooks from a list of HTTP headers and a HTTP body given their AppKey
--- matches the one in our Pusher credentials and the webhook is correctly
+-- |Parse webhooks from a list of HTTP headers and a HTTP body given their
+-- AppKey matches the one in our Pusher credentials and the webhook is correctly
 -- encrypted by the corresponding AppSecret.
-parseWebhookPayload
-  :: Pusher
-  -> [(BC.ByteString,BC.ByteString)]
+parseWebhookPayload ::
+     Pusher
+  -> [(BC.ByteString, BC.ByteString)]
   -> BC.ByteString
   -> Maybe WebhookPayload
 parseWebhookPayload pusher =
   let credentials = pusherCredentials pusher
       ourAppKey = credentialsAppKey credentials
       ourAppSecret = credentialsAppSecret credentials
-      lookupKeysSecret whAppKey = if whAppKey == ourAppKey then Just ourAppSecret else Nothing
-    in parseWebhookPayloadWith lookupKeysSecret
+      lookupKeysSecret whAppKey =
+        if whAppKey == ourAppKey
+          then Just ourAppSecret
+          else Nothing
+  in parseWebhookPayloadWith lookupKeysSecret

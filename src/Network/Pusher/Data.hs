@@ -68,7 +68,7 @@ import Network.HTTP.Client
        (Manager, defaultManagerSettings, newManager)
 
 import Network.Pusher.Internal.Util
-       (failExpectObj, failExpectSingletonArray, failExpectArray,
+       (failExpectArray, failExpectObj, failExpectSingletonArray,
         failExpectStr, show')
 
 type AppID = Integer
@@ -128,17 +128,13 @@ instance A.FromJSON Cluster where
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
 -- automatically.
-getPusher
-  :: MonadIO m
-  => Credentials -> m Pusher
+getPusher :: MonadIO m => Credentials -> m Pusher
 getPusher cred = do
   connManager <- getConnManager
   return $ getPusherWithConnManager connManager Nothing Nothing cred
 
 -- |Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost
-  :: MonadIO m
-  => T.Text -> T.Text -> Credentials -> m Pusher
+getPusherWithHost :: MonadIO m => T.Text -> T.Text -> Credentials -> m Pusher
 getPusherWithHost apiHost notifyHost cred = do
   connManager <- getConnManager
   return $
@@ -146,11 +142,8 @@ getPusherWithHost apiHost notifyHost cred = do
 
 -- |Get a Pusher instance with a given connection manager. This can be useful
 -- if you want to share a connection with your application code.
-getPusherWithConnManager :: Manager
-                         -> Maybe T.Text
-                         -> Maybe T.Text
-                         -> Credentials
-                         -> Pusher
+getPusherWithConnManager ::
+     Manager -> Maybe T.Text -> Maybe T.Text -> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost notifyAPIHost cred =
   let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
       mCluster = credentialsCluster cred
@@ -173,9 +166,7 @@ mkHost mCluster =
     Nothing -> "http://api.pusherapp.com"
     Just c -> "http://api" <> renderClusterSuffix c <> ".pusher.com"
 
-getConnManager
-  :: MonadIO m
-  => m Manager
+getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
 
 type ChannelName = T.Text
@@ -203,11 +194,10 @@ data Channel = Channel
 instance Hashable Channel
 
 instance A.FromJSON Channel where
-  parseJSON s = case s of
-    A.String txt
-      -> return $ parseChannel txt
-
-    _ -> failExpectStr s
+  parseJSON s =
+    case s of
+      A.String txt -> return $ parseChannel txt
+      _ -> failExpectStr s
 
 renderChannel :: Channel -> T.Text
 renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
@@ -240,11 +230,12 @@ type SocketID = T.Text
 -- interest names with prefixes such as private- or presence-
 newtype Interest =
   Interest T.Text
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 mkInterest :: T.Text -> Maybe Interest
 mkInterest txt
-  |  0 < T.length txt && T.length txt <= 164 &&
+  | 0 < T.length txt &&
+      T.length txt <= 164 &&
       T.all (\c -> isAlphaNum c || HS.member c permitted) txt =
     Just . Interest $ txt
   | otherwise = Nothing
@@ -272,7 +263,7 @@ type WebhookURL = T.Text
 data WebhookLevel
   = Info -- ^ Errors only
   | Debug -- ^ Everything
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON WebhookLevel where
   parseJSON v =
@@ -293,7 +284,7 @@ instance A.ToJSON WebhookLevel where
 -- TODO: Replace JSON object with a stronger encoding.
 data APNSPayload =
   APNSPayload A.Object
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON APNSPayload where
   parseJSON v =
@@ -308,7 +299,7 @@ instance A.ToJSON APNSPayload where
 -- TODO: Replace JSON object with a stronger encoding.
 data GCMPayload =
   GCMPayload A.Object
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON GCMPayload where
   parseJSON v =
@@ -323,7 +314,7 @@ instance A.ToJSON GCMPayload where
 -- TODO: Replace JSON object with a stronger encoding.
 data FCMPayload =
   FCMPayload A.Object
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON FCMPayload where
   parseJSON v =
@@ -341,8 +332,7 @@ data Notification = Notification
   , notificationAPNSPayload :: Maybe APNSPayload
   , notificationGCMPayload :: Maybe GCMPayload
   , notificationFCMPayload :: Maybe FCMPayload
-  }
-  deriving (Eq,Show)
+  } deriving (Eq, Show)
 
 instance A.FromJSON Notification where
   parseJSON (A.Object v) =

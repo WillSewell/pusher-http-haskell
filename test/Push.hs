@@ -13,7 +13,7 @@ import qualified Data.Vector as V
 
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck
-       (elements, property, Gen, vectorOf, oneof, Arbitrary(..))
+       (Arbitrary(..), Gen, elements, oneof, property, vectorOf)
 
 import Network.Pusher
 
@@ -217,8 +217,8 @@ instance Arbitrary NotificationDecoding where
           [("interests", "[\"" <> (B.pack . T.unpack $ interestName) <> "\"]")]
         -- A function which takes an initial key value pair list and adds Just pairs and skips Nothing values.
         -- Aeson would by default encode this as "value":null which we dont want.
-        consOptionals :: [(ByteString, ByteString)]
-                      -> [(ByteString, ByteString)]
+        consOptionals ::
+             [(ByteString, ByteString)] -> [(ByteString, ByteString)]
         consOptionals =
           consJust "apns" (nullToMaybe apnsBS) .
           consJust "fcm" (nullToMaybe fcmBS) .
@@ -233,8 +233,8 @@ instance Arbitrary NotificationDecoding where
     return $ NotificationDecoding (bs, notification)
       -- Cons an attribute value pair if Just
     where
-      consJust
-        :: ByteString
+      consJust ::
+           ByteString
         -> Maybe ByteString
         -> [(ByteString, ByteString)]
         -> [(ByteString, ByteString)]

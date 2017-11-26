@@ -25,7 +25,7 @@ import Data.Text.Encoding (encodeUtf8)
 
 import Network.Pusher.Data
        (Channel, ChannelType, Credentials(..), Event, EventData,
-        Pusher(..), SocketID, Notification(..), renderChannel,
+        Notification(..), Pusher(..), SocketID, renderChannel,
         renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import Network.Pusher.Internal.Auth (makeQS)
@@ -34,8 +34,8 @@ import Network.Pusher.Internal.HTTP
 import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfoQuery, toURLParam)
 
-mkTriggerRequest
-  :: Pusher
+mkTriggerRequest ::
+     Pusher
   -> [Channel]
   -> Event
   -> EventData
@@ -59,8 +59,8 @@ mkTriggerRequest pusher chans event dat socketId time = do
     (Left $ PusherArgumentError "Body must be less than 10000KB")
   return (mkPostRequest pusher "events" [] bodyBS time, body)
 
-mkChannelsRequest
-  :: Pusher
+mkChannelsRequest ::
+     Pusher
   -> Maybe ChannelType
   -> T.Text
   -> ChannelsInfoQuery
@@ -74,11 +74,8 @@ mkChannelsRequest pusher channelTypeFilter prefixFilter attributes time =
         ]
   in mkGetRequest pusher "channels" params time
 
-mkChannelRequest :: Pusher
-                 -> Channel
-                 -> ChannelInfoQuery
-                 -> Int
-                 -> RequestParams
+mkChannelRequest ::
+     Pusher -> Channel -> ChannelInfoQuery -> Int -> RequestParams
 mkChannelRequest pusher chan attributes time =
   let params = [("info", encodeUtf8 $ toURLParam attributes)]
       subPath = "channels/" <> renderChannel chan
@@ -89,10 +86,11 @@ mkUsersRequest pusher chan time =
   let subPath = "channels/" <> renderChannel chan <> "/users"
   in mkGetRequest pusher subPath [] time
 
-mkNotifyRequest :: Pusher
-                -> Notification
-                -> Int
-                -> Either PusherError (RequestParams, RequestBody)
+mkNotifyRequest ::
+     Pusher
+  -> Notification
+  -> Int
+  -> Either PusherError (RequestParams, RequestBody)
 mkNotifyRequest pusher notification time = do
   let body = A.toJSON notification
       bodyBS = BL.toStrict $ A.encode body
@@ -106,31 +104,33 @@ mkGetRequest pusher subPath params time =
       qs = mkQS pusher "GET" fullPath params "" time
   in RequestParams ep qs
 
-mkPostRequest :: Pusher
-              -> T.Text
-              -> RequestQueryString
-              -> B.ByteString
-              -> Int
-              -> RequestParams
+mkPostRequest ::
+     Pusher
+  -> T.Text
+  -> RequestQueryString
+  -> B.ByteString
+  -> Int
+  -> RequestParams
 mkPostRequest pusher subPath params bodyBS time =
   let (ep, fullPath) = mkEndpoint pusher subPath
       qs = mkQS pusher "POST" fullPath params bodyBS time
   in RequestParams ep qs
 
-mkNotifyPostRequest :: Pusher
-                    -> T.Text
-                    -> RequestQueryString
-                    -> B.ByteString
-                    -> Int
-                    -> RequestParams
+mkNotifyPostRequest ::
+     Pusher
+  -> T.Text
+  -> RequestQueryString
+  -> B.ByteString
+  -> Int
+  -> RequestParams
 mkNotifyPostRequest pusher subPath params bodyBS time =
   let (ep, fullPath) = mkNotifyEndpoint pusher subPath
       qs = mkQS pusher "POST" fullPath params bodyBS time
   in RequestParams ep qs
 
 -- |Build a full endpoint from the details in Pusher and the subPath.
-mkEndpoint
-  :: Pusher
+mkEndpoint ::
+     Pusher
   -> T.Text -- ^The subpath of the specific request, e.g "events/channel-name"
   -> (T.Text, T.Text) -- ^The full endpoint, and just the path component
 mkEndpoint pusher subPath =
@@ -140,8 +140,8 @@ mkEndpoint pusher subPath =
 
 -- |Build a full endpoint for push notifications from the details in Pusher and
 -- the subPath
-mkNotifyEndpoint
-  :: Pusher
+mkNotifyEndpoint ::
+     Pusher
   -> T.Text -- ^ The subpath of the specific request
   -> (T.Text, T.Text) -- ^ The full endpoint and just the path component
 mkNotifyEndpoint pusher subPath =
@@ -149,8 +149,8 @@ mkNotifyEndpoint pusher subPath =
       endpoint = pusherNotifyHost pusher <> fullPath
   in (endpoint, fullPath)
 
-mkQS
-  :: Pusher
+mkQS ::
+     Pusher
   -> T.Text
   -> T.Text
   -> RequestQueryString

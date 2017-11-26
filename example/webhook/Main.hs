@@ -2,9 +2,9 @@ module Main where
 
 import Control.Arrow
 import Control.Monad.IO.Class (liftIO)
-import Data.CaseInsensitive (original)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
+import Data.CaseInsensitive (original)
 import qualified Data.Yaml as Y
 import qualified Snap.Core as Snap
 import qualified Snap.Http.Server as Snap

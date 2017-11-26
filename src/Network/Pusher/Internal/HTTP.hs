@@ -52,8 +52,8 @@ type RequestBody = A.Value
 
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
-get
-  :: A.FromJSON a
+get ::
+     A.FromJSON a
   => HTTP.Client.Manager
   -> RequestParams
   -> ExceptT PusherError IO a -- ^The body of the response
@@ -66,17 +66,19 @@ get connManager (RequestParams ep qs) = do
     (A.eitherDecode resp)
 
 -- |Issue an HTTP POST request.
-post
-  :: A.ToJSON a
-  => HTTP.Client.Manager -> RequestParams -> a -> ExceptT PusherError IO ()
+post ::
+     A.ToJSON a
+  => HTTP.Client.Manager
+  -> RequestParams
+  -> a
+  -> ExceptT PusherError IO ()
 post connManager (RequestParams ep qs) body = do
   req <- ExceptT $ return $ mkPost (A.encode body) <$> mkRequest ep qs
   _ <- doRequest connManager req
   return ()
 
-mkRequest :: T.Text
-          -> RequestQueryString
-          -> Either PusherError HTTP.Client.Request
+mkRequest ::
+     T.Text -> RequestQueryString -> Either PusherError HTTP.Client.Request
 mkRequest ep qs =
   case parseRequest $ T.unpack ep of
     Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
@@ -96,8 +98,8 @@ mkPost body req =
   , HTTP.Client.requestBody = HTTP.Client.RequestBodyLBS body
   }
 
-doRequest
-  :: HTTP.Client.Manager
+doRequest ::
+     HTTP.Client.Manager
   -> HTTP.Client.Request
   -> ExceptT PusherError IO BL.ByteString
 doRequest connManager req = do

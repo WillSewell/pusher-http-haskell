@@ -75,8 +75,7 @@ newtype ChannelInfoQuery =
   ChannelInfoQuery (HS.HashSet ChannelInfoAttributes)
   deriving (ToURLParam)
 
-instance ToURLParam a =>
-         ToURLParam (HS.HashSet a) where
+instance ToURLParam a => ToURLParam (HS.HashSet a) where
   toURLParam hs = T.intercalate "," $ toURLParam <$> HS.toList hs
 
 -- |A map of channels to their ChannelInfo. The result of querying channel

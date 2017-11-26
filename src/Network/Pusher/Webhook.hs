@@ -2,7 +2,6 @@ module Network.Pusher.Webhook
   ( Webhooks(..)
   , WebhookEv(..)
   , WebhookPayload(..)
-
   , parseAppKeyHdr
   , parseAuthSignatureHdr
   , parseWebhooksBody
@@ -19,15 +18,15 @@ import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BC
 import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Lazy.Char8 as LB
-import Data.Maybe (mapMaybe)
-import Data.Function (on)
 import Data.Char (toLower)
+import Data.Function (on)
+import Data.Maybe (mapMaybe)
 import Data.Text (Text)
 import Data.Text.Encoding
 import Data.Time (UTCTime(..))
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Network.Pusher.Data
-       (Channel(..), SocketID, AppKey, AppSecret)
+       (AppKey, AppSecret, Channel(..), SocketID)
 import Network.Pusher.Internal.Auth (AuthSignature)
 import Network.Pusher.Internal.Util
 import Network.Pusher.Protocol (User(..))
@@ -69,22 +68,22 @@ instance A.FromJSON OurTime where
 -- in response to events your users may trigger.
 data WebhookEv
   -- | A Channel has become occupied. There is > 1 subscriber.
-  = ChannelOccupiedEv { onChannel :: Channel}
+  = ChannelOccupiedEv { onChannel :: Channel }
   -- | A Channel has become vacated. There are 0 subscribers.
-  | ChannelVacatedEv { onChannel :: Channel}
+  | ChannelVacatedEv { onChannel :: Channel }
   -- | A new user has subscribed to a presence Channel.
   | MemberAddedEv { onChannel :: Channel
-                 ,  withUser :: User}
+                  , withUser :: User }
   -- | A user has unsubscribed from a presence Channel.
   | MemberRemovedEv { onChannel :: Channel
-                   ,  withUser :: User}
+                    , withUser :: User }
   -- | A client has sent a named client event with some json body. They have a
   -- SocketID and a User if they were in a presence Channel.
   | ClientEv { onChannel :: Channel
-            ,  clientEvName :: Text
-            ,  clientEvBody :: Maybe A.Value
-            ,  withSocketId :: SocketID
-            ,  withPossibleUser :: Maybe User}
+             , clientEvName :: Text
+             , clientEvBody :: Maybe A.Value
+             , withSocketId :: SocketID
+             , withPossibleUser :: Maybe User }
   deriving (Eq, Show)
 
 instance A.FromJSON WebhookEv where
@@ -120,13 +119,13 @@ data WebhookPayload = WebhookPayload
 parseAppKeyHdr :: BC.ByteString -> BC.ByteString -> Maybe AppKey
 parseAppKeyHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Key" = Just value
-  | otherwise                                   = Nothing
+  | otherwise = Nothing
 
 -- | Given a HTTP Header and its associated value, parse a AuthSignature.
 parseAuthSignatureHdr :: BC.ByteString -> BC.ByteString -> Maybe AuthSignature
 parseAuthSignatureHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Signature" = Just value
-  | otherwise                                        = Nothing
+  | otherwise = Nothing
 
 -- | Given a HTTP body, parse the contained webhooks
 parseWebhooksBody :: BC.ByteString -> Maybe Webhooks
@@ -136,36 +135,27 @@ parseWebhooksBody = A.decode . fromStrict
 verifyWebhooksBody :: AppSecret -> AuthSignature -> BC.ByteString -> Bool
 verifyWebhooksBody appSecret authSignature body =
   let actualSignature =
-        B16.encode $
-        convert (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
+        B16.encode $ convert (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
   in authSignature == actualSignature
 
 safeHead :: [a] -> Maybe a
 safeHead (x:_) = Just x
-safeHead _     = Nothing
+safeHead _ = Nothing
 
 -- Given a list of http header key:values, a http body and a lookup function
 -- for an apps secret, parse and validate a  potential webhook payload.
-parseWebhookPayloadWith
-  :: (AppKey -> Maybe AppSecret)
-  -> [(BC.ByteString,BC.ByteString)]
+parseWebhookPayloadWith ::
+     (AppKey -> Maybe AppSecret)
+  -> [(BC.ByteString, BC.ByteString)]
   -> BC.ByteString
   -> Maybe WebhookPayload
 parseWebhookPayloadWith lookupKeysSecret headers body = do
-   appKey         <- safeHead
-                   . mapMaybe (uncurry parseAppKeyHdr)
-                   $ headers
-
-   authSignature  <- safeHead
-                   . mapMaybe (uncurry parseAuthSignatureHdr)
-                   $ headers
-
-   appSecret      <- lookupKeysSecret appKey
-
-   ()             <- if verifyWebhooksBody appSecret authSignature body
-                       then Just ()
-                       else Nothing
-
-   whs <- parseWebhooksBody body
-   Just $ WebhookPayload appKey authSignature whs
-
+  appKey <- safeHead . mapMaybe (uncurry parseAppKeyHdr) $ headers
+  authSignature <- safeHead . mapMaybe (uncurry parseAuthSignatureHdr) $ headers
+  appSecret <- lookupKeysSecret appKey
+  () <-
+    if verifyWebhooksBody appSecret authSignature body
+      then Just ()
+      else Nothing
+  whs <- parseWebhooksBody body
+  Just $ WebhookPayload appKey authSignature whs
