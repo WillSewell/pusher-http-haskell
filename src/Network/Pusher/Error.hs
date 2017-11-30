@@ -6,12 +6,12 @@ import Control.Exception (Exception)
 import qualified Data.Text as T
 
 data PusherError
-  -- |Data from the caller is not valid.
   = PusherArgumentError T.Text
-  -- |Received non 200 response code from Pusher.
+  -- ^Data from the caller is not valid.
   | PusherNon200ResponseError T.Text
-  -- |Received unexpected data from Pusher.
+  -- ^Received non 200 response code from Pusher.
   | PusherInvalidResponseError T.Text
+  -- ^Received unexpected data from Pusher.
   deriving (Show)
 
 instance Exception PusherError

@@ -7,33 +7,38 @@ import qualified Data.ByteString.Char8 as B
 import qualified Data.HashMap.Strict as HM
 import Data.Time.Clock.POSIX
 import Network.Pusher
-       (parseChannel, AppKey, AppSecret, WebhookPayload(..), Webhooks(..),
-        WebhookEv(..), AuthSignature,parseWebhookPayloadWith)
+       (AppKey, AppSecret, AuthSignature, WebhookEv(..),
+        WebhookPayload(..), Webhooks(..), parseChannel,
+        parseWebhookPayloadWith)
 import Network.Pusher.Protocol (User(..))
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (property)
 
-data TestWebhookPayload = TestWebhookPayload
-  { _webhookRequest :: ([(B.ByteString,B.ByteString)],B.ByteString) -- ^ A Request recieved from Pusher
-  , _hasKey :: AppKey -- ^ Must have this key
-  , _hasSecret :: AppSecret -- ^ Which must correspond to this secret
-  , _payload :: Maybe WebhookPayload -- ^ And which must parse to this Payload
+data TestWebhookPayload = TestWebhookPayload {
+  -- A Request recieved from Pusher
+    _webhookRequest :: ([(B.ByteString, B.ByteString)], B.ByteString)
+  -- Must have this key
+  , _hasKey :: AppKey
+  -- Which must correspond to this secret
+  , _hasSecret :: AppSecret
+  -- And which must parse to this Payload
+  , _payload :: Maybe WebhookPayload
   }
 
--- | Attempt to parse the contained req.
+-- Attempt to parse the contained req.
 -- - It must use our appKey which must correspond to our secret.
 -- - The body must be correctly signed by our secret.
 -- - The parsed payload must then further be identical to the one we expect.
 testWebhookPayloadParses :: TestWebhookPayload -> Bool
-testWebhookPayloadParses (TestWebhookPayload (headers,body) hasKey correspondingSecret expectedPayload) =
-  let parseResult = parseWebhookPayloadWith
-                      (\k -> if k == hasKey
-                               then Just correspondingSecret
-                               else Nothing
-                      )
-                      headers
-                      body
-
+testWebhookPayloadParses (TestWebhookPayload (headers, body) hasKey correspondingSecret expectedPayload) =
+  let parseResult =
+        parseWebhookPayloadWith
+          (\k ->
+             if k == hasKey
+               then Just correspondingSecret
+               else Nothing)
+          headers
+          body
   in parseResult == expectedPayload
 
 -- Build a _simple_ TestWebhookPayload which contains:
@@ -53,8 +58,8 @@ testWebhookPayloadParses (TestWebhookPayload (headers,body) hasKey corresponding
 -- - The HTTP request doesnt have the required headers
 -- - The HTTP headers are different to the expected payload
 -- - The HTTP requests key is unknown or doesnt match our secret
-mkSimpleTestWebhookPayload
-  :: AppKey
+mkSimpleTestWebhookPayload ::
+     AppKey
   -> AppSecret
   -> POSIXTime
   -> B.ByteString
@@ -63,7 +68,8 @@ mkSimpleTestWebhookPayload
   -> TestWebhookPayload
 mkSimpleTestWebhookPayload key secret unixTime body signature whs =
   TestWebhookPayload
-  { _webhookRequest = ([("X-Pusher-Key",key),("X-Pusher-Signature",signature)],body)
+  { _webhookRequest =
+      ([("X-Pusher-Key", key), ("X-Pusher-Signature", signature)], body)
   , _hasKey = key
   , _hasSecret = secret
   , _payload =

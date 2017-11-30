@@ -8,7 +8,4 @@ import qualified Push
 import qualified Webhook
 
 main :: IO ()
-main = hspec $ Auth.test
-            >> Protocol.test
-            >> Push.test
-            >> Webhook.test
+main = hspec $ Auth.test >> Protocol.test >> Push.test >> Webhook.test

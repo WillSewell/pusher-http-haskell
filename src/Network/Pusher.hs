@@ -1,6 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-
 {-|
 Module      : Network.Pusher
 Description : Haskell interface to the Pusher HTTP API
@@ -23,16 +22,16 @@ An example of how you would use these functions:
 
 @
   let
-    credentials = Credentials
-      { credentialsAppID     = 123
-      , credentialsAppKey    = wrd12344rcd234
-      , credentialsAppSecret = 124df34d545v
-      , credentialsCluster   = Nothing
+    credentials = 'Credentials'
+      { 'credentialsAppID'     = 123
+      , 'credentialsAppKey'    = "wrd12344rcd234"
+      , 'credentialsAppSecret' = "124df34d545v"
+      , 'credentialsCluster'   = Nothing
       }
-  pusher <- getPusher credentials
+  pusher <- 'getPusher' credentials
 
   triggerRes <-
-    trigger pusher [Channel Public "my-channel"] "my-event" "my-data" Nothing
+    'trigger' pusher ['Channel' 'Public' "my-channel"] "my-event" "my-data" Nothing
 
   case triggerRes of
     Left e -> putStrLn $ displayException e
@@ -43,24 +42,24 @@ An example of how you would use these functions:
   let
     -- A Firebase Cloud Messaging notification payload
     fcmObject = H.fromList [("notification", A.Object $ H.fromList
-                                [("title", A.String "TITLE")
-                                ,("body" , A.String "BODY")
+                                [("title", A.String "a title")
+                                ,("body" , A.String "some text")
                                 ,("icon" , A.String "logo.png")
                                 ]
                             )]
-    Just interest = mkInterest "INTEREST"
+    Just interest = 'mkInterest' "some-interest"
 
     -- A Pusher notification
-    notification = Notification
-      { notificationInterest     = interest
-      , notificationWebhookURL   = Nothing
-      , notificationWebhookLevel = Nothing
-      , notificationAPNSPayload  = Nothing
-      , notificationGCMPayload   = Nothing
-      , notificationFCMPayload   = Just $ FCMPayload fcmObject
+    notification = 'Notification'
+      { 'notificationInterest'     = interest
+      , 'notificationWebhookURL'   = Nothing
+      , 'notificationWebhookLevel' = Nothing
+      , 'notificationAPNSPayload'  = Nothing
+      , 'notificationGCMPayload'   = Nothing
+      , 'notificationFCMPayload'   = Just $ 'FCMPayload' fcmObject
       }
 
-  notifyRes <- notify pusher notification
+  notifyRes <- 'notify' pusher notification
 
 @
 
@@ -69,10 +68,10 @@ There are simple working examples in the example/ directory.
 
 See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
 -}
-module Network.Pusher
+module Network.Pusher (
   -- * Data types
   -- ** Pusher config type
-  ( Pusher(..)
+    Pusher(..)
   , Credentials(..)
   , Cluster(..)
   , AppID
@@ -133,9 +132,10 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import qualified Data.Text as T
 
+import qualified Data.ByteString.Char8 as BC
 import Network.Pusher.Data
-       (AppID, APNSPayload(..), AppKey, AppSecret, Channel(..),
-        ChannelName, ChannelType(..), Credentials(..), Cluster(..), Event,
+       (APNSPayload(..), AppID, AppKey, AppSecret, Channel(..),
+        ChannelName, ChannelType(..), Cluster(..), Credentials(..), Event,
         EventData, FCMPayload(..), GCMPayload(..), Interest,
         Notification(..), Pusher(..), SocketID, WebhookLevel(..),
         WebhookURL, getPusher, getPusherWithConnManager, getPusherWithHost,
@@ -151,20 +151,21 @@ import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
 import Network.Pusher.Webhook
-       (Webhooks(..), WebhookEv(..), WebhookPayload(..),parseAppKeyHdr,parseAuthSignatureHdr,parseWebhooksBody,verifyWebhooksBody,parseWebhookPayloadWith)
-import qualified Data.ByteString.Char8 as BC
+       (WebhookEv(..), WebhookPayload(..), Webhooks(..), parseAppKeyHdr,
+        parseAuthSignatureHdr, parseWebhookPayloadWith, parseWebhooksBody,
+        verifyWebhooksBody)
 
 -- |Trigger an event to one or more channels.
-trigger
-  :: MonadIO m
+trigger ::
+     MonadIO m
   => Pusher
   -> [Channel]
-  -- ^The list of channels to trigger to
+  -- ^The list of channels to trigger to.
   -> Event
   -> EventData
-  -- ^Often encoded JSON
+  -- ^Often encoded JSON.
   -> Maybe SocketID
-  -- ^An optional socket ID of a connection you wish to exclude
+  -- ^An optional socket ID of a connection you wish to exclude.
   -> m (Either PusherError ())
 trigger pusher chans event dat socketId =
   liftIO $
@@ -175,16 +176,16 @@ trigger pusher chans event dat socketId =
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Query a list of channels for information.
-channels
-  :: MonadIO m
+channels ::
+     MonadIO m
   => Pusher
   -> Maybe ChannelType
-  -- ^Filter by the type of channel
+  -- ^Filter by the type of channel.
   -> T.Text
-  -- ^A channel prefix you wish to filter on
+  -- ^A channel prefix you wish to filter on.
   -> ChannelsInfoQuery
-  -- ^Data you wish to query for, currently just the user count
-  -> m (Either PusherError ChannelsInfo) -- ^The returned data
+  -- ^Data you wish to query for, currently just the user count.
+  -> m (Either PusherError ChannelsInfo) -- ^The returned data.
 channels pusher channelTypeFilter prefixFilter attributes =
   liftIO $
   runExceptT $ do
@@ -195,12 +196,12 @@ channels pusher channelTypeFilter prefixFilter attributes =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Query for information on a single channel.
-channel
-  :: MonadIO m
+channel ::
+     MonadIO m
   => Pusher
   -> Channel
   -> ChannelInfoQuery
-  -- ^Can query user count and also subscription count (if enabled)
+  -- ^Can query user count and also subscription count (if enabled).
   -> m (Either PusherError FullChannelInfo)
 channel pusher chan attributes =
   liftIO $
@@ -210,19 +211,15 @@ channel pusher chan attributes =
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Get a list of users in a presence channel.
-users
-  :: MonadIO m
-  => Pusher -> Channel -> m (Either PusherError Users)
+users :: MonadIO m => Pusher -> Channel -> m (Either PusherError Users)
 users pusher chan =
   liftIO $
   runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
 
--- |Send a push notification
-notify
-  :: MonadIO m
-  => Pusher -> Notification -> m (Either PusherError ())
+-- |Send a push notification.
+notify :: MonadIO m => Pusher -> Notification -> m (Either PusherError ())
 notify pusher notification =
   liftIO $
   runExceptT $ do
@@ -230,17 +227,20 @@ notify pusher notification =
       ExceptT $ Pusher.mkNotifyRequest pusher notification <$> getTime
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
--- |Parse webhooks from a list of HTTP headers and a HTTP body given their AppKey
--- matches the one in our Pusher credentials and the webhook is correctly
--- encrypted by the corresponding AppSecret.
-parseWebhookPayload
-  :: Pusher
-  -> [(BC.ByteString,BC.ByteString)]
+-- |Parse webhooks from a list of HTTP headers and a HTTP body given their
+-- 'AppKey' matches the one in our Pusher credentials and the webhook is
+-- correctly encrypted by the corresponding 'AppSecret'.
+parseWebhookPayload ::
+     Pusher
+  -> [(BC.ByteString, BC.ByteString)]
   -> BC.ByteString
   -> Maybe WebhookPayload
 parseWebhookPayload pusher =
   let credentials = pusherCredentials pusher
       ourAppKey = credentialsAppKey credentials
       ourAppSecret = credentialsAppSecret credentials
-      lookupKeysSecret whAppKey = if whAppKey == ourAppKey then Just ourAppSecret else Nothing
-    in parseWebhookPayloadWith lookupKeysSecret
+      lookupKeysSecret whAppKey =
+        if whAppKey == ourAppKey
+          then Just ourAppSecret
+          else Nothing
+  in parseWebhookPayloadWith lookupKeysSecret

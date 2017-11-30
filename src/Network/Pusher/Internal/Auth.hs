@@ -55,9 +55,9 @@ makeQS ::
   -> AppSecret
   -> T.Text
   -> T.Text
-  -> RequestQueryString -- ^Any additional parameters
+  -> RequestQueryString -- ^Any additional parameters.
   -> B.ByteString
-  -> Int -- ^Current UNIX timestamp
+  -> Int -- ^Current UNIX timestamp.
   -> RequestQueryString
 makeQS appKey appSecret method fullPath params body ts
     -- Generate all required parameters and add them to the list of existing ones
@@ -93,10 +93,10 @@ makeQS appKey appSecret method fullPath params body ts
 formQueryString :: RequestQueryString -> B.ByteString
 formQueryString = B.intercalate "&" . map (\(a, b) -> a <> "=" <> b)
 
--- | The bytestring to sign with the app secret to create a signature from.
+-- |The bytestring to sign with the app secret to create a signature from.
 type AuthString = B.ByteString
 
--- | A Pusher auth signature.
+-- |A Pusher auth signature.
 type AuthSignature = B.ByteString
 
 -- |Create a Pusher auth signature of a string using the provided credentials.

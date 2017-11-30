@@ -13,9 +13,9 @@ app credentials in order to run the main API functions.
 
 The other types represent Pusher channels and Pusher event fields.
 -}
-module Network.Pusher.Data
+module Network.Pusher.Data (
   -- * Pusher config data type
-  ( AppID
+    AppID
   , AppKey
   , AppSecret
   , Pusher(..)
@@ -68,7 +68,7 @@ import Network.HTTP.Client
        (Manager, defaultManagerSettings, newManager)
 
 import Network.Pusher.Internal.Util
-       (failExpectObj, failExpectSingletonArray, failExpectArray,
+       (failExpectArray, failExpectObj, failExpectSingletonArray,
         failExpectStr, show')
 
 type AppID = Integer
@@ -102,7 +102,8 @@ instance A.FromJSON Credentials where
     v .:? "app-cluster"
   parseJSON v2 = failExpectObj v2
 
--- | The cluster the current app resides on. Common clusters include: mt1,eu,ap1,ap2
+-- |The cluster the current app resides on. Common clusters include:
+-- mt1,eu,ap1,ap2.
 newtype Cluster = Cluster
   { clusterName :: T.Text
   }
@@ -128,17 +129,13 @@ instance A.FromJSON Cluster where
 
 -- |Use this to get an instance Pusher. This will fill in the host and path
 -- automatically.
-getPusher
-  :: MonadIO m
-  => Credentials -> m Pusher
+getPusher :: MonadIO m => Credentials -> m Pusher
 getPusher cred = do
   connManager <- getConnManager
   return $ getPusherWithConnManager connManager Nothing Nothing cred
 
 -- |Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost
-  :: MonadIO m
-  => T.Text -> T.Text -> Credentials -> m Pusher
+getPusherWithHost :: MonadIO m => T.Text -> T.Text -> Credentials -> m Pusher
 getPusherWithHost apiHost notifyHost cred = do
   connManager <- getConnManager
   return $
@@ -146,11 +143,8 @@ getPusherWithHost apiHost notifyHost cred = do
 
 -- |Get a Pusher instance with a given connection manager. This can be useful
 -- if you want to share a connection with your application code.
-getPusherWithConnManager :: Manager
-                         -> Maybe T.Text
-                         -> Maybe T.Text
-                         -> Credentials
-                         -> Pusher
+getPusherWithConnManager ::
+     Manager -> Maybe T.Text -> Maybe T.Text -> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost notifyAPIHost cred =
   let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
       mCluster = credentialsCluster cred
@@ -166,16 +160,14 @@ getPusherWithConnManager connManager apiHost notifyAPIHost cred =
      , pusherConnectionManager = connManager
      }
 
--- |Given a possible cluster, return the corresponding host
+-- |Given a possible cluster, return the corresponding host.
 mkHost :: Maybe Cluster -> T.Text
 mkHost mCluster =
   case mCluster of
     Nothing -> "http://api.pusherapp.com"
     Just c -> "http://api" <> renderClusterSuffix c <> ".pusher.com"
 
-getConnManager
-  :: MonadIO m
-  => m Manager
+getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
 
 type ChannelName = T.Text
@@ -203,16 +195,15 @@ data Channel = Channel
 instance Hashable Channel
 
 instance A.FromJSON Channel where
-  parseJSON s = case s of
-    A.String txt
-      -> return $ parseChannel txt
-
-    _ -> failExpectStr s
+  parseJSON s =
+    case s of
+      A.String txt -> return $ parseChannel txt
+      _ -> failExpectStr s
 
 renderChannel :: Channel -> T.Text
 renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
 
--- |Convert string representation, e.g. private-chan into the datatype
+-- |Convert string representation, e.g. private-chan into the datatype.
 parseChannel :: T.Text -> Channel
 parseChannel chan
   -- Attempt to parse it as a private or presence channel; default to public
@@ -234,17 +225,19 @@ type EventData = T.Text
 
 type SocketID = T.Text
 
--- | Up to 164 characters where each character is ASCII upper or lower case, a
+-- |Up to 164 characters where each character is ASCII upper or lower case, a
 -- number or one of _=@,.;
+--
 -- Note: hyphen - is NOT valid as it is reserved for the possibility of marking
--- interest names with prefixes such as private- or presence-
+-- interest names with prefixes such as private- or presence-.
 newtype Interest =
   Interest T.Text
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 mkInterest :: T.Text -> Maybe Interest
 mkInterest txt
-  |  0 < T.length txt && T.length txt <= 164 &&
+  | 0 < T.length txt &&
+      T.length txt <= 164 &&
       T.all (\c -> isAlphaNum c || HS.member c permitted) txt =
     Just . Interest $ txt
   | otherwise = Nothing
@@ -265,14 +258,14 @@ instance A.FromJSON Interest where
 instance A.ToJSON Interest where
   toJSON (Interest txt) = A.String txt
 
--- | URL to which pusher will send information about sent push notifications
+-- |URL to which pusher will send information about sent push notifications.
 type WebhookURL = T.Text
 
--- | Level of detail sent to WebhookURL. Defaults to Info
+-- |Level of detail sent to WebhookURL. Defaults to Info.
 data WebhookLevel
   = Info -- ^ Errors only
   | Debug -- ^ Everything
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON WebhookLevel where
   parseJSON v =
@@ -289,11 +282,11 @@ instance A.ToJSON WebhookLevel where
       Info -> "INFO"
       Debug -> "DEBUG"
 
--- | Apple push notification service payload
--- TODO: Replace JSON object with a stronger encoding.
+-- |Apple push notification service payload.
 data APNSPayload =
+  -- TODO: Replace JSON object with a stronger encoding
   APNSPayload A.Object
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON APNSPayload where
   parseJSON v =
@@ -304,11 +297,11 @@ instance A.FromJSON APNSPayload where
 instance A.ToJSON APNSPayload where
   toJSON (APNSPayload o) = A.Object o
 
--- | Google Cloud Messaging payload
--- TODO: Replace JSON object with a stronger encoding.
+-- |Google Cloud Messaging payload.
 data GCMPayload =
+  -- TODO: Replace JSON object with a stronger encoding
   GCMPayload A.Object
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON GCMPayload where
   parseJSON v =
@@ -319,11 +312,11 @@ instance A.FromJSON GCMPayload where
 instance A.ToJSON GCMPayload where
   toJSON (GCMPayload o) = A.Object o
 
--- | Firebase Cloud Messaging payload
--- TODO: Replace JSON object with a stronger encoding.
+-- |Firebase Cloud Messaging payload.
 data FCMPayload =
+  -- TODO: Replace JSON object with a stronger encoding
   FCMPayload A.Object
-  deriving (Eq,Show)
+  deriving (Eq, Show)
 
 instance A.FromJSON FCMPayload where
   parseJSON v =
@@ -341,8 +334,7 @@ data Notification = Notification
   , notificationAPNSPayload :: Maybe APNSPayload
   , notificationGCMPayload :: Maybe GCMPayload
   , notificationFCMPayload :: Maybe FCMPayload
-  }
-  deriving (Eq,Show)
+  } deriving (Eq, Show)
 
 instance A.FromJSON Notification where
   parseJSON (A.Object v) =
