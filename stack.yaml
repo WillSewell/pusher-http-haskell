@@ -2,5 +2,5 @@ flags: {}
 packages:
 - .
 extra-deps:
-- http-types-0.10
-resolver: nightly-2017-10-23
+- http-types-0.11
+resolver: nightly-2017-11-30
