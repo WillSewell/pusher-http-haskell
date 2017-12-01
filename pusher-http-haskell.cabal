@@ -83,7 +83,7 @@ test-suite tests
         unordered-containers -any,
         memory -any,
         vector -any,
-        scientific
+        scientific -any
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     hs-source-dirs: test
