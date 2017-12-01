@@ -45,7 +45,6 @@ library
         time >=1.5 && <1.9,
         transformers >=0.4 && <0.6,
         unordered-containers ==0.2.*,
-        memory >=0.7,
         vector >=0.10.0.0 && <0.13
     default-language: Haskell2010
     default-extensions: OverloadedStrings
