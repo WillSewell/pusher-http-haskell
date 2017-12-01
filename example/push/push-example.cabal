@@ -1,22 +1,24 @@
-name:                 push-example
-version:              0.0.0.1
-cabal-version:        >=1.18
-build-type:           Simple
-license:              MIT
-stability:            experimental
-synopsis:             Example usage of pusher-http-haskell to send push notifications.
+name: push-example
+version: 0.0.0.1
+cabal-version: >=1.18
+build-type: Simple
+license: MIT
+copyright: (c) Samuel Yallop, 2017
+maintainer: me@willsewell.com
+stability: experimental
+synopsis: Example usage of pusher-http-haskell to send push notifications
+author: Samuel A Yallop
+
 executable push-example
-  default-language:   Haskell2010
-  default-extensions: OverloadedStrings
-  main-is:            Main.hs
-  build-depends:      base,
-                      pusher-http-haskell,
-                      text,
-                      aeson,
-                      bytestring,
-                      unordered-containers,
-                      yaml
-  ghc-options:        -Wall
-                      -Wcompat
-                      -Whi-shadowing
-                      -Wmissing-signatures
+    main-is: Main.hs
+    build-depends:
+        aeson -any,
+        base -any,
+        bytestring -any,
+        pusher-http-haskell -any,
+        text -any,
+        unordered-containers -any,
+        yaml -any
+    default-language: Haskell2010
+    default-extensions: OverloadedStrings
+    ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures
