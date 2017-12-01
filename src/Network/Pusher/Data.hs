@@ -54,7 +54,7 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:), (.:?), (.=))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
-import Data.Char
+import Data.Char (isAlphaNum)
 import Data.Foldable (asum)
 import qualified Data.HashSet as HS
 import Data.Hashable (Hashable)

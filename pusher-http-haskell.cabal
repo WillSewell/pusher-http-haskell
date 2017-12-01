@@ -45,9 +45,6 @@ library
         time >=1.5 && <1.9,
         transformers >=0.4 && <0.6,
         unordered-containers ==0.2.*,
-        containers,
-        HTTP,
-        memory >=0.7,
         vector >=0.10.0.0 && <0.13
     default-language: Haskell2010
     default-extensions: OverloadedStrings
@@ -79,14 +76,11 @@ test-suite tests
         pusher-http-haskell -any,
         QuickCheck -any,
         time -any,
-        HTTP -any,
-        network-uri -any,
         text -any,
         transformers -any,
         unordered-containers -any,
-        memory -any,
         vector -any,
-        scientific
+        scientific -any
     default-language: Haskell2010
     default-extensions: OverloadedStrings
     hs-source-dirs: test
