@@ -76,12 +76,9 @@ test-suite tests
         pusher-http-haskell -any,
         QuickCheck -any,
         time -any,
-        HTTP -any,
-        network-uri -any,
         text -any,
         transformers -any,
         unordered-containers -any,
-        memory -any,
         vector -any,
         scientific -any
     default-language: Haskell2010
