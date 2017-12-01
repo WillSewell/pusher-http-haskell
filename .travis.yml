@@ -56,11 +56,10 @@ before_install:
   - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
   # ghc
   - export PATH=/opt/ghc/$GHCVER/bin:$PATH
-  # hscolour
-  - stack install hscolour
 
 install:
   - stack --no-terminal --skip-ghc-check setup
+  - stack --no-terminal --skip-ghc-check install hscolour
   - stack --no-terminal --skip-ghc-check test --only-snapshot
 
 script:
