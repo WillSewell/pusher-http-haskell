@@ -56,7 +56,7 @@ mkTriggerRequest pusher chans event dat socketId time = do
       bodyBS = BL.toStrict $ A.encode body
   when
     (B.length bodyBS > 10000)
-    (Left $ PusherArgumentError "Body must be less than 10000KB")
+    (Left $ PusherArgumentError "Body must be less than 10000 bytes long")
   return (mkPostRequest pusher "events" [] bodyBS time, body)
 
 mkChannelsRequest ::
