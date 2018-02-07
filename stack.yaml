@@ -2,5 +2,6 @@ flags: {}
 packages:
 - .
 extra-deps:
+- cryptonite-0.25
 - http-types-0.12
-resolver: nightly-2018-01-25
+resolver: nightly-2018-01-29
