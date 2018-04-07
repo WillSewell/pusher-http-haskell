@@ -3,4 +3,5 @@ packages:
 - .
 extra-deps:
 - aeson-1.3.0.0
+- base-4.11.0.0
 resolver: nightly-2018-04-05
