@@ -1,6 +1,6 @@
 name: pusher-http-haskell
 version: 1.5.1.6
-cabal-version: >=1.18
+cabal-version: 1.18
 build-type: Simple
 license: MIT
 license-file: LICENSE
