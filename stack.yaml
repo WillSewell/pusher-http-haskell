@@ -2,12 +2,7 @@ flags: {}
 packages:
 - .
 extra-deps:
-- base-4.12.0.0
-- memory-0.14.18
 - process-1.6.4.0
-- stm-2.5.0.0
 - time-1.9.2
 allow-newer: true
-resolver: nightly-2018-09-28
-compiler: ghc-8.6.1
-compiler-check: match-exact
+resolver: nightly-2018-10-08
