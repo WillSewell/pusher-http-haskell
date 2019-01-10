@@ -2,7 +2,8 @@ flags: {}
 packages:
 - .
 extra-deps:
+- http-client-0.6.0
 - process-1.6.4.0
 - time-1.9.2
 allow-newer: true
-resolver: nightly-2018-10-08
+resolver: nightly-2019-01-10
