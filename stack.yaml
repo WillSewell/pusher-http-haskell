@@ -2,6 +2,7 @@ flags: {}
 packages:
 - .
 extra-deps:
+- hashable-1.3.0.0
 - time-1.9.2
 allow-newer: true
 resolver: nightly-2019-05-10
