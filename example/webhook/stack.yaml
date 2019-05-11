@@ -1,6 +1,4 @@
-flags: {}
 packages:
 - .
 - ../..
-extra-deps:
-resolver: nightly-2017-09-14
+resolver: nightly-2019-05-10

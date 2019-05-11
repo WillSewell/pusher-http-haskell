@@ -1,6 +1,4 @@
 packages:
 - '.'
 - '../..'
-extra-deps:
-- pusher-http-haskell-1.1.0.1
-resolver: nightly-2017-04-14
+resolver: nightly-2019-05-10

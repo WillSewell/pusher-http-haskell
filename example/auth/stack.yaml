@@ -1,5 +1,4 @@
 packages:
 - '.'
 - '../..'
-extra-deps:
-resolver: nightly-2017-09-18
+resolver: nightly-2019-05-10
