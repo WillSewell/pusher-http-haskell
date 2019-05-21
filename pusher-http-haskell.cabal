@@ -36,7 +36,7 @@ library
         base >=4.7 && <4.13,
         bytestring ==0.10.*,
         base16-bytestring ==0.1.*,
-        cryptonite >= 0.6 && <0.26,
+        cryptonite >= 0.6 && <0.27,
         hashable >=1.2 && <1.4,
         http-client >=0.4 && <0.7,
         http-types >=0.8 && <0.13,
