@@ -8,5 +8,4 @@ extra-deps:
 - process-1.6.5.1
 - time-1.9.2
 - unix-2.7.2.2
-allow-newer: true
 resolver: nightly-2019-09-08
