@@ -1,4 +1,4 @@
 packages:
 - '.'
 extra-deps:
-resolver: lts-6.18
+resolver: lts-6.35
