@@ -1,4 +1,3 @@
 packages:
 - '.'
-extra-deps:
 resolver: lts-6.35
