@@ -33,7 +33,7 @@ library
         Network.Pusher.Protocol
     build-depends:
         aeson >=0.8 && <1.5,
-        base >=4.7 && <4.14,
+        base >=4.7 && <4.15,
         bytestring ==0.10.*,
         base16-bytestring ==0.1.*,
         cryptonite >= 0.6 && <0.27,
@@ -42,7 +42,7 @@ library
         http-types >=0.8 && <0.13,
         memory >= 0.7 && <0.16,
         text ==1.2.*,
-        time >=1.5 && <1.10,
+        time >=1.5 && <1.11,
         transformers >=0.4 && <0.6,
         unordered-containers ==0.2.*,
         vector >=0.10 && <0.13
