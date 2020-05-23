@@ -1,8 +1,12 @@
+{-# LANGUAGE CPP #-}
+
 module Main where
 
 import Control.Exception (displayException)
 import qualified Data.HashSet as HS
+#if !(MIN_VERSION_base(4,14,0))
 import Data.Monoid ((<>))
+#endif
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Yaml as Y

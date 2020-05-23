@@ -29,7 +29,9 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), throwE)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+#if !(MIN_VERSION_base(4,14,0))
 import Data.Monoid ((<>))
+#endif
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8')
 import qualified Network.HTTP.Client as HTTP.Client

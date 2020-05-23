@@ -1,7 +1,11 @@
+{-# LANGUAGE CPP #-}
+
 module Main where
 
 import Control.Exception (displayException)
+#if !(MIN_VERSION_base(4,14,0))
 import Data.Monoid ((<>))
+#endif
 
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as H
