@@ -22,7 +22,7 @@ tested-with: GHC >=7.10.2
 library
 
     if impl(ghc >=8.0.0)
-        ghc-options: -Wcompat -Whi-shadowing -Wmissing-signatures
+        ghc-options: -Wcompat -Wmissing-signatures
     else
         ghc-options: -fwarn-hi-shadowing -fwarn-missing-signatures -fwarn-tabs
     exposed-modules:
@@ -59,7 +59,7 @@ library
 test-suite tests
 
     if impl(ghc >=8.0.0)
-        ghc-options: -Wcompat -Whi-shadowing -Wmissing-signatures
+        ghc-options: -Wcompat -Wmissing-signatures
     else
         ghc-options: -fwarn-hi-shadowing -fwarn-missing-signatures -fwarn-tabs
     type: exitcode-stdio-1.0
