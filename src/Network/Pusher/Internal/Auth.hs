@@ -24,7 +24,9 @@ module Network.Pusher.Internal.Auth
 
 import qualified Data.Aeson as A
 import Data.Char (toLower)
+#if !(MIN_VERSION_base(4,14,0))
 import Data.Monoid ((<>))
+#endif
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
 #if MIN_VERSION_aeson(1,0,0)

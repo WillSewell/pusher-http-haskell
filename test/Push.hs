@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Push where
 
 import Data.Aeson ((.=))
@@ -6,7 +8,9 @@ import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromJust)
+#if !(MIN_VERSION_base(4,14,0))
 import Data.Monoid ((<>))
+#endif
 import Data.Scientific
 import qualified Data.Text as T
 import qualified Data.Vector as V
@@ -62,15 +66,17 @@ test = do
 validFCMDecoding :: (B.ByteString, Notification)
 validFCMDecoding =
   let bs =
-        "{\
-          \ \"interests\": [\"interestOne\"]\
-          \ ,\"fcm\": {\
-          \     \"notification\":\
-          \        {\"title\":\"titleText\"\
-          \        ,\"body\":\"bodyText\"\
-          \        }\
-          \  }\
-          \}"
+        B.unlines
+          [ "{"
+          , "  \"interests\": [\"interestOne\"],"
+          , "  \"fcm\": {"
+          , "    \"notification\": {"
+          , "      \"title\": \"titleText\","
+          , "      \"body\": \"bodyText\""
+          , "    }"
+          , "  }"
+          , "}"
+          ]
       notification =
         Notification
         { notificationInterest = fromJust . mkInterest $ "interestOne"
@@ -122,22 +128,17 @@ instance Arbitrary APNSDecoding where
     let apns = APNSPayload payload
         bs :: ByteString
         bs =
-          "{\
-          \  \"aps\":\
-          \   {\
-          \     \"alert\":\
-          \       {\"title\":\"" <>
-          (B.pack . T.unpack $ titleText) <>
-          "\"\
-          \       ,\"body\":\"" <>
-          (B.pack . T.unpack $ bodyText) <>
-          "\"\
-          \       }\
-          \   }\
-          \   ,\"data\":" <>
-          (A.encode dataJSON) <>
-          "\
-          \}"
+          B.unlines
+            [ "{"
+            , "  \"aps\": {"
+            , "    \"alert\": {"
+            , "       \"title\": \"" <> (B.pack . T.unpack $ titleText) <> "\","
+            , "       \"body\": \"" <> (B.pack . T.unpack $ bodyText) <> "\""
+            , "    }"
+            , "  },"
+            , "  \"data\": " <> (A.encode dataJSON)
+            , "}"
+            ]
     return $ APNSDecoding (bs, Just apns)
 
 instance Arbitrary GCMDecoding where
@@ -153,19 +154,15 @@ instance Arbitrary GCMDecoding where
         gcm = GCMPayload payload
         bs :: ByteString
         bs =
-          "{\
-          \  \"notification\":\
-          \    {\"title\":\"" <>
-          (B.pack . T.unpack $ titleText) <>
-          "\"\
-          \    ,\"body\":\"" <>
-          (B.pack . T.unpack $ bodyText) <>
-          "\"\
-          \    }\
-          \    ,\"data\":" <>
-          (A.encode dataJSON) <>
-          "\
-          \}"
+          B.unlines
+            [ "{"
+            , "  \"notification\": {"
+            , "    \"title\": \"" <> (B.pack . T.unpack $ titleText) <> "\","
+            , "    \"body\": \"" <> (B.pack . T.unpack $ bodyText) <> "\""
+            , "  },"
+            , "  \"data\": " <> (A.encode dataJSON)
+            , "}"
+            ]
     return $ GCMDecoding (bs, Just gcm)
 
 instance Arbitrary FCMDecoding where
@@ -181,19 +178,15 @@ instance Arbitrary FCMDecoding where
         gcm = FCMPayload payload
         bs :: ByteString
         bs =
-          "{\
-          \  \"notification\":\
-          \    {\"title\":\"" <>
-          (B.pack . T.unpack $ titleText) <>
-          "\"\
-          \    ,\"body\":\"" <>
-          (B.pack . T.unpack $ bodyText) <>
-          "\"\
-          \    }\
-          \    ,\"data\":" <>
-          (A.encode dataJSON) <>
-          "\
-          \}"
+          B.unlines
+            [ "{"
+            , "  \"notification\": {"
+            , "    \"title\": \"" <> (B.pack . T.unpack $ titleText) <> "\","
+            , "    \"body\": \"" <> (B.pack . T.unpack $ bodyText) <> "\""
+            , "  },"
+            , "  \"data\": " <> (A.encode dataJSON)
+            , "}"
+            ]
     return $ FCMDecoding (bs, Just gcm)
 
 instance Arbitrary NotificationDecoding where

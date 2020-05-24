@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 {-|
 Module      : Network.Pusher.Internal
 Description : Pure functions called by the public interface
@@ -19,7 +21,9 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Maybe (maybeToList)
+#if !(MIN_VERSION_base(4,14,0))
 import Data.Monoid ((<>))
+#endif
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 

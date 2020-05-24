@@ -22,4 +22,4 @@ executable webhook-example
         case-insensitive -any
     default-language: Haskell2010
     default-extensions: OverloadedStrings
-    ghc-options: -Wall -Wcompat -Whi-shadowing -Wmissing-signatures
+    ghc-options: -Wall -Wcompat -Wmissing-signatures
