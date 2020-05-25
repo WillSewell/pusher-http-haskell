@@ -3,7 +3,7 @@
 module Main where
 
 import Control.Exception (displayException)
-#if !(MIN_VERSION_base(4,14,0))
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
 #endif
 
