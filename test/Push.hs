@@ -8,7 +8,7 @@ import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromJust)
-#if !(MIN_VERSION_base(4,14,0))
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
 #endif
 import Data.Scientific
