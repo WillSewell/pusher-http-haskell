@@ -5,12 +5,19 @@
 
 packages:
 - completed:
-    hackage: base-4.14.0.0@sha256:7f5580e270c0914ee83b381ea88e8c798b8f3cdbe279e47801addf518c76b62c,10450
+    hackage: aeson-1.5.0.0@sha256:a4ec683c3e40a41665f4f6806521211ce2253a469c82d4df855aadb2cc34bec4,6812
     pantry-tree:
-      size: 17515
-      sha256: f03903a9902b96b2e774bb86ad146271abe755e8efc0520fa85e4b94a8096c2c
+      size: 39758
+      sha256: 69b028939df0c092b1d8c3e9447461ca362e4fa8b93bfaf37fc199785df775da
   original:
-    hackage: base-4.14.0.0
+    hackage: aeson-1.5.0.0
+- completed:
+    hackage: Cabal-3.2.0.0@sha256:d0d7a1f405f25d0000f5ddef684838bc264842304fd4e7f80ca92b997b710874,27320
+    pantry-tree:
+      size: 40963
+      sha256: b122f2d76dc82a350d3986fa0cbc4ecf9c3bb4f9c598ccbfb3b2bfdde02f3698
+  original:
+    hackage: Cabal-3.2.0.0
 - completed:
     hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
     pantry-tree:
