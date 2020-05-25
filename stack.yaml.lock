@@ -5,13 +5,6 @@
 
 packages:
 - completed:
-    hackage: base-4.14.0.0@sha256:7f5580e270c0914ee83b381ea88e8c798b8f3cdbe279e47801addf518c76b62c,10450
-    pantry-tree:
-      size: 17515
-      sha256: f03903a9902b96b2e774bb86ad146271abe755e8efc0520fa85e4b94a8096c2c
-  original:
-    hackage: base-4.14.0.0
-- completed:
     hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
     pantry-tree:
       size: 3433
