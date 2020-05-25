@@ -7,8 +7,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
-import Data.Maybe (fromJust)
-#if !(MIN_VERSION_base(4,14,0))
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
 #endif
 import Data.Text.Encoding (decodeUtf8)
@@ -22,7 +21,12 @@ main = quickHttpServe $ method GET authHandler
 
 authHandler :: Snap ()
 authHandler = do
-  cred <- liftIO $ Y.decodeFile "../credentials.yaml"
+  eitherCred <- liftIO $ Y.decodeFileEither "../credentials.yaml"
+  let
+    cred =
+      case eitherCred of
+        Left e -> error $ show e
+        Right c -> c
   params <- getParams
   let userData =
         A.Object $
@@ -33,7 +37,7 @@ authHandler = do
           ]
       signature =
         authenticatePresence
-          (fromJust cred)
+          cred
           (decodeUtf8 $ head $ params M.! "socket_id")
           (parseChannel $ decodeUtf8 $ head $ params M.! "channel_name")
           userData
