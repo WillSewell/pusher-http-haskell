@@ -2,18 +2,18 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-|
 Module      : Network.Pusher
-Description : Haskell interface to the Pusher HTTP API
+Description : Haskell interface to the Pusher Channels HTTP API
 Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
 
-Exposes the functions necessary for interacting with the Pusher HTTP API, as
-well as functions for generating auth signatures for private and presence
-channels.
+Exposes the functions necessary for interacting with the Pusher Channels HTTP
+API, as well as functions for generating auth signatures for private and
+presence channels.
 
-First create a 'Pusher' data structure with your Pusher 'Credentials', and then
-call the functions defined in this module to make the HTTP requests.
+First create a 'Pusher' data structure with your Pusher Channels 'Credentials',
+and then call the functions defined in this module to make the HTTP requests.
 
 If any of the requests fail, the return values of the functions will result in
 a 'Left' 'PusherError' when run.
@@ -49,7 +49,7 @@ An example of how you would use these functions:
                             )]
     Just interest = 'mkInterest' "some-interest"
 
-    -- A Pusher notification
+    -- A Pusher Channels notification
     notification = 'Notification'
       { 'notificationInterest'     = interest
       , 'notificationWebhookURL'   = Nothing
@@ -66,7 +66,8 @@ An example of how you would use these functions:
 
 There are simple working examples in the example/ directory.
 
-See https://pusher.com/docs/rest_api for more detail on the HTTP requests.
+See https://pusher.com/docs/channels/server_api/http-api for more detail on the
+HTTP requests.
 -}
 module Network.Pusher (
   -- * Data types
@@ -228,8 +229,8 @@ notify pusher notification =
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Parse webhooks from a list of HTTP headers and a HTTP body given their
--- 'AppKey' matches the one in our Pusher credentials and the webhook is
--- correctly encrypted by the corresponding 'AppSecret'.
+-- 'AppKey' matches the one in our Pusher Channels credentials and the webhook
+-- is correctly encrypted by the corresponding 'AppSecret'.
 parseWebhookPayload ::
      Pusher
   -> [(BC.ByteString, BC.ByteString)]

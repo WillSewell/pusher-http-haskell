@@ -15,7 +15,7 @@ import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (property)
 
 data TestWebhookPayload = TestWebhookPayload {
-  -- A Request recieved from Pusher
+  -- A Request recieved from Pusher Channels
     _webhookRequest :: ([(B.ByteString, B.ByteString)], B.ByteString)
   -- Must have this key
   , _hasKey :: AppKey
