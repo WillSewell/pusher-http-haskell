@@ -1,4 +1,4 @@
-# Pusher Haskell HTTP client library
+# Pusher Channels Haskell HTTP client library
 
 [![Build Status](https://travis-ci.org/WillSewell/pusher-http-haskell.svg?branch=master)](https://travis-ci.org/WillSewell/pusher-http-haskell)
 
