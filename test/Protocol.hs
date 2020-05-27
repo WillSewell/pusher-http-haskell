@@ -35,7 +35,7 @@ test = do
         parseChannel (renderChannel chan) == chan
   describe "Protocol.ChannelsInfo" $
     it "parsing works" $
-      -- Data from https://pusher.com/docs/rest_api#successful-response-1
+      -- Data from https://pusher.com/docs/channels/library_auth_reference/rest-api#successful-response
     A.decode
       "{\
 \         \"channels\": {\
@@ -55,7 +55,7 @@ test = do
        ])
   describe "Protocol.FullChannelInfo" $
     it "parsing works" $
-      -- Data from https://pusher.com/docs/rest_api#successful-response-2
+      -- Data from https://pusher.com/docs/channels/library_auth_reference/rest-api#successful-response
     A.decode
       "{\
 \         \"occupied\": true,\

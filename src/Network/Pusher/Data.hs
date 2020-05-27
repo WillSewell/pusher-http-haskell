@@ -3,16 +3,16 @@
 
 {-|
 Module      : Network.Pusher.Data
-Description : Data structure representing Pusher concepts and config
+Description : Data structure representing Pusher Channels concepts and config
 Copyright   : (c) Will Sewell, 2016
 Licence     : MIT
 Maintainer  : me@willsewell.com
 Stability   : experimental
 
 You must create an instance of the Pusher datatype with your particular Pusher
-app credentials in order to run the main API functions.
+Channels app credentials in order to run the main API functions.
 
-The other types represent Pusher channels and Pusher event fields.
+The other types represent channels and event fields.
 -}
 module Network.Pusher.Data (
   -- * Pusher config data type
@@ -175,7 +175,7 @@ getConnManager = liftIO $ newManager defaultManagerSettings
 
 type ChannelName = T.Text
 
--- |The possible types of Pusher channe.
+-- |The possible types of channel.
 data ChannelType
   = Public
   | Private
@@ -261,7 +261,8 @@ instance A.FromJSON Interest where
 instance A.ToJSON Interest where
   toJSON (Interest txt) = A.String txt
 
--- |URL to which pusher will send information about sent push notifications.
+-- |URL to which Pusher Channels will send information about sent push
+-- notifications.
 type WebhookURL = T.Text
 
 -- |Level of detail sent to WebhookURL. Defaults to Info.

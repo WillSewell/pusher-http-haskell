@@ -11,7 +11,7 @@ test :: Spec
 test = do
   describe "Auth.makeQS" $
     it "works" $
-      -- Happy case based on data from the docs: https://pusher.com/docs/rest_api#worked-authentication-example
+      -- Happy case based on data from the docs: https://pusher.com/docs/channels/library_auth_reference/auth-signatures#worked-example
     let body =
           "{\"name\":\"foo\",\"channels\":[\"project-3\"],\"data\":\"{\\\"some\\\":\\\"data\\\"}\"}"
     in makeQS
@@ -31,12 +31,12 @@ test = do
        ]
   describe "Auth.authenticatePrivate" $
     it "works" $
-      -- Data from https://pusher.com/docs/auth_signatures#worked-example
+      -- Data from https://pusher.com/docs/channels/library_auth_reference/auth-signatures#worked-example
     authenticatePrivate credentials "1234.1234" (Channel Private "foobar") `shouldBe`
     "278d425bdf160c739803:58df8b0c36d6982b82c3ecf6b4662e34fe8c25bba48f5369f135bf843651c3a4"
   describe "Auth.authenticatePresenceWithEncoder" $
     it "works for presence channels" $
-      -- Data from https://pusher.com/docs/auth_signatures#presence
+      -- Data from https://pusher.com/docs/channels/library_auth_reference/auth-signatures#presence-channels
     let userData = "{\"user_id\":10,\"user_info\":{\"name\":\"Mr. Pusher\"}}"
     in authenticatePresenceWithEncoder
          (const userData)
