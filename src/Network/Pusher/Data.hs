@@ -40,24 +40,13 @@ module Network.Pusher.Data (
   , Event
   , EventData
   , SocketID
-  -- * Notifications
-  , Notification(..)
-  , Interest
-  , mkInterest
-  , WebhookURL
-  , WebhookLevel(..)
-  , APNSPayload(..)
-  , GCMPayload(..)
-  , FCMPayload(..)
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.:), (.:?), (.=))
+import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
-import Data.Char (isAlphaNum)
 import Data.Foldable (asum)
-import qualified Data.HashSet as HS
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
 #if !(MIN_VERSION_base(4,11,0))
@@ -65,14 +54,12 @@ import Data.Monoid ((<>))
 #endif
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
-import qualified Data.Vector as V
 import GHC.Generics (Generic)
 import Network.HTTP.Client
        (Manager, defaultManagerSettings, newManager)
 
 import Network.Pusher.Internal.Util
-       (failExpectArray, failExpectObj, failExpectSingletonArray,
-        failExpectStr, show')
+       (failExpectObj, failExpectStr, show')
 
 type AppID = Integer
 
@@ -84,8 +71,6 @@ type AppSecret = B.ByteString
 data Pusher = Pusher
   { pusherHost :: T.Text
   , pusherPath :: T.Text
-  , pusherNotifyHost :: T.Text
-  , pusherNotifyPath :: T.Text
   , pusherCredentials :: Credentials
   , pusherConnectionManager :: Manager
   }
@@ -135,30 +120,23 @@ instance A.FromJSON Cluster where
 getPusher :: MonadIO m => Credentials -> m Pusher
 getPusher cred = do
   connManager <- getConnManager
-  return $ getPusherWithConnManager connManager Nothing Nothing cred
+  return $ getPusherWithConnManager connManager Nothing cred
 
 -- |Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost :: MonadIO m => T.Text -> T.Text -> Credentials -> m Pusher
-getPusherWithHost apiHost notifyHost cred = do
+getPusherWithHost :: MonadIO m => T.Text -> Credentials -> m Pusher
+getPusherWithHost apiHost cred = do
   connManager <- getConnManager
-  return $
-    getPusherWithConnManager connManager (Just apiHost) (Just notifyHost) cred
+  return $ getPusherWithConnManager connManager (Just apiHost) cred
 
 -- |Get a Pusher instance with a given connection manager. This can be useful
 -- if you want to share a connection with your application code.
-getPusherWithConnManager ::
-     Manager -> Maybe T.Text -> Maybe T.Text -> Credentials -> Pusher
-getPusherWithConnManager connManager apiHost notifyAPIHost cred =
+getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
+getPusherWithConnManager connManager apiHost cred =
   let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
       mCluster = credentialsCluster cred
-      notifyPath =
-        "/server_api/v1/apps/" <> show' (credentialsAppID cred) <> "/"
   in Pusher
      { pusherHost = fromMaybe (mkHost mCluster) apiHost
      , pusherPath = path
-     , pusherNotifyHost =
-         fromMaybe "http://nativepush-cluster1.pusher.com" notifyAPIHost
-     , pusherNotifyPath = notifyPath
      , pusherCredentials = cred
      , pusherConnectionManager = connManager
      }
@@ -227,144 +205,3 @@ type Event = T.Text
 type EventData = T.Text
 
 type SocketID = T.Text
-
--- |Up to 164 characters where each character is ASCII upper or lower case, a
--- number or one of _=@,.;
---
--- Note: hyphen - is NOT valid as it is reserved for the possibility of marking
--- interest names with prefixes such as private- or presence-.
-newtype Interest =
-  Interest T.Text
-  deriving (Eq, Show)
-
-mkInterest :: T.Text -> Maybe Interest
-mkInterest txt
-  | 0 < T.length txt &&
-      T.length txt <= 164 &&
-      T.all (\c -> isAlphaNum c || HS.member c permitted) txt =
-    Just . Interest $ txt
-  | otherwise = Nothing
-  where
-    permitted = HS.fromList "_=@,.;"
-
-instance A.FromJSON Interest where
-  parseJSON v =
-    case v of
-      A.String s ->
-        case mkInterest s of
-          Nothing ->
-            fail $
-            "An Interest contains invalid characters or is too long: " ++ show s
-          Just istr -> pure istr
-      _ -> failExpectStr v
-
-instance A.ToJSON Interest where
-  toJSON (Interest txt) = A.String txt
-
--- |URL to which Pusher Channels will send information about sent push
--- notifications.
-type WebhookURL = T.Text
-
--- |Level of detail sent to WebhookURL. Defaults to Info.
-data WebhookLevel
-  = Info -- ^ Errors only
-  | Debug -- ^ Everything
-  deriving (Eq, Show)
-
-instance A.FromJSON WebhookLevel where
-  parseJSON v =
-    case v of
-      A.String s
-        | s == "INFO" -> pure Info
-        | s == "DEBUG" -> pure Debug
-      _ -> failExpectStr v
-
-instance A.ToJSON WebhookLevel where
-  toJSON w =
-    A.String $
-    case w of
-      Info -> "INFO"
-      Debug -> "DEBUG"
-
--- |Apple push notification service payload.
-data APNSPayload =
-  -- TODO: Replace JSON object with a stronger encoding
-  APNSPayload A.Object
-  deriving (Eq, Show)
-
-instance A.FromJSON APNSPayload where
-  parseJSON v =
-    case v of
-      A.Object o -> pure . APNSPayload $ o
-      _ -> failExpectObj v
-
-instance A.ToJSON APNSPayload where
-  toJSON (APNSPayload o) = A.Object o
-
--- |Google Cloud Messaging payload.
-data GCMPayload =
-  -- TODO: Replace JSON object with a stronger encoding
-  GCMPayload A.Object
-  deriving (Eq, Show)
-
-instance A.FromJSON GCMPayload where
-  parseJSON v =
-    case v of
-      A.Object o -> pure . GCMPayload $ o
-      _ -> failExpectObj v
-
-instance A.ToJSON GCMPayload where
-  toJSON (GCMPayload o) = A.Object o
-
--- |Firebase Cloud Messaging payload.
-data FCMPayload =
-  -- TODO: Replace JSON object with a stronger encoding
-  FCMPayload A.Object
-  deriving (Eq, Show)
-
-instance A.FromJSON FCMPayload where
-  parseJSON v =
-    case v of
-      A.Object o -> pure . FCMPayload $ o
-      _ -> failExpectObj v
-
-instance A.ToJSON FCMPayload where
-  toJSON (FCMPayload o) = A.Object o
-
-data Notification = Notification
-  { notificationInterest :: Interest
-  , notificationWebhookURL :: Maybe WebhookURL
-  , notificationWebhookLevel :: Maybe WebhookLevel
-  , notificationAPNSPayload :: Maybe APNSPayload
-  , notificationGCMPayload :: Maybe GCMPayload
-  , notificationFCMPayload :: Maybe FCMPayload
-  } deriving (Eq, Show)
-
-instance A.FromJSON Notification where
-  parseJSON (A.Object v) =
-    Notification <$>
-    (do interests <- v A..: "interests"
-        case interests of
-          A.Array arr
-            | V.length arr == 1 -> A.parseJSON $ V.head arr
-            | otherwise -> failExpectSingletonArray interests
-          v' -> failExpectArray v') <*>
-    v .:? "webhook_url" <*>
-    v .:? "webhook_level" <*>
-    v .:? "apns" <*>
-    v .:? "gcm" <*>
-    v .:? "fcm"
-  parseJSON v = failExpectObj v
-
-instance A.ToJSON Notification where
-  toJSON (Notification interests mWebhookURL mWebhookLevel mAPNS mGCMP mFCMP) =
-    let requiredFields = ["interests" .= [interests]]
-        consOptionals =
-          consJust "webhook_level" mWebhookLevel .
-          consJust "webhook_url" mWebhookURL .
-          consJust "apns" mAPNS . consJust "gcm" mGCMP . consJust "fcm" mFCMP
-        fields = consOptionals requiredFields
-    in A.object fields
-      -- Cons a attribute value pair if Just
-    where
-      consJust attr = maybe id ((:) . (attr .=))
