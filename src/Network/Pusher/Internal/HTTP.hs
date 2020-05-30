@@ -107,11 +107,8 @@ doRequest ::
 doRequest connManager req = do
   response <- liftIO $ HTTP.Client.httpLbs req connManager
   let status = HTTP.Client.responseStatus response
-      code = statusCode status
-      bodyBs :: BL.ByteString
-      bodyBs = HTTP.Client.responseBody response
-  if code `elem` [200, 202]
-    then return bodyBs
+  if statusCode status == 200
+    then return $ HTTP.Client.responseBody response
     else let decoded = decodeUtf8' $ statusMessage status
          in throwE $
             either

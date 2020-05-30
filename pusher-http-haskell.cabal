@@ -88,5 +88,4 @@ test-suite tests
         Auth
         Protocol
         Webhook
-        Push
     ghc-options: -Wall

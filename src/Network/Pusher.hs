@@ -30,41 +30,16 @@ An example of how you would use these functions:
       }
   pusher <- 'getPusher' credentials
 
-  triggerRes <-
+  result <-
     'trigger' pusher ['Channel' 'Public' "my-channel"] "my-event" "my-data" Nothing
 
-  case triggerRes of
+  case result of
     Left e -> putStrLn $ displayException e
     Right resp -> print resp
 
-  -- import qualified Data.HashMap.Strict as H
-  -- import qualified Data.Aeson          as A
-  let
-    -- A Firebase Cloud Messaging notification payload
-    fcmObject = H.fromList [("notification", A.Object $ H.fromList
-                                [("title", A.String "a title")
-                                ,("body" , A.String "some text")
-                                ,("icon" , A.String "logo.png")
-                                ]
-                            )]
-    Just interest = 'mkInterest' "some-interest"
-
-    -- A Pusher Channels notification
-    notification = 'Notification'
-      { 'notificationInterest'     = interest
-      , 'notificationWebhookURL'   = Nothing
-      , 'notificationWebhookLevel' = Nothing
-      , 'notificationAPNSPayload'  = Nothing
-      , 'notificationGCMPayload'   = Nothing
-      , 'notificationFCMPayload'   = Just $ 'FCMPayload' fcmObject
-      }
-
-  notifyRes <- 'notify' pusher notification
-
 @
 
-
-There are simple working examples in the example/ directory.
+There is a simple working example in the example/ directory.
 
 See https://pusher.com/docs/channels/server_api/http-api for more detail on the
 HTTP requests.
@@ -92,15 +67,6 @@ module Network.Pusher (
   , Event
   , EventData
   , SocketID
-  -- ** Notifications
-  , Notification(..)
-  , Interest
-  , mkInterest
-  , WebhookURL
-  , WebhookLevel(..)
-  , APNSPayload(..)
-  , GCMPayload(..)
-  , FCMPayload(..)
   -- * HTTP Requests
   -- ** Trigger events
   , trigger
@@ -108,8 +74,6 @@ module Network.Pusher (
   , channels
   , channel
   , users
-  -- ** Push notifications
-  , notify
   -- * Authentication
   , AuthString
   , AuthSignature
@@ -135,12 +99,10 @@ import qualified Data.Text as T
 
 import qualified Data.ByteString.Char8 as BC
 import Network.Pusher.Data
-       (APNSPayload(..), AppID, AppKey, AppSecret, Channel(..),
-        ChannelName, ChannelType(..), Cluster(..), Credentials(..), Event,
-        EventData, FCMPayload(..), GCMPayload(..), Interest,
-        Notification(..), Pusher(..), SocketID, WebhookLevel(..),
-        WebhookURL, getPusher, getPusherWithConnManager, getPusherWithHost,
-        mkInterest, parseChannel, renderChannel, renderChannelPrefix)
+       (AppID, AppKey, AppSecret, Channel(..), ChannelName,
+        ChannelType(..), Cluster(..), Credentials(..), Event, EventData,
+        Pusher(..), SocketID, getPusher, getPusherWithConnManager,
+        getPusherWithHost, parseChannel, renderChannel, renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import qualified Network.Pusher.Internal as Pusher
 import Network.Pusher.Internal.Auth
@@ -218,15 +180,6 @@ users pusher chan =
   runExceptT $ do
     requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
     HTTP.get (pusherConnectionManager pusher) requestParams
-
--- |Send a push notification.
-notify :: MonadIO m => Pusher -> Notification -> m (Either PusherError ())
-notify pusher notification =
-  liftIO $
-  runExceptT $ do
-    (requestParams, requestBody) <-
-      ExceptT $ Pusher.mkNotifyRequest pusher notification <$> getTime
-    HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Parse webhooks from a list of HTTP headers and a HTTP body given their
 -- 'AppKey' matches the one in our Pusher Channels credentials and the webhook
