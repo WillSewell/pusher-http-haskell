@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 {-|
@@ -23,16 +22,10 @@ module Network.Pusher.Internal.Auth
   ) where
 
 import qualified Data.Aeson as A
-#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
-#endif
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
-#if MIN_VERSION_aeson(1,0,0)
 import qualified Data.Aeson.Text as A
-#else
-import qualified Data.Aeson.Encode as A
-#endif
 import qualified Crypto.Hash as Hash
 import qualified Crypto.MAC.HMAC as HMAC
 import qualified Data.ByteArray as BA

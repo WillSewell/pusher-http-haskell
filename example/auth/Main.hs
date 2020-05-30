@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module Main where
 
 import Control.Monad.IO.Class (liftIO)
@@ -7,9 +5,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
-#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
-#endif
 import Data.Text.Encoding (decodeUtf8)
 import qualified Data.Yaml as Y
 import Network.Pusher (authenticatePresence, parseChannel)

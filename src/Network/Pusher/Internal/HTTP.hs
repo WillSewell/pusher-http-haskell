@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -29,9 +28,7 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), throwE)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
-#endif
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8')
 import qualified Network.HTTP.Client as HTTP.Client
@@ -86,12 +83,8 @@ mkRequest ep qs =
     Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
     Just req -> Right $ HTTP.Client.setQueryString (map (second Just) qs) req
   where
+    parseRequest = HTTP.Client.parseRequest
 
-#if MIN_VERSION_http_client(0,4,30)
-  parseRequest = HTTP.Client.parseRequest
-#else
-  parseRequest = HTTP.Client.parseUrl
-#endif
 mkPost :: BL.ByteString -> HTTP.Client.Request -> HTTP.Client.Request
 mkPost body req =
   req

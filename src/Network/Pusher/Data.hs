@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 {-|
@@ -49,9 +48,7 @@ import qualified Data.ByteString as B
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
-#if !(MIN_VERSION_base(4,11,0))
 import Data.Monoid ((<>))
-#endif
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Generics (Generic)
