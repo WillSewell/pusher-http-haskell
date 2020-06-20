@@ -93,11 +93,12 @@ module Network.Pusher (
   , parseWebhookPayloadWith
   ) where
 
+
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
+import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
 
-import qualified Data.ByteString.Char8 as BC
 import Network.Pusher.Data
        (AppID, AppKey, AppSecret, Channel(..), ChannelName,
         ChannelType(..), Cluster(..), Credentials(..), Event, EventData,
@@ -109,7 +110,8 @@ import Network.Pusher.Internal.Auth
        (AuthSignature, AuthString, authenticatePresence,
         authenticatePrivate)
 import qualified Network.Pusher.Internal.HTTP as HTTP
-import Network.Pusher.Internal.Util (getTime)
+import Network.Pusher.Internal.Util
+       (getSystemTimeSeconds)
 import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfo, ChannelsInfoQuery,
         FullChannelInfo, Users)
@@ -135,7 +137,7 @@ trigger pusher chans event dat socketId =
   runExceptT $ do
     (requestParams, requestBody) <-
       ExceptT $
-      Pusher.mkTriggerRequest pusher chans event dat socketId <$> getTime
+      Pusher.mkTriggerRequest pusher chans event dat socketId <$> getSystemTimeSeconds
     HTTP.post (pusherConnectionManager pusher) requestParams requestBody
 
 -- |Query a list of channels for information.
@@ -154,8 +156,7 @@ channels pusher channelTypeFilter prefixFilter attributes =
   runExceptT $ do
     requestParams <-
       liftIO $
-      Pusher.mkChannelsRequest pusher channelTypeFilter prefixFilter attributes <$>
-      getTime
+      Pusher.mkChannelsRequest pusher channelTypeFilter prefixFilter attributes <$> getSystemTimeSeconds
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Query for information on a single channel.
@@ -170,7 +171,7 @@ channel pusher chan attributes =
   liftIO $
   runExceptT $ do
     requestParams <-
-      liftIO $ Pusher.mkChannelRequest pusher chan attributes <$> getTime
+      liftIO $ Pusher.mkChannelRequest pusher chan attributes <$> getSystemTimeSeconds
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Get a list of users in a presence channel.
@@ -178,7 +179,7 @@ users :: MonadIO m => Pusher -> Channel -> m (Either PusherError Users)
 users pusher chan =
   liftIO $
   runExceptT $ do
-    requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getTime
+    requestParams <- liftIO $ Pusher.mkUsersRequest pusher chan <$> getSystemTimeSeconds
     HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- |Parse webhooks from a list of HTTP headers and a HTTP body given their

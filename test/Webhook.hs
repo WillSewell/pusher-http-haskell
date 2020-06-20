@@ -5,7 +5,8 @@ module Webhook where
 import qualified Data.Aeson as A
 import qualified Data.ByteString.Char8 as B
 import qualified Data.HashMap.Strict as HM
-import Data.Time.Clock.POSIX
+import Data.Word (Word64)
+
 import Network.Pusher
        (AppKey, AppSecret, AuthSignature, WebhookEv(..),
         WebhookPayload(..), Webhooks(..), parseChannel,
@@ -61,12 +62,12 @@ testWebhookPayloadParses (TestWebhookPayload (headers, body) hasKey correspondin
 mkSimpleTestWebhookPayload ::
      AppKey
   -> AppSecret
-  -> POSIXTime
+  -> Word64
   -> B.ByteString
   -> AuthSignature
   -> [WebhookEv]
   -> TestWebhookPayload
-mkSimpleTestWebhookPayload key secret unixTime body signature whs =
+mkSimpleTestWebhookPayload key secret timestampMS body signature whs =
   TestWebhookPayload
   { _webhookRequest =
       ([("X-Pusher-Key", key), ("X-Pusher-Signature", signature)], body)
@@ -78,7 +79,7 @@ mkSimpleTestWebhookPayload key secret unixTime body signature whs =
         { xPusherKey = key
         , xPusherSignature = signature
         , webhooks =
-            Webhooks {timeMs = posixSecondsToUTCTime unixTime, webhookEvs = whs}
+            Webhooks {timeMs = timestampMS, webhookEvs = whs}
         }
   }
 
