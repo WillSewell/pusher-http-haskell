@@ -22,7 +22,6 @@ module Network.Pusher.Internal.Auth
   ) where
 
 import qualified Data.Aeson as A
-import Data.Monoid ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Exts (sortWith)
 import qualified Data.Aeson.Text as A

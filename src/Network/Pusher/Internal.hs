@@ -18,7 +18,6 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Maybe (maybeToList)
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 

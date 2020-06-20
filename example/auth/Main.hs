@@ -5,7 +5,6 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
-import Data.Monoid ((<>))
 import Data.Text.Encoding (decodeUtf8)
 import qualified Data.Yaml as Y
 import Network.Pusher (authenticatePresence, parseChannel)
