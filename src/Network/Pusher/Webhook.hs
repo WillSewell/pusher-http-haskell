@@ -23,8 +23,8 @@ import Data.Function (on)
 import Data.Maybe (mapMaybe)
 import Data.Text (Text)
 import Data.Text.Encoding
-import Data.Time (UTCTime(..))
-import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Word (Word64)
+
 import Network.Pusher.Data
        (AppKey, AppSecret, Channel(..), SocketID)
 import Network.Pusher.Internal.Auth (AuthSignature)
@@ -35,7 +35,7 @@ import Network.Pusher.Protocol (User(..))
 -- a number of 'WebhookEv's. Multiple events are received under the same
 -- timestamp if batch events is enabled.
 data Webhooks = Webhooks
-  { timeMs :: UTCTime
+  { timeMs :: Word64
   , webhookEvs :: [WebhookEv]
   } deriving (Eq, Show)
 
@@ -43,24 +43,7 @@ instance A.FromJSON Webhooks where
   parseJSON o =
     case o of
       A.Object v ->
-        Webhooks <$> (_unOurTime <$> A.parseJSON o) <*> (v .: "events")
-      _ -> failExpectObj o
-
--- |Exists only so we can define our own 'FromJSON' instance on
--- 'NominalDiffTime'. This is useful because it didnt exist before a certain
--- GHC version that we support and allows us to avoid CPP and orphan instances.
-newtype OurTime = OurTime
-  { _unOurTime :: UTCTime
-  }
-
-instance A.FromJSON OurTime where
-  parseJSON o =
-    case o of
-      A.Object v ->
-        A.withScientific
-          "NominalDiffTime"
-          (pure . OurTime . posixSecondsToUTCTime . realToFrac) =<<
-        v .: "time_ms"
+        Webhooks <$> v .: "time_ms" <*> v .: "events"
       _ -> failExpectObj o
 
 -- |A 'WebhookEv' is one of several events Pusher may send to your server in

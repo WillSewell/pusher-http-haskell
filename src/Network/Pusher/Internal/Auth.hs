@@ -34,6 +34,7 @@ import qualified Data.ByteString.Base16 as B16
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
+import Data.Word (Word64)
 
 import Network.Pusher.Data
        (AppKey, AppSecret, Channel, Credentials(..), SocketID,
@@ -50,9 +51,9 @@ makeQS ::
   -> T.Text
   -> RequestQueryString -- ^Any additional parameters.
   -> B.ByteString
-  -> Int -- ^Current UNIX timestamp.
+  -> Word64
   -> RequestQueryString
-makeQS appKey appSecret method path params body ts =
+makeQS appKey appSecret method path params body timestamp =
   let allParams
     -- Generate all required parameters and add them to the list of existing
     -- ones
@@ -60,7 +61,7 @@ makeQS appKey appSecret method path params body ts =
         sortWith fst $
         params ++
         [ ("auth_key", appKey)
-        , ("auth_timestamp", show' ts)
+        , ("auth_timestamp", show' timestamp)
         , ("auth_version", "1.0")
         , ( "body_md5"
           , B16.encode $ BA.convert (Hash.hash body :: Hash.Digest Hash.MD5))

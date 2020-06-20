@@ -33,7 +33,7 @@ webhookHandler pusher = do
       liftIO $ mapM_ (webhookF time) webhookEvs
       Snap.modifyResponse $ Snap.setResponseStatus 200 "OK"
   where
-    webhookF _utcTime ev =
+    webhookF _timestampMS ev =
       putStrLn . mconcat $
       case ev of
         P.ChannelOccupiedEv c -> ["channel ", show c, " is now occupied."]
