@@ -48,7 +48,6 @@ import qualified Data.ByteString as B
 import Data.Foldable (asum)
 import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import GHC.Generics (Generic)
