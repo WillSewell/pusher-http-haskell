@@ -13,7 +13,8 @@ import qualified Crypto.Hash as HASH
 import qualified Crypto.MAC.HMAC as HMAC
 import Data.Aeson ((.:))
 import qualified Data.Aeson as A
-import Data.ByteArray
+import Data.ByteArray (convert)
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BC
 import Data.ByteString.Lazy (fromStrict)
@@ -21,13 +22,11 @@ import qualified Data.ByteString.Lazy.Char8 as LB
 import Data.Char (toLower)
 import Data.Function (on)
 import Data.Maybe (mapMaybe)
-import Data.Text (Text)
-import Data.Text.Encoding
+import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
-
 import Network.Pusher.Data
-       (AppKey, AppSecret, Channel(..), SocketID)
-import Network.Pusher.Internal.Auth (AuthSignature)
+       (Channel(..))
 import Network.Pusher.Internal.Util
 import Network.Pusher.Protocol (User(..))
 
@@ -62,9 +61,9 @@ data WebhookEv
   -- |A client has sent a named client event with some json body. They have a
   -- 'SocketID' and a 'User' if they were in a presence channel.
   | ClientEv { onChannel :: Channel
-             , clientEvName :: Text
+             , clientEvName :: T.Text
              , clientEvBody :: Maybe A.Value
-             , withSocketId :: SocketID
+             , withSocketId :: T.Text
              , withPossibleUser :: Maybe User }
   deriving (Eq, Show)
 
@@ -73,7 +72,7 @@ instance A.FromJSON WebhookEv where
     case o of
       A.Object v -> do
         name <- v .: "name"
-        case name :: Text of
+        case name :: T.Text of
           "channel_occupied" -> ChannelOccupiedEv <$> v .: "channel"
           "channel_vacated" -> ChannelVacatedEv <$> v .: "channel"
           "member_added" ->
@@ -89,22 +88,22 @@ instance A.FromJSON WebhookEv where
       _ -> failExpectObj o
 
 data WebhookPayload = WebhookPayload {
-    xPusherKey :: AppKey
+    xPusherKey :: B.ByteString
   -- ^Authentication header. The oldest active token is used, identified by
   -- this key.
-  , xPusherSignature :: AuthSignature
+  , xPusherSignature :: B.ByteString
   -- ^A HMAC SHA256 formed by signing the payload with the tokens secret.
   , webhooks :: Webhooks
   } deriving (Eq, Show)
 
--- |Given a HTTP Header and its associated value, parse an 'AppKey'.
-parseAppKeyHdr :: BC.ByteString -> BC.ByteString -> Maybe AppKey
+-- |Given a HTTP Header and its associated value, parse an app key.
+parseAppKeyHdr :: BC.ByteString -> BC.ByteString -> Maybe B.ByteString
 parseAppKeyHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Key" = Just value
   | otherwise = Nothing
 
--- |Given a HTTP Header and its associated value, parse a 'AuthSignature'.
-parseAuthSignatureHdr :: BC.ByteString -> BC.ByteString -> Maybe AuthSignature
+-- |Given a HTTP Header and its associated value, parse an auth signature.
+parseAuthSignatureHdr :: BC.ByteString -> BC.ByteString -> Maybe B.ByteString
 parseAuthSignatureHdr key value
   | on (==) (BC.map toLower) key "X-Pusher-Signature" = Just value
   | otherwise = Nothing
@@ -114,7 +113,7 @@ parseWebhooksBody :: BC.ByteString -> Maybe Webhooks
 parseWebhooksBody = A.decode . fromStrict
 
 -- |Does a webhook body hash with our secret key to the given signature?
-verifyWebhooksBody :: AppSecret -> AuthSignature -> BC.ByteString -> Bool
+verifyWebhooksBody :: B.ByteString -> B.ByteString -> BC.ByteString -> Bool
 verifyWebhooksBody appSecret authSignature body =
   let actualSignature =
         B16.encode $ convert (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
@@ -127,7 +126,7 @@ safeHead _ = Nothing
 -- |Given a list of http header key:values, a http body and a lookup function
 -- for an apps secret, parse and validate a  potential webhook payload.
 parseWebhookPayloadWith ::
-     (AppKey -> Maybe AppSecret)
+     (B.ByteString -> Maybe B.ByteString)
   -> [(BC.ByteString, BC.ByteString)]
   -> BC.ByteString
   -> Maybe WebhookPayload

@@ -23,11 +23,11 @@ test = do
          body
          1353088179 `shouldBe`
        [ ( "auth_signature"
-         , "da454824c97ba181a32ccc17a72625ba02771f50b50e1e7430e47a1f3f457e6c")
-       , ("auth_key", "278d425bdf160c739803")
-       , ("auth_timestamp", "1353088179")
-       , ("auth_version", "1.0")
-       , ("body_md5", "ec365a775a4cd0599faeb73354201b6f")
+         , Just "da454824c97ba181a32ccc17a72625ba02771f50b50e1e7430e47a1f3f457e6c")
+       , ("auth_key", Just "278d425bdf160c739803")
+       , ("auth_timestamp", Just "1353088179")
+       , ("auth_version", Just "1.0")
+       , ("body_md5", Just "ec365a775a4cd0599faeb73354201b6f")
        ]
   describe "Auth.authenticatePrivate" $
     it "works" $

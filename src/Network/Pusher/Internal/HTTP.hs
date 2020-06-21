@@ -15,22 +15,19 @@ converted into MonadError errors.
 -}
 module Network.Pusher.Internal.HTTP
   ( RequestParams(..)
-  , RequestQueryString
-  , RequestBody
   , get
   , post
   ) where
 
-import Control.Arrow (second)
 import Control.Exception (displayException)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Except (ExceptT(ExceptT), throwE)
 import qualified Data.Aeson as A
-import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8')
 import qualified Network.HTTP.Client as HTTP.Client
+import Network.HTTP.Types (Query)
 import Network.HTTP.Types.Header (hContentType)
 import Network.HTTP.Types.Method (methodPost)
 import Network.HTTP.Types.Status (statusCode, statusMessage)
@@ -40,13 +37,9 @@ import Network.Pusher.Error (PusherError(..))
 data RequestParams = RequestParams
   { requestEndpoint :: T.Text
   -- ^The API endpoint, for example http://api.pusherapp.com/apps/123/events.
-  , requestQueryString :: RequestQueryString
+  , requestQueryString :: Query
   -- ^List of query string parameters as key-value tuples.
   } deriving (Show)
-
-type RequestQueryString = [(B.ByteString, B.ByteString)]
-
-type RequestBody = A.Value
 
 -- |Issue an HTTP GET request. On a 200 response, the response body is returned.
 -- On failure, an error will be thrown into the MonadError instance.
@@ -76,11 +69,13 @@ post connManager (RequestParams ep qs) body = do
   return ()
 
 mkRequest ::
-     T.Text -> RequestQueryString -> Either PusherError HTTP.Client.Request
+     T.Text
+  -> Query
+  -> Either PusherError HTTP.Client.Request
 mkRequest ep qs =
   case parseRequest $ T.unpack ep of
     Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
-    Just req -> Right $ HTTP.Client.setQueryString (map (second Just) qs) req
+    Just req -> Right $ HTTP.Client.setQueryString qs req
   where
     parseRequest = HTTP.Client.parseRequest
 

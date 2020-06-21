@@ -15,10 +15,7 @@ The other types represent channels and event fields.
 -}
 module Network.Pusher.Data (
   -- * Pusher config data type
-    AppID
-  , AppKey
-  , AppSecret
-  , Pusher(..)
+    Pusher(..)
   , Credentials(..)
   , Cluster(..)
   , clusterMt1
@@ -30,15 +27,10 @@ module Network.Pusher.Data (
   , getPusherWithConnManager
   -- * Channels
   , Channel(..)
-  , ChannelName
   , ChannelType(..)
   , renderChannel
   , renderChannelPrefix
   , parseChannel
-  -- Events
-  , Event
-  , EventData
-  , SocketID
   ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -50,18 +42,13 @@ import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
+import Data.Word (Word32)
 import GHC.Generics (Generic)
 import Network.HTTP.Client
        (Manager, defaultManagerSettings, newManager)
 
 import Network.Pusher.Internal.Util
        (failExpectObj, failExpectStr, show')
-
-type AppID = Integer
-
-type AppKey = B.ByteString
-
-type AppSecret = B.ByteString
 
 -- |All the required configuration needed to interact with the API.
 data Pusher = Pusher
@@ -73,9 +60,9 @@ data Pusher = Pusher
 
 -- |The credentials for the current app.
 data Credentials = Credentials
-  { credentialsAppID :: AppID
-  , credentialsAppKey :: AppKey
-  , credentialsAppSecret :: AppSecret
+  { credentialsAppID :: Word32
+  , credentialsAppKey :: B.ByteString
+  , credentialsAppSecret :: B.ByteString
   , credentialsCluster :: Maybe Cluster
   }
 
@@ -147,8 +134,6 @@ mkHost mCluster =
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
 
-type ChannelName = T.Text
-
 -- |The possible types of channel.
 data ChannelType
   = Public
@@ -166,7 +151,7 @@ renderChannelPrefix Presence = "presence-"
 -- |The channel name (not including the channel type prefix) and its type.
 data Channel = Channel
   { channelType :: ChannelType
-  , channelName :: ChannelName
+  , channelName :: T.Text
   } deriving (Eq, Generic, Show)
 
 instance Hashable Channel
@@ -195,9 +180,3 @@ parseChannel chan
       in if length split > 1 && T.null (head split)
            then Just $ Channel chanType (T.concat $ tail split)
            else Nothing
-
-type Event = T.Text
-
-type EventData = T.Text
-
-type SocketID = T.Text

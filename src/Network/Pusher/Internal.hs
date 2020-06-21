@@ -21,25 +21,26 @@ import Data.Maybe (maybeToList)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
+import Network.HTTP.Types (Query)
 
 import Network.Pusher.Data
-       (Channel, ChannelType, Credentials(..), Event, EventData,
-        Pusher(..), SocketID, renderChannel, renderChannelPrefix)
+       (Channel, ChannelType, Credentials(..), Pusher(..), renderChannel,
+        renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Internal.HTTP
-       (RequestBody, RequestParams(RequestParams), RequestQueryString)
+       (RequestParams(RequestParams))
 import Network.Pusher.Protocol
        (ChannelInfoQuery, ChannelsInfoQuery, toURLParam)
 
 mkTriggerRequest ::
      Pusher
   -> [Channel]
-  -> Event
-  -> EventData
-  -> Maybe SocketID
+  -> T.Text
+  -> T.Text
+  -> Maybe T.Text
   -> Word64
-  -> Either PusherError (RequestParams, RequestBody)
+  -> Either PusherError (RequestParams, A.Value)
 mkTriggerRequest pusher chans event dat socketId timestamp = do
   when
     (length chans > 10)
@@ -67,15 +68,15 @@ mkChannelsRequest ::
 mkChannelsRequest pusher channelTypeFilter prefixFilter attributes timestamp =
   let prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
       params =
-        [ ("info", encodeUtf8 $ toURLParam attributes)
-        , ("filter_by_prefix", encodeUtf8 prefix)
+        [ ("info", Just $ encodeUtf8 $ toURLParam attributes)
+        , ("filter_by_prefix", Just $ encodeUtf8 prefix)
         ]
   in mkGetRequest pusher "channels" params timestamp
 
 mkChannelRequest ::
      Pusher -> Channel -> ChannelInfoQuery -> Word64 -> RequestParams
 mkChannelRequest pusher chan attributes timestamp =
-  let params = [("info", encodeUtf8 $ toURLParam attributes)]
+  let params = [("info", Just $ encodeUtf8 $ toURLParam attributes)]
       subPath = "channels/" <> renderChannel chan
   in mkGetRequest pusher subPath params timestamp
 
@@ -87,7 +88,7 @@ mkUsersRequest pusher chan timestamp =
 mkGetRequest ::
      Pusher
   -> T.Text
-  -> RequestQueryString
+  -> Query
   -> Word64
   -> RequestParams
 mkGetRequest pusher subPath params timestamp =
@@ -98,7 +99,7 @@ mkGetRequest pusher subPath params timestamp =
 mkPostRequest ::
      Pusher
   -> T.Text
-  -> RequestQueryString
+  -> Query
   -> B.ByteString
   -> Word64
   -> RequestParams
@@ -121,10 +122,10 @@ mkQS
   :: Pusher
   -> T.Text
   -> T.Text
-  -> RequestQueryString
+  -> Query
   -> B.ByteString
   -> Word64
-  -> RequestQueryString
+  -> Query
 mkQS pusher =
   let credentials = pusherCredentials pusher
   in makeQS (credentialsAppKey credentials) (credentialsAppSecret credentials)
