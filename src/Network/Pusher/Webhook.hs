@@ -21,7 +21,7 @@ import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Lazy.Char8 as LB
 import Data.Char (toLower)
 import Data.Function (on)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (listToMaybe, mapMaybe)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
@@ -119,10 +119,6 @@ verifyWebhooksBody appSecret authSignature body =
         B16.encode $ convert (HMAC.hmac appSecret body :: HMAC.HMAC HASH.SHA256)
   in authSignature == actualSignature
 
-safeHead :: [a] -> Maybe a
-safeHead (x:_) = Just x
-safeHead _ = Nothing
-
 -- |Given a list of http header key:values, a http body and a lookup function
 -- for an apps secret, parse and validate a  potential webhook payload.
 parseWebhookPayloadWith ::
@@ -131,8 +127,8 @@ parseWebhookPayloadWith ::
   -> BC.ByteString
   -> Maybe WebhookPayload
 parseWebhookPayloadWith lookupKeysSecret headers body = do
-  appKey <- safeHead . mapMaybe (uncurry parseAppKeyHdr) $ headers
-  authSignature <- safeHead . mapMaybe (uncurry parseAuthSignatureHdr) $ headers
+  appKey <- listToMaybe . mapMaybe (uncurry parseAppKeyHdr) $ headers
+  authSignature <- listToMaybe . mapMaybe (uncurry parseAuthSignatureHdr) $ headers
   appSecret <- lookupKeysSecret appKey
   () <-
     if verifyWebhooksBody appSecret authSignature body
