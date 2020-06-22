@@ -3,13 +3,13 @@
 module Webhook where
 
 import qualified Data.Aeson as A
-import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
 import qualified Data.HashMap.Strict as HM
 import Data.Word (Word64)
 
 import Network.Pusher
-       (AppKey, AppSecret, AuthSignature, WebhookEv(..),
-        WebhookPayload(..), Webhooks(..), parseChannel,
+       (WebhookEv(..), WebhookPayload(..), Webhooks(..), parseChannel,
         parseWebhookPayloadWith)
 import Network.Pusher.Protocol (User(..))
 import Test.Hspec (Spec, describe, it)
@@ -17,11 +17,11 @@ import Test.QuickCheck (property)
 
 data TestWebhookPayload = TestWebhookPayload {
   -- A Request recieved from Pusher Channels
-    _webhookRequest :: ([(B.ByteString, B.ByteString)], B.ByteString)
+    _webhookRequest :: ([(BC.ByteString, BC.ByteString)], BC.ByteString)
   -- Must have this key
-  , _hasKey :: AppKey
+  , _hasKey :: B.ByteString
   -- Which must correspond to this secret
-  , _hasSecret :: AppSecret
+  , _hasSecret :: B.ByteString
   -- And which must parse to this Payload
   , _payload :: Maybe WebhookPayload
   }
@@ -60,11 +60,11 @@ testWebhookPayloadParses (TestWebhookPayload (headers, body) hasKey correspondin
 -- - The HTTP headers are different to the expected payload
 -- - The HTTP requests key is unknown or doesnt match our secret
 mkSimpleTestWebhookPayload ::
-     AppKey
-  -> AppSecret
-  -> Word64
+     B.ByteString
   -> B.ByteString
-  -> AuthSignature
+  -> Word64
+  -> BC.ByteString
+  -> B.ByteString
   -> [WebhookEv]
   -> TestWebhookPayload
 mkSimpleTestWebhookPayload key secret timestampMS body signature whs =

@@ -13,9 +13,7 @@ as publically facing functions for authentication private and presence channel
 users; these functions are re-exported in the main Pusher module.
 -}
 module Network.Pusher.Internal.Auth
-  ( AuthString
-  , AuthSignature
-  , authenticatePresence
+  ( authenticatePresence
   , authenticatePresenceWithEncoder
   , authenticatePrivate
   , makeQS
@@ -34,24 +32,23 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
 import Data.Word (Word64)
+import Network.HTTP.Types (Query, renderQuery)
 
 import Network.Pusher.Data
-       (AppKey, AppSecret, Channel, Credentials(..), SocketID,
-        renderChannel)
-import Network.Pusher.Internal.HTTP (RequestQueryString)
+       (Channel, Credentials(..), renderChannel)
 import Network.Pusher.Internal.Util (show')
 
 -- |Generate the required query string parameters required to send API requests
 -- to Pusher.
 makeQS ::
-     AppKey
-  -> AppSecret
+     B.ByteString
+  -> B.ByteString
   -> T.Text
   -> T.Text
-  -> RequestQueryString -- ^Any additional parameters.
+  -> Query -- ^Any additional parameters.
   -> B.ByteString
   -> Word64
-  -> RequestQueryString
+  -> Query
 makeQS appKey appSecret method path params body timestamp =
   let allParams
     -- Generate all required parameters and add them to the list of existing
@@ -59,40 +56,32 @@ makeQS appKey appSecret method path params body timestamp =
        =
         sortWith fst $
         params ++
-        [ ("auth_key", appKey)
-        , ("auth_timestamp", show' timestamp)
-        , ("auth_version", "1.0")
+        [ ("auth_key", Just appKey)
+        , ("auth_timestamp", Just $ show' timestamp)
+        , ("auth_version", Just "1.0")
         , ( "body_md5"
-          , B16.encode $ BA.convert (Hash.hash body :: Hash.Digest Hash.MD5))
+          , Just $
+            B16.encode $
+            BA.convert (Hash.hash body :: Hash.Digest Hash.MD5))
         ]
     -- Generate the auth signature from the list of parameters
       authSig =
         authSignature appSecret $
         B.intercalate
           "\n"
-          [encodeUtf8 method, encodeUtf8 path, formQueryString allParams]
+          [encodeUtf8 method, encodeUtf8 path, renderQuery False allParams]
     -- Add the auth string to the list
-  in ("auth_signature", authSig) : allParams
-
--- |Render key-value tuple mapping of query string parameters into a string.
-formQueryString :: RequestQueryString -> B.ByteString
-formQueryString = B.intercalate "&" . map (\(a, b) -> a <> "=" <> b)
-
--- |The bytestring to sign with the app secret to create a signature from.
-type AuthString = B.ByteString
-
--- |A Pusher auth signature.
-type AuthSignature = B.ByteString
+  in ("auth_signature", Just authSig) : allParams
 
 -- |Create a Pusher auth signature of a string using the provided credentials.
-authSignature :: AppSecret -> AuthString -> AuthSignature
+authSignature :: B.ByteString -> B.ByteString -> B.ByteString
 authSignature appSecret authString =
   B16.encode $
   BA.convert (HMAC.hmac appSecret authString :: HMAC.HMAC Hash.SHA256)
 
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- private channel.
-authenticatePrivate :: Credentials -> SocketID -> Channel -> AuthSignature
+authenticatePrivate :: Credentials -> T.Text -> Channel -> B.ByteString
 authenticatePrivate cred socketID channel =
   let sig =
         authSignature
@@ -103,7 +92,7 @@ authenticatePrivate cred socketID channel =
 -- |Generate an auth signature of the form "app_key:auth_sig" for a user of a
 -- presence channel.
 authenticatePresence ::
-     A.ToJSON a => Credentials -> SocketID -> Channel -> a -> AuthSignature
+     A.ToJSON a => Credentials -> T.Text -> Channel -> a -> B.ByteString
 authenticatePresence =
   authenticatePresenceWithEncoder
     (TL.toStrict . TL.toLazyText . A.encodeToTextBuilder . A.toJSON)
@@ -114,10 +103,10 @@ authenticatePresence =
 authenticatePresenceWithEncoder ::
      (a -> T.Text) -- ^The encoder of the user data.
   -> Credentials
-  -> SocketID
+  -> T.Text
   -> Channel
   -> a
-  -> AuthSignature
+  -> B.ByteString
 authenticatePresenceWithEncoder userEncoder cred socketID channel userData =
   let authString =
         encodeUtf8 $

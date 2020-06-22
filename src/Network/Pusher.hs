@@ -50,23 +50,15 @@ module Network.Pusher (
     Pusher(..)
   , Credentials(..)
   , Cluster(..)
-  , AppID
-  , AppKey
-  , AppSecret
   , getPusher
   , getPusherWithHost
   , getPusherWithConnManager
   -- ** Channels
   , Channel(..)
-  , ChannelName
   , ChannelType(..)
   , renderChannel
   , renderChannelPrefix
   , parseChannel
-  -- ** Events
-  , Event
-  , EventData
-  , SocketID
   -- * HTTP Requests
   -- ** Trigger events
   , trigger
@@ -75,8 +67,6 @@ module Network.Pusher (
   , channel
   , users
   -- * Authentication
-  , AuthString
-  , AuthSignature
   , authenticatePresence
   , authenticatePrivate
   -- * Errors
@@ -100,15 +90,13 @@ import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
 
 import Network.Pusher.Data
-       (AppID, AppKey, AppSecret, Channel(..), ChannelName,
-        ChannelType(..), Cluster(..), Credentials(..), Event, EventData,
-        Pusher(..), SocketID, getPusher, getPusherWithConnManager,
-        getPusherWithHost, parseChannel, renderChannel, renderChannelPrefix)
+       (Channel(..), ChannelType(..), Cluster(..), Credentials(..), Pusher(..),
+        getPusher, getPusherWithConnManager, getPusherWithHost, parseChannel,
+        renderChannel, renderChannelPrefix)
 import Network.Pusher.Error (PusherError(..))
 import qualified Network.Pusher.Internal as Pusher
 import Network.Pusher.Internal.Auth
-       (AuthSignature, AuthString, authenticatePresence,
-        authenticatePrivate)
+       (authenticatePresence, authenticatePrivate)
 import qualified Network.Pusher.Internal.HTTP as HTTP
 import Network.Pusher.Internal.Util
        (getSystemTimeSeconds)
@@ -126,10 +114,11 @@ trigger ::
   => Pusher
   -> [Channel]
   -- ^The list of channels to trigger to.
-  -> Event
-  -> EventData
-  -- ^Often encoded JSON.
-  -> Maybe SocketID
+  -> T.Text
+  -- ^Event name.
+  -> T.Text
+  -- ^Event data. Often encoded JSON.
+  -> Maybe T.Text
   -- ^An optional socket ID of a connection you wish to exclude.
   -> m (Either PusherError ())
 trigger pusher chans event dat socketId =
