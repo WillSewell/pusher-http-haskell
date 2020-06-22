@@ -55,7 +55,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 530800
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/5/26.yaml
-    sha256: e7da8b79e7e8cedd90c4774e23c26b6bfc60dea637c5db45b8c9f187e5648e9b
-  original: nightly-2020-05-26
+    size: 502299
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/6/22.yaml
+    sha256: 3b16e1f2e6d77dace4d39e0e1f33205474dafeaf492e9b0d8936a74450db55df
+  original: nightly-2020-06-22
