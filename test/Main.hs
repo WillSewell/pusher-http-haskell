@@ -1,9 +1,8 @@
 module Main where
 
-import Test.Hspec (hspec)
-
 import qualified Auth
 import qualified Protocol
+import Test.Hspec (hspec)
 import qualified Webhook
 
 main :: IO ()

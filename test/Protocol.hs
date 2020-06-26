@@ -3,18 +3,24 @@ module Protocol where
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
-import Test.Hspec (Spec, describe, it, shouldBe)
-import Test.QuickCheck (Arbitrary(..), elements, property)
-
 import Network.Pusher
-       (Channel(..), ChannelType(Presence, Private, Public), parseChannel,
-        renderChannel)
+  ( Channel (..),
+    ChannelType (Presence, Private, Public),
+    parseChannel,
+    renderChannel,
+  )
 import Network.Pusher.Protocol
-       (ChannelInfo(..), ChannelsInfo(..), FullChannelInfo(..), User(..),
-        Users(..))
+  ( ChannelInfo (..),
+    ChannelsInfo (..),
+    FullChannelInfo (..),
+    User (..),
+    Users (..),
+  )
+import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.QuickCheck (Arbitrary (..), elements, property)
 
-newtype TestChannel =
-  TestChannel Channel
+newtype TestChannel
+  = TestChannel Channel
   deriving (Show)
 
 instance Arbitrary TestChannel where
@@ -30,46 +36,50 @@ test = do
       renderChannel (Channel Public "test") `shouldBe` "test"
     it "show instance works for private channels" $
       renderChannel (Channel Private "test") `shouldBe` "private-test"
-    it "show instance is an inverse of parseChannel" $
-      property $ \(TestChannel chan) ->
+    it "show instance is an inverse of parseChannel"
+      $ property
+      $ \(TestChannel chan) ->
         parseChannel (renderChannel chan) == chan
-  describe "Protocol.ChannelsInfo" $
-    it "parsing works" $
-      -- Data from https://pusher.com/docs/channels/library_auth_reference/rest-api#successful-response
+  describe "Protocol.ChannelsInfo"
+    $ it "parsing works"
+    $
+    -- Data from https://pusher.com/docs/channels/library_auth_reference/rest-api#successful-response
     A.decode
       "{\
-\         \"channels\": {\
-\           \"presence-foobar\": {\
-\             \"user_count\": 42\
-\           },\
-\           \"presence-another\": {\
-\             \"user_count\": 123\
-\           }\
-\         }\
-\       }" `shouldBe`
-    (Just $
-     ChannelsInfo $
-     HM.fromList
-       [ (Channel Presence "foobar", ChannelInfo $ Just 42)
-       , (Channel Presence "another", ChannelInfo $ Just 123)
-       ])
-  describe "Protocol.FullChannelInfo" $
-    it "parsing works" $
-      -- Data from https://pusher.com/docs/channels/library_auth_reference/rest-api#successful-response
+      \  \"channels\": {\
+      \    \"presence-foobar\": {\
+      \      \"user_count\": 42\
+      \    },\
+      \    \"presence-another\": {\
+      \      \"user_count\": 123\
+      \    }\
+      \  }\
+      \}"
+      `shouldBe` ( Just
+                     $ ChannelsInfo
+                     $ HM.fromList
+                       [ (Channel Presence "foobar", ChannelInfo $ Just 42),
+                         (Channel Presence "another", ChannelInfo $ Just 123)
+                       ]
+                 )
+  describe "Protocol.FullChannelInfo"
+    $ it "parsing works"
+    $
+    -- Data from https://pusher.com/docs/channels/library_auth_reference/rest-api#successful-response
     A.decode
       "{\
-\         \"occupied\": true,\
-\         \"user_count\": 42,\
-\         \"subscription_count\": 42\
-\       }" `shouldBe`
-    (Just $ FullChannelInfo True (Just 42) (Just 42))
-  describe "Protocol.Users" $
-    it "parsing works" $
-    A.decode
+      \  \"occupied\": true,\
+      \  \"user_count\": 42,\
+      \  \"subscription_count\": 42\
+      \}"
+      `shouldBe` (Just $ FullChannelInfo True (Just 42) (Just 42))
+  describe "Protocol.Users"
+    $ it "parsing works"
+    $ A.decode
       "{\
-\         \"users\": [\
-\           { \"id\": \"1\" },\
-\           { \"id\": \"2\" }\
-\         ]\
-\       }" `shouldBe`
-    (Just $ Users [User "1", User "2"])
+      \  \"users\": [\
+      \    { \"id\": \"1\" },\
+      \    { \"id\": \"2\" }\
+      \  ]\
+      \}"
+      `shouldBe` (Just $ Users [User "1", User "2"])
