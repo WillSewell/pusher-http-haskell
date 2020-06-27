@@ -17,7 +17,7 @@ description:
     for authenticating users of private and presence channels.
 category: Network
 author: Will Sewell
-tested-with: GHC >=8.4.4
+tested-with: GHC >=8.6.5
 
 library
 
