@@ -55,13 +55,6 @@ module Network.Pusher
     getPusherWithHost,
     getPusherWithConnManager,
 
-    -- ** Channels
-    Channel (..),
-    ChannelType (..),
-    renderChannel,
-    renderChannelPrefix,
-    parseChannel,
-
     -- * HTTP Requests
 
     -- ** Trigger events
@@ -103,17 +96,12 @@ import Control.Monad.Trans.Except
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
 import Network.Pusher.Data
-  ( Channel (..),
-    ChannelType (..),
-    Cluster (..),
+  ( Cluster (..),
     Credentials (..),
     Pusher (..),
     getPusher,
     getPusherWithConnManager,
     getPusherWithHost,
-    parseChannel,
-    renderChannel,
-    renderChannelPrefix,
   )
 import Network.Pusher.Error (PusherError (..))
 import qualified Network.Pusher.Internal as Pusher
@@ -146,7 +134,7 @@ trigger ::
   MonadIO m =>
   Pusher ->
   -- | The list of channels to trigger to.
-  [Channel] ->
+  [T.Text] ->
   -- | Event name.
   T.Text ->
   -- | Event data. Often encoded JSON.
@@ -165,21 +153,18 @@ trigger pusher chans event dat socketId = liftIO $ runExceptT $ do
 channels ::
   MonadIO m =>
   Pusher ->
-  -- | Filter by the type of channel.
-  Maybe ChannelType ->
   -- | A channel prefix you wish to filter on.
   T.Text ->
   -- | Data you wish to query for, currently just the user count.
   ChannelsInfoQuery ->
   -- | The returned data.
   m (Either PusherError ChannelsInfo)
-channels pusher channelTypeFilter prefixFilter attributes =
+channels pusher prefixFilter attributes =
   liftIO $ runExceptT $ do
     requestParams <-
       liftIO $
         Pusher.mkChannelsRequest
           pusher
-          channelTypeFilter
           prefixFilter
           attributes
           <$> getSystemTimeSeconds
@@ -189,7 +174,7 @@ channels pusher channelTypeFilter prefixFilter attributes =
 channel ::
   MonadIO m =>
   Pusher ->
-  Channel ->
+  T.Text ->
   -- | Can query user count and also subscription count (if enabled).
   ChannelInfoQuery ->
   m (Either PusherError FullChannelInfo)
@@ -201,7 +186,7 @@ channel pusher chan attributes = liftIO $ runExceptT $ do
   HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- | Get a list of users in a presence channel.
-users :: MonadIO m => Pusher -> Channel -> m (Either PusherError Users)
+users :: MonadIO m => Pusher -> T.Text -> m (Either PusherError Users)
 users pusher chan = liftIO $ runExceptT $ do
   requestParams <-
     liftIO $ Pusher.mkUsersRequest pusher chan <$> getSystemTimeSeconds

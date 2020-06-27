@@ -33,11 +33,7 @@ import qualified Data.Text.Lazy.Builder as TL
 import Data.Word (Word64)
 import GHC.Exts (sortWith)
 import Network.HTTP.Types (Query, renderQuery)
-import Network.Pusher.Data
-  ( Channel,
-    Credentials (..),
-    renderChannel,
-  )
+import Network.Pusher.Data (Credentials (..))
 import Network.Pusher.Internal.Util (show')
 
 -- | Generate the required query string parameters required to send API requests
@@ -84,18 +80,18 @@ authSignature appSecret authString =
 
 -- | Generate an auth signature of the form "app_key:auth_sig" for a user of a
 --  private channel.
-authenticatePrivate :: Credentials -> T.Text -> Channel -> B.ByteString
+authenticatePrivate :: Credentials -> T.Text -> T.Text -> B.ByteString
 authenticatePrivate cred socketID channel =
   let sig =
         authSignature
           (credentialsAppSecret cred)
-          (encodeUtf8 $ socketID <> ":" <> renderChannel channel)
+          (encodeUtf8 $ socketID <> ":" <> channel)
    in credentialsAppKey cred <> ":" <> sig
 
 -- | Generate an auth signature of the form "app_key:auth_sig" for a user of a
 --  presence channel.
 authenticatePresence ::
-  A.ToJSON a => Credentials -> T.Text -> Channel -> a -> B.ByteString
+  A.ToJSON a => Credentials -> T.Text -> T.Text -> a -> B.ByteString
 authenticatePresence =
   authenticatePresenceWithEncoder
     (TL.toStrict . TL.toLazyText . A.encodeToTextBuilder . A.toJSON)
@@ -108,12 +104,12 @@ authenticatePresenceWithEncoder ::
   (a -> T.Text) ->
   Credentials ->
   T.Text ->
-  Channel ->
+  T.Text ->
   a ->
   B.ByteString
 authenticatePresenceWithEncoder userEncoder cred socketID channel userData =
   let authString =
         encodeUtf8 $
-          socketID <> ":" <> renderChannel channel <> ":" <> userEncoder userData
+          socketID <> ":" <> channel <> ":" <> userEncoder userData
       sig = authSignature (credentialsAppSecret cred) authString
    in credentialsAppKey cred <> ":" <> sig

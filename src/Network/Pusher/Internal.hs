@@ -23,12 +23,8 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 import Network.HTTP.Types (Query)
 import Network.Pusher.Data
-  ( Channel,
-    ChannelType,
-    Credentials (..),
+  ( Credentials (..),
     Pusher (..),
-    renderChannel,
-    renderChannelPrefix,
   )
 import Network.Pusher.Error (PusherError (..))
 import Network.Pusher.Internal.Auth (makeQS)
@@ -43,7 +39,7 @@ import Network.Pusher.Protocol
 
 mkTriggerRequest ::
   Pusher ->
-  [Channel] ->
+  [T.Text] ->
   T.Text ->
   T.Text ->
   Maybe T.Text ->
@@ -56,7 +52,7 @@ mkTriggerRequest pusher chans event dat socketId timestamp = do
   let body =
         A.object $
           [ ("name", A.String event),
-            ("channels", A.toJSON (map (A.String . renderChannel) chans)),
+            ("channels", A.toJSON (map A.String chans)),
             ("data", A.String dat)
           ]
             ++ maybeToList (fmap (\sID -> ("socket_id", A.String sID)) socketId)
@@ -68,29 +64,27 @@ mkTriggerRequest pusher chans event dat socketId timestamp = do
 
 mkChannelsRequest ::
   Pusher ->
-  Maybe ChannelType ->
   T.Text ->
   ChannelsInfoQuery ->
   Word64 ->
   RequestParams
-mkChannelsRequest pusher channelTypeFilter prefixFilter attributes timestamp =
-  let prefix = maybe "" renderChannelPrefix channelTypeFilter <> prefixFilter
-      params =
+mkChannelsRequest pusher prefixFilter attributes timestamp =
+  let params =
         [ ("info", Just $ encodeUtf8 $ toURLParam attributes),
-          ("filter_by_prefix", Just $ encodeUtf8 prefix)
+          ("filter_by_prefix", Just $ encodeUtf8 prefixFilter)
         ]
    in mkGetRequest pusher "channels" params timestamp
 
 mkChannelRequest ::
-  Pusher -> Channel -> ChannelInfoQuery -> Word64 -> RequestParams
+  Pusher -> T.Text -> ChannelInfoQuery -> Word64 -> RequestParams
 mkChannelRequest pusher chan attributes timestamp =
   let params = [("info", Just $ encodeUtf8 $ toURLParam attributes)]
-      subPath = "channels/" <> renderChannel chan
+      subPath = "channels/" <> chan
    in mkGetRequest pusher subPath params timestamp
 
-mkUsersRequest :: Pusher -> Channel -> Word64 -> RequestParams
+mkUsersRequest :: Pusher -> T.Text -> Word64 -> RequestParams
 mkUsersRequest pusher chan timestamp =
-  let subPath = "channels/" <> renderChannel chan <> "/users"
+  let subPath = "channels/" <> chan <> "/users"
    in mkGetRequest pusher subPath [] timestamp
 
 mkGetRequest ::

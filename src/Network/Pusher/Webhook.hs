@@ -26,9 +26,6 @@ import Data.Maybe (listToMaybe, mapMaybe)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
-import Network.Pusher.Data
-  ( Channel (..),
-  )
 import Network.Pusher.Internal.Util
 import Network.Pusher.Protocol (User (..))
 
@@ -53,23 +50,23 @@ instance A.FromJSON Webhooks where
 --  response to events your users may trigger.
 data WebhookEv
   = -- | A channel has become occupied. There is > 1 subscriber.
-    ChannelOccupiedEv {onChannel :: Channel}
+    ChannelOccupiedEv {onChannel :: T.Text}
   | -- | A channel has become vacated. There are 0 subscribers.
-    ChannelVacatedEv {onChannel :: Channel}
+    ChannelVacatedEv {onChannel :: T.Text}
   | -- | A new user has subscribed to a presence channel.
     MemberAddedEv
-      { onChannel :: Channel,
+      { onChannel :: T.Text,
         withUser :: User
       }
   | -- | A user has unsubscribed from a presence channel.
     MemberRemovedEv
-      { onChannel :: Channel,
+      { onChannel :: T.Text,
         withUser :: User
       }
   | -- | A client has sent a named client event with some json body. They have a
     --  'SocketID' and a 'User' if they were in a presence channel.
     ClientEv
-      { onChannel :: Channel,
+      { onChannel :: T.Text,
         clientEvName :: T.Text,
         clientEvBody :: Maybe A.Value,
         withSocketId :: T.Text,

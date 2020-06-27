@@ -35,7 +35,6 @@ import qualified Data.HashSet as HS
 import Data.Hashable (Hashable)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
-import Network.Pusher.Data (Channel, parseChannel)
 import Network.Pusher.Internal.Util (failExpectObj)
 
 -- | Types that can be serialised to a querystring parameter value.
@@ -80,19 +79,14 @@ instance ToURLParam a => ToURLParam (HS.HashSet a) where
 -- | A map of channels to their 'ChannelInfo'. The result of querying channel
 --  info from multuple channels.
 newtype ChannelsInfo
-  = ChannelsInfo (HM.HashMap Channel ChannelInfo)
+  = ChannelsInfo (HM.HashMap T.Text ChannelInfo)
   deriving (Eq, Show)
 
 instance A.FromJSON ChannelsInfo where
   parseJSON (A.Object v) = do
     chansV <- v .: "channels"
     case chansV of
-      A.Object cs ->
-        -- Need to go to and from list in order to map (parse) the keys
-        ChannelsInfo . HM.fromList
-          <$> mapM
-            (\(channel, info) -> (parseChannel channel,) <$> A.parseJSON info)
-            (HM.toList cs)
+      A.Object cs -> ChannelsInfo <$> mapM (\info -> A.parseJSON info) cs
       v1 -> failExpectObj v1
   parseJSON v2 = failExpectObj v2
 
