@@ -1,0 +1,6 @@
+cradle:
+  stack:
+    - path: "./test/"
+      component: "pusher-http-haskell:tests"
+    - path: "./src/"
+      component: "pusher-http-haskell:lib"
