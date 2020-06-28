@@ -1,16 +1,19 @@
-name: auth-example
-version: 0.0.0.1
 cabal-version: >=1.18
-build-type: Simple
-license: MIT
-copyright: (c) Will Sewell, 2016
-maintainer: me@willsewell.com
-stability: experimental
-synopsis: Example usage auth endpoint using pusher-http-haskell
-author: Will Sewell
+name:          auth-example
+version:       0.0.0.1
+license:       MIT
+copyright:     (c) Will Sewell, 2016
+maintainer:    me@willsewell.com
+author:        Will Sewell
+stability:     experimental
+synopsis:      Example usage auth endpoint using pusher-http-haskell
+build-type:    Simple
 
 executable auth-example
-    main-is: Main.hs
+    main-is:            Main.hs
+    default-language:   Haskell2010
+    default-extensions: OverloadedStrings
+    ghc-options:        -Wall -Wcompat -Wmissing-signatures
     build-depends:
         aeson -any,
         base -any,
@@ -23,6 +26,3 @@ executable auth-example
         transformers -any,
         unordered-containers -any,
         yaml -any
-    default-language: Haskell2010
-    default-extensions: OverloadedStrings
-    ghc-options: -Wall -Wcompat -Wmissing-signatures

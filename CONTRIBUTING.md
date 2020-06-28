@@ -10,7 +10,7 @@ through the top-level `Network.Pusher` module.
 
 # Style guide
 
-* Format code with `ormolu`.
+* Format Haskell files with `ormolu`, Cabal files with `cabal format`.
 * Limit line length to 80 characters.
 * Module names should be singular, e.g. `Error` instead of `Errors`.
 * Record fields should be prefixed with the constructor name in lower case.
