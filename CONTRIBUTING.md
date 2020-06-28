@@ -1,14 +1,16 @@
+# Contributing
+
 Contributions are most welcome. Please follow the following guidelines if you
 wish to contribute.
 
-# Module structure
+## Module structure
 
 - All modules with private entities that must be exported should go in
   `Network.Pusher.Internal.*`. The public interface of the library should go in
   modules in `Network.Pusher.*`, and for convenience we also re-export everything
   through the top-level `Network.Pusher` module.
 
-# Style guide
+## Style guide
 
 - Format Haskell files with `ormolu`, Cabal files with `cabal format`, and
   with `prettier` for everything else that can be.
