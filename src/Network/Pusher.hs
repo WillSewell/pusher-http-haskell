@@ -50,7 +50,6 @@ module Network.Pusher
     -- ** Pusher config type
     Pusher (..),
     Credentials (..),
-    Cluster (..),
     getPusher,
     getPusherWithHost,
     getPusherWithConnManager,
@@ -96,8 +95,7 @@ import Control.Monad.Trans.Except
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.Text as T
 import Network.Pusher.Data
-  ( Cluster (..),
-    Credentials (..),
+  ( Credentials (..),
     Pusher (..),
     getPusher,
     getPusherWithConnManager,
