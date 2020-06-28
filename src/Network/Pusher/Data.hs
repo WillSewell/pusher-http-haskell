@@ -16,11 +16,6 @@ module Network.Pusher.Data
   ( -- * Pusher config data type
     Pusher (..),
     Credentials (..),
-    Cluster (..),
-    clusterMt1,
-    clusterEu,
-    clusterAp1,
-    clusterAp2,
     getPusher,
     getPusherWithHost,
     getPusherWithConnManager,
@@ -42,7 +37,6 @@ import Network.HTTP.Client
   )
 import Network.Pusher.Internal.Util
   ( failExpectObj,
-    failExpectStr,
     show',
   )
 
@@ -61,7 +55,9 @@ data Credentials
       { credentialsAppID :: Word32,
         credentialsAppKey :: B.ByteString,
         credentialsAppSecret :: B.ByteString,
-        credentialsCluster :: Maybe Cluster
+        -- | The cluster the current app resides on. Common clusters include:
+        --  mt1,eu,ap1,ap2.
+        credentialsCluster :: Maybe T.Text
       }
 
 instance A.FromJSON Credentials where
@@ -70,29 +66,6 @@ instance A.FromJSON Credentials where
       <*> (encodeUtf8 <$> v .: "app-secret")
       <*> v .:? "app-cluster"
   parseJSON v2 = failExpectObj v2
-
--- | The cluster the current app resides on. Common clusters include:
---  mt1,eu,ap1,ap2.
-newtype Cluster
-  = Cluster
-      { clusterName :: T.Text
-      }
-
-clusterMt1, clusterEu, clusterAp1, clusterAp2 :: Cluster
-clusterMt1 = Cluster "mt1"
-clusterEu = Cluster "eu"
-clusterAp1 = Cluster "ap1"
-clusterAp2 = Cluster "ap2"
-
--- The possible cluster suffix given in a host name
-renderClusterSuffix :: Cluster -> T.Text
-renderClusterSuffix cluster = "-" <> clusterName cluster
-
-instance A.FromJSON Cluster where
-  parseJSON v =
-    case v of
-      A.String txt -> return . Cluster $ txt
-      _ -> failExpectStr v
 
 -- | Use this to get an instance Pusher. This will fill in the host and path
 --  automatically.
@@ -121,11 +94,11 @@ getPusherWithConnManager connManager apiHost cred =
         }
 
 -- | Given a possible cluster, return the corresponding host.
-mkHost :: Maybe Cluster -> T.Text
+mkHost :: Maybe T.Text -> T.Text
 mkHost mCluster =
   case mCluster of
     Nothing -> "http://api.pusherapp.com"
-    Just c -> "http://api" <> renderClusterSuffix c <> ".pusher.com"
+    Just c -> "http://api" <> c <> ".pusher.com"
 
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
