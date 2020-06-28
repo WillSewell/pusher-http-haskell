@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/WillSewell/pusher-http-haskell.svg?branch=master)](https://travis-ci.org/WillSewell/pusher-http-haskell)
 
-*This is currently in the alpha stage of development*
+_This is currently in the alpha stage of development_
 
 Supports triggering messages and querying channel information.
 See: <https://pusher.com/docs/channels/server_api/http-api>
