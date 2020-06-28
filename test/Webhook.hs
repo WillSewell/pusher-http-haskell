@@ -7,24 +7,28 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.HashMap.Strict as HM
 import Data.Word (Word64)
-
 import Network.Pusher
-       (WebhookEv(..), WebhookPayload(..), Webhooks(..), parseChannel,
-        parseWebhookPayloadWith)
-import Network.Pusher.Protocol (User(..))
+  ( WebhookEv (..),
+    WebhookPayload (..),
+    Webhooks (..),
+    parseChannel,
+    parseWebhookPayloadWith,
+  )
+import Network.Pusher.Protocol (User (..))
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (property)
 
-data TestWebhookPayload = TestWebhookPayload {
-  -- A Request recieved from Pusher Channels
-    _webhookRequest :: ([(BC.ByteString, BC.ByteString)], BC.ByteString)
-  -- Must have this key
-  , _hasKey :: B.ByteString
-  -- Which must correspond to this secret
-  , _hasSecret :: B.ByteString
-  -- And which must parse to this Payload
-  , _payload :: Maybe WebhookPayload
-  }
+data TestWebhookPayload
+  = TestWebhookPayload
+      { -- A Request recieved from Pusher Channels
+        _webhookRequest :: ([(BC.ByteString, BC.ByteString)], BC.ByteString),
+        -- Must have this key
+        _hasKey :: B.ByteString,
+        -- Which must correspond to this secret
+        _hasSecret :: B.ByteString,
+        -- And which must parse to this Payload
+        _payload :: Maybe WebhookPayload
+      }
 
 -- Attempt to parse the contained req.
 -- - It must use our appKey which must correspond to our secret.
@@ -34,13 +38,14 @@ testWebhookPayloadParses :: TestWebhookPayload -> Bool
 testWebhookPayloadParses (TestWebhookPayload (headers, body) hasKey correspondingSecret expectedPayload) =
   let parseResult =
         parseWebhookPayloadWith
-          (\k ->
-             if k == hasKey
-               then Just correspondingSecret
-               else Nothing)
+          ( \k ->
+              if k == hasKey
+                then Just correspondingSecret
+                else Nothing
+          )
           headers
           body
-  in parseResult == expectedPayload
+   in parseResult == expectedPayload
 
 -- Build a _simple_ TestWebhookPayload which contains:
 -- - A HTTP POST request with key and signature headers and a bytestring body
@@ -60,28 +65,28 @@ testWebhookPayloadParses (TestWebhookPayload (headers, body) hasKey correspondin
 -- - The HTTP headers are different to the expected payload
 -- - The HTTP requests key is unknown or doesnt match our secret
 mkSimpleTestWebhookPayload ::
-     B.ByteString
-  -> B.ByteString
-  -> Word64
-  -> BC.ByteString
-  -> B.ByteString
-  -> [WebhookEv]
-  -> TestWebhookPayload
+  B.ByteString ->
+  B.ByteString ->
+  Word64 ->
+  BC.ByteString ->
+  B.ByteString ->
+  [WebhookEv] ->
+  TestWebhookPayload
 mkSimpleTestWebhookPayload key secret timestampMS body signature whs =
   TestWebhookPayload
-  { _webhookRequest =
-      ([("X-Pusher-Key", key), ("X-Pusher-Signature", signature)], body)
-  , _hasKey = key
-  , _hasSecret = secret
-  , _payload =
-      Just
-        WebhookPayload
-        { xPusherKey = key
-        , xPusherSignature = signature
-        , webhooks =
-            Webhooks {timeMs = timestampMS, webhookEvs = whs}
-        }
-  }
+    { _webhookRequest =
+        ([("X-Pusher-Key", key), ("X-Pusher-Signature", signature)], body),
+      _hasKey = key,
+      _hasSecret = secret,
+      _payload =
+        Just
+          WebhookPayload
+            { xPusherKey = key,
+              xPusherSignature = signature,
+              webhooks =
+                Webhooks {timeMs = timestampMS, webhookEvs = whs}
+            }
+    }
 
 channelOccupiedPayload :: TestWebhookPayload
 channelOccupiedPayload =
@@ -112,7 +117,9 @@ memberAddedPayload =
     "{\"time_ms\":1503394956847,\"events\":[{\"channel\":\"presence-foo\",\"user_id\":\"42\",\"name\":\"member_added\"}]}"
     "392bd546e8a33a826d7870bd6432f6c7dcf11ca31565575d8c72f9b02f5b0736"
     [ MemberAddedEv
-      {onChannel = parseChannel "presence-foo", withUser = User "42"}
+        { onChannel = parseChannel "presence-foo",
+          withUser = User "42"
+        }
     ]
 
 memberRemovedPayload :: TestWebhookPayload
@@ -124,7 +131,9 @@ memberRemovedPayload =
     "{\"time_ms\":1503394971554,\"events\":[{\"channel\":\"presence-foo\",\"user_id\":\"42\",\"name\":\"member_removed\"}]}"
     "9a344e8aeb2c6339999e84bacb4d50b3674599e297d01655eb2cec3f9c655763"
     [ MemberRemovedEv
-      {onChannel = parseChannel "presence-foo", withUser = User "42"}
+        { onChannel = parseChannel "presence-foo",
+          withUser = User "42"
+        }
     ]
 
 clientEventPayload :: TestWebhookPayload
@@ -136,15 +145,15 @@ clientEventPayload =
     "{\"time_ms\":1503397271011,\"events\":[{\"name\":\"client_event\",\"channel\":\"presence-foo\",\"event\":\"client-event\",\"data\":\"{\\\"name\\\":\\\"John\\\",\\\"message\\\":\\\"Hello\\\"}\",\"socket_id\":\"219049.596715\",\"user_id\":\"sturdy-window-821\"}]}"
     "e5ef8964e8c87c91dde0555e46fa921163aff262395c9e36c1755ffe206be547"
     [ ClientEv
-      { onChannel = parseChannel "presence-foo"
-      , clientEvName = "client-event"
-      , clientEvBody =
-          Just $
-          A.Object $
-          HM.fromList [("name", A.String "John"), ("message", A.String "Hello")]
-      , withSocketId = "219049.596715"
-      , withPossibleUser = Just . User $ "sturdy-window-821"
-      }
+        { onChannel = parseChannel "presence-foo",
+          clientEvName = "client-event",
+          clientEvBody =
+            Just
+              $ A.Object
+              $ HM.fromList [("name", A.String "John"), ("message", A.String "Hello")],
+          withSocketId = "219049.596715",
+          withPossibleUser = Just . User $ "sturdy-window-821"
+        }
     ]
 
 batchEventPayload :: TestWebhookPayload
@@ -155,22 +164,28 @@ batchEventPayload =
     1503397088953
     "{\"time_ms\":1503397088953,\"events\":[{\"channel\":\"private-foo\",\"name\":\"channel_occupied\"},{\"channel\":\"presence-foo\",\"name\":\"channel_occupied\"}]}"
     "7a9803e1ca598dac4750a60fbb017d4f34fc44eaf0aea26c694ca0d7060e6477"
-    [ ChannelOccupiedEv {onChannel = parseChannel "private-foo"}
-    , ChannelOccupiedEv {onChannel = parseChannel "presence-foo"}
+    [ ChannelOccupiedEv {onChannel = parseChannel "private-foo"},
+      ChannelOccupiedEv {onChannel = parseChannel "presence-foo"}
     ]
 
 test :: Spec
 test =
   describe "Webhook.parseWebhookPayloadWith" $ do
-    it "parses and validates a channel_occupied event" $
-      property $ testWebhookPayloadParses channelOccupiedPayload
-    it "parses and validates a Channel_vacated event" $
-      property $ testWebhookPayloadParses channelVacatedPayload
-    it "parses and validates a member_added event" $
-      property $ testWebhookPayloadParses memberAddedPayload
-    it "parses and validates a member_removed event" $
-      property $ testWebhookPayloadParses memberRemovedPayload
-    it "parses and validates a client event" $
-      property $ testWebhookPayloadParses clientEventPayload
-    it "parses and validates multiple batched events" $
-      property $ testWebhookPayloadParses batchEventPayload
+    it "parses and validates a channel_occupied event"
+      $ property
+      $ testWebhookPayloadParses channelOccupiedPayload
+    it "parses and validates a Channel_vacated event"
+      $ property
+      $ testWebhookPayloadParses channelVacatedPayload
+    it "parses and validates a member_added event"
+      $ property
+      $ testWebhookPayloadParses memberAddedPayload
+    it "parses and validates a member_removed event"
+      $ property
+      $ testWebhookPayloadParses memberRemovedPayload
+    it "parses and validates a client event"
+      $ property
+      $ testWebhookPayloadParses clientEventPayload
+    it "parses and validates multiple batched events"
+      $ property
+      $ testWebhookPayloadParses batchEventPayload

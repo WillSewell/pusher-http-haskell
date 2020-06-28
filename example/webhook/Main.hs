@@ -6,10 +6,9 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
 import Data.CaseInsensitive (original)
 import qualified Data.Yaml as Y
+import qualified Network.Pusher as P
 import qualified Snap.Core as Snap
 import qualified Snap.Http.Server as Snap
-
-import qualified Network.Pusher as P
 
 main :: IO ()
 main = do
@@ -35,21 +34,21 @@ webhookHandler pusher = do
   where
     webhookF _timestampMS ev =
       putStrLn . mconcat $
-      case ev of
-        P.ChannelOccupiedEv c -> ["channel ", show c, " is now occupied."]
-        P.ChannelVacatedEv c -> ["channel ", show c, " is now vacated."]
-        P.MemberAddedEv c user ->
-          ["user ", show user, " joined presence channel ", show c]
-        P.MemberRemovedEv c user ->
-          ["user ", show user, " left presence channel ", show c]
-        P.ClientEv c evName evBody sockID mUser ->
-          [ maybe "an unknown user " (\u -> "user " ++ show u) mUser
-          , " with socket id "
-          , show sockID
-          , " sent a client event named "
-          , show evName
-          , " with data "
-          , show evBody
-          , " on channel "
-          , show c
-          ]
+        case ev of
+          P.ChannelOccupiedEv c -> ["channel ", show c, " is now occupied."]
+          P.ChannelVacatedEv c -> ["channel ", show c, " is now vacated."]
+          P.MemberAddedEv c user ->
+            ["user ", show user, " joined presence channel ", show c]
+          P.MemberRemovedEv c user ->
+            ["user ", show user, " left presence channel ", show c]
+          P.ClientEv c evName evBody sockID mUser ->
+            [ maybe "an unknown user " (\u -> "user " ++ show u) mUser,
+              " with socket id ",
+              show sockID,
+              " sent a client event named ",
+              show evName,
+              " with data ",
+              show evBody,
+              " on channel ",
+              show c
+            ]
