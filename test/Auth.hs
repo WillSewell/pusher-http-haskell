@@ -1,10 +1,6 @@
 module Auth where
 
-import Network.Pusher
-  ( Channel (..),
-    ChannelType (Presence, Private),
-    Credentials (..),
-  )
+import Network.Pusher (Credentials (..))
 import Network.Pusher.Internal.Auth
   ( authenticatePresenceWithEncoder,
     authenticatePrivate,
@@ -40,7 +36,7 @@ test = do
     $ it "works"
     $
     -- Data from https://pusher.com/docs/channels/library_auth_reference/auth-signatures#worked-example
-    authenticatePrivate credentials "1234.1234" (Channel Private "foobar")
+    authenticatePrivate credentials "1234.1234" "private-foobar"
       `shouldBe` "278d425bdf160c739803:58df8b0c36d6982b82c3ecf6b4662e34fe8c25bba48f5369f135bf843651c3a4"
   describe "Auth.authenticatePresenceWithEncoder"
     $ it "works for presence channels"
@@ -51,7 +47,7 @@ test = do
           (const userData)
           credentials
           "1234.1234"
-          (Channel Presence "foobar")
+          "presence-foobar"
           ("doesn't matter" :: String)
           `shouldBe` "278d425bdf160c739803:afaed3695da2ffd16931f457e338e6c9f2921fa133ce7dac49f529792be6304c"
 

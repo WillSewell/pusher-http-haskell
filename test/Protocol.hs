@@ -3,12 +3,6 @@ module Protocol where
 import qualified Data.Aeson as A
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
-import Network.Pusher
-  ( Channel (..),
-    ChannelType (Presence, Private, Public),
-    parseChannel,
-    renderChannel,
-  )
 import Network.Pusher.Protocol
   ( ChannelInfo (..),
     ChannelsInfo (..),
@@ -17,29 +11,20 @@ import Network.Pusher.Protocol
     Users (..),
   )
 import Test.Hspec (Spec, describe, it, shouldBe)
-import Test.QuickCheck (Arbitrary (..), elements, property)
+import Test.QuickCheck (Arbitrary (..), elements)
 
 newtype TestChannel
-  = TestChannel Channel
+  = TestChannel T.Text
   deriving (Show)
 
 instance Arbitrary TestChannel where
   arbitrary = do
-    let testChannelType = elements [Public, Private, Presence]
-        channel = Channel <$> testChannelType <*> (T.pack <$> arbitrary)
-    TestChannel <$> channel
+    channelPrefix <- elements ["public", "private", "presence"]
+    channelSuffix <- T.pack <$> arbitrary
+    return $ TestChannel $ channelPrefix <> "-" <> channelSuffix
 
 test :: Spec
 test = do
-  describe "Protocol.Channel" $ do
-    it "show instance works for public channels" $
-      renderChannel (Channel Public "test") `shouldBe` "test"
-    it "show instance works for private channels" $
-      renderChannel (Channel Private "test") `shouldBe` "private-test"
-    it "show instance is an inverse of parseChannel"
-      $ property
-      $ \(TestChannel chan) ->
-        parseChannel (renderChannel chan) == chan
   describe "Protocol.ChannelsInfo"
     $ it "parsing works"
     $
@@ -58,8 +43,8 @@ test = do
       `shouldBe` ( Just
                      $ ChannelsInfo
                      $ HM.fromList
-                       [ (Channel Presence "foobar", ChannelInfo $ Just 42),
-                         (Channel Presence "another", ChannelInfo $ Just 123)
+                       [ ("presence-foobar", ChannelInfo $ Just 42),
+                         ("presence-another", ChannelInfo $ Just 123)
                        ]
                  )
   describe "Protocol.FullChannelInfo"

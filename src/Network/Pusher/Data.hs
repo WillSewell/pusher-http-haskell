@@ -24,13 +24,6 @@ module Network.Pusher.Data
     getPusher,
     getPusherWithHost,
     getPusherWithConnManager,
-
-    -- * Channels
-    Channel (..),
-    ChannelType (..),
-    renderChannel,
-    renderChannelPrefix,
-    parseChannel,
   )
 where
 
@@ -38,13 +31,10 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
-import Data.Foldable (asum)
-import Data.Hashable (Hashable)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word32)
-import GHC.Generics (Generic)
 import Network.HTTP.Client
   ( Manager,
     defaultManagerSettings,
@@ -139,51 +129,3 @@ mkHost mCluster =
 
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
-
--- | The possible types of channel.
-data ChannelType
-  = Public
-  | Private
-  | Presence
-  deriving (Eq, Generic, Show)
-
-instance Hashable ChannelType
-
-renderChannelPrefix :: ChannelType -> T.Text
-renderChannelPrefix Public = ""
-renderChannelPrefix Private = "private-"
-renderChannelPrefix Presence = "presence-"
-
--- | The channel name (not including the channel type prefix) and its type.
-data Channel
-  = Channel
-      { channelType :: ChannelType,
-        channelName :: T.Text
-      }
-  deriving (Eq, Generic, Show)
-
-instance Hashable Channel
-
-instance A.FromJSON Channel where
-  parseJSON s =
-    case s of
-      A.String txt -> return $ parseChannel txt
-      _ -> failExpectStr s
-
-renderChannel :: Channel -> T.Text
-renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
-
--- | Convert string representation, e.g. private-chan into the datatype.
-parseChannel :: T.Text -> Channel
-parseChannel chan =
-  -- Attempt to parse it as a private or presence channel; default to public
-  fromMaybe
-    (Channel Public chan)
-    (asum [parseChanAs Private, parseChanAs Presence])
-  where
-    parseChanAs chanType =
-      let split = T.splitOn (renderChannelPrefix chanType) chan
-       in -- If the prefix appears at the start, then the first element will be empty
-          if length split > 1 && T.null (head split)
-            then Just $ Channel chanType (T.concat $ tail split)
-            else Nothing
