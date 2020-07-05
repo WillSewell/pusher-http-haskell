@@ -7,7 +7,7 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
 import Data.Text.Encoding (decodeUtf8)
 import qualified Data.Yaml as Y
-import Network.Pusher (authenticatePresence, parseChannel)
+import Network.Pusher (authenticatePresence)
 import Snap.Core (Method (GET), Snap, getParams, method, writeBS)
 import Snap.Http.Server (quickHttpServe)
 
@@ -34,7 +34,7 @@ authHandler = do
         authenticatePresence
           cred
           (decodeUtf8 $ head $ params M.! "socket_id")
-          (parseChannel $ decodeUtf8 $ head $ params M.! "channel_name")
+          (decodeUtf8 $ head $ params M.! "channel_name")
           userData
       respBody =
         A.Object $
