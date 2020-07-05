@@ -1,24 +1,18 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 -- |
 -- Module      : Network.Pusher.Data
--- Description : Data structure representing Pusher Channels concepts and config
+-- Description : Data structures representing Channels concepts and settings
 -- Copyright   : (c) Will Sewell, 2016
 -- Licence     : MIT
 -- Maintainer  : me@willsewell.com
 -- Stability   : experimental
---
--- You must create an instance of the Pusher datatype with your particular Pusher
--- Channels app credentials in order to run the main API functions.
---
--- The other types represent channels and event fields.
 module Network.Pusher.Data
-  ( -- * Pusher config data type
+  ( Settings (..),
+    defaultSettings,
+    Token (..),
+    Address (..),
     Pusher (..),
-    Credentials (..),
-    getPusher,
-    getPusherWithHost,
-    getPusherWithConnManager,
+    newPusher,
+    newPusherWithConnManager,
   )
 where
 
@@ -26,7 +20,6 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
-import Data.Maybe (fromMaybe)
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word16, Word32)
 import Network.HTTP.Client
@@ -40,66 +33,108 @@ import Network.Pusher.Internal.Util
   )
 
 -- | All the required configuration needed to interact with the API.
-data Pusher
-  = Pusher
-      { pusherHost :: B.ByteString,
-        pusherPort :: Word16,
-        pusherPath :: B.ByteString,
-        pusherCredentials :: Credentials,
-        pusherConnectionManager :: Manager
+data Settings
+  = Settings
+      { pusherAddress :: Address,
+        pusherAppID :: Word32,
+        pusherToken :: Token
       }
 
--- | The credentials for the current app.
-data Credentials
-  = Credentials
-      { credentialsAppID :: Word32,
-        credentialsAppKey :: B.ByteString,
-        credentialsAppSecret :: B.ByteString,
-        -- | The cluster the current app resides on. Common clusters include:
-        --  mt1,eu,ap1,ap2.
-        credentialsCluster :: Maybe B.ByteString
-      }
-
-instance A.FromJSON Credentials where
-  parseJSON (A.Object v) =
-    Credentials <$> v .: "app-id" <*> (encodeUtf8 <$> v .: "app-key")
-      <*> (encodeUtf8 <$> v .: "app-secret")
-      <*> ((encodeUtf8 <$>) <$> v .:? "app-cluster")
+instance A.FromJSON Settings where
+  parseJSON (A.Object v) = do
+    cluster <- (encodeUtf8 <$>) <$> v .:? "cluster"
+    host <- (encodeUtf8 <$>) <$> v .:? "host"
+    port <- v .:? "port"
+    address <- pure $ case (cluster, host, port) of
+      (Just c, Nothing, Nothing) -> Just $ Cluster c
+      (Nothing, Just h, Just p) -> Just $ HostPort h p
+      (Nothing, Nothing, Nothing) -> Nothing
+      _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
+    appID <- v .: "app_id"
+    token <- v .: "token"
+    let settings =
+          defaultSettings
+            { pusherAppID = appID,
+              pusherToken = token
+            }
+    pure $ case address of
+      Just a -> settings {pusherAddress = a}
+      Nothing -> settings
   parseJSON v2 = failExpectObj v2
 
--- | Use this to get an instance Pusher. This will fill in the host and path
---  automatically.
-getPusher :: MonadIO m => Credentials -> m Pusher
-getPusher cred = do
-  connManager <- getConnManager
-  return $ getPusherWithConnManager connManager Nothing cred
+-- | A convenient way of creating an instance of 'Settings'. Another
+-- benefit is it prevents breaking changes when fields are added to
+-- 'Settings', see <https://www.yesodweb.com/book/settings-types>.You
+-- must set 'pusherAppID' and 'pusherToken'. Currently 'pusherAddress'
+-- defaults to the @mt1@ cluster.
+--
+-- Example:
+--
+-- @
+-- defaultSettings
+--   { 'pusherAppID' = 123,
+--     'pusherToken' = 'Token' { 'pusherKey' = "key", 'pusherSecret' "secret" }
+--   }
+-- @
+defaultSettings :: Settings
+defaultSettings =
+  Settings
+    { pusherAddress = Cluster "mt1",
+      pusherAppID = 1,
+      pusherToken = Token "" ""
+    }
 
--- | Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost :: MonadIO m => B.ByteString -> Credentials -> m Pusher
-getPusherWithHost apiHost cred = do
-  connManager <- getConnManager
-  return $ getPusherWithConnManager connManager (Just apiHost) cred
+-- | A Channels key and secret pair for a particular app.
+data Token
+  = Token
+      { pusherKey :: B.ByteString,
+        pusherSecret :: B.ByteString
+      }
+
+instance A.FromJSON Token where
+  parseJSON (A.Object v) = do
+    key <- encodeUtf8 <$> v .: "key"
+    secret <- encodeUtf8 <$> v .: "secret"
+    pure $ Token key secret
+  parseJSON v2 = failExpectObj v2
+
+-- | Typically you will want to connect directly to a standard Pusher Channels
+-- 'Cluster'.
+data Address
+  = -- | The cluster the current app resides on. Common clusters include:
+    -- @mt1@, @eu@, @ap1@, @ap2@.
+    Cluster B.ByteString
+  | -- | Used to connect to a raw address:port.
+    HostPort B.ByteString Word16
+
+-- | The core handle to the Pusher API.
+data Pusher
+  = Pusher
+      { pHost :: B.ByteString,
+        pPort :: Word16,
+        pPath :: B.ByteString,
+        pToken :: Token,
+        pConnectionManager :: Manager
+      }
+
+-- | Use this to get a Pusher instance.
+newPusher :: MonadIO m => Settings -> m Pusher
+newPusher settings = do
+  connManager <- liftIO $ newManager defaultManagerSettings
+  return $ newPusherWithConnManager connManager settings
 
 -- | Get a Pusher instance with a given connection manager. This can be useful
 --  if you want to share a connection with your application code.
-getPusherWithConnManager :: Manager -> Maybe B.ByteString-> Credentials -> Pusher
-getPusherWithConnManager connManager apiHost cred =
-  let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
-      mCluster = credentialsCluster cred
+newPusherWithConnManager :: Manager -> Settings -> Pusher
+newPusherWithConnManager connectionManager settings =
+  let (host, port) = case pusherAddress settings of
+        HostPort h p -> (h, p)
+        Cluster c -> ("api-" <> c <> ".pusher.com", 80)
+      path = "/apps/" <> show' (pusherAppID settings) <> "/"
    in Pusher
-        { pusherHost = fromMaybe (mkHost mCluster) apiHost,
-          pusherPort = 80,
-          pusherPath = path,
-          pusherCredentials = cred,
-          pusherConnectionManager = connManager
+        { pHost = host,
+          pPort = port,
+          pPath = path,
+          pToken = pusherToken settings,
+          pConnectionManager = connectionManager
         }
-
--- | Given a possible cluster, return the corresponding host.
-mkHost :: Maybe B.ByteString -> B.ByteString
-mkHost mCluster =
-  case mCluster of
-    Nothing -> "api.pusherapp.com"
-    Just c -> "api-" <> c <> ".pusher.com"
-
-getConnManager :: MonadIO m => m Manager
-getConnManager = liftIO $ newManager defaultManagerSettings

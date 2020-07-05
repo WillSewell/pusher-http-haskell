@@ -22,10 +22,7 @@ import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 import Network.HTTP.Types (Query)
-import Network.Pusher.Data
-  ( Credentials (..),
-    Pusher (..),
-  )
+import Network.Pusher.Data (Pusher (..))
 import Network.Pusher.Error (PusherError (..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Internal.HTTP
@@ -94,10 +91,10 @@ mkGetRequest ::
   Word64 ->
   RequestParams
 mkGetRequest pusher subPath params timestamp =
-  let host = pusherHost pusher
-      port = pusherPort pusher
-      path = pusherPath pusher <> subPath
-      qs = mkQS pusher "GET" path params "" timestamp
+  let host = pHost pusher
+      port = pPort pusher
+      path = pPath pusher <> subPath
+      qs = makeQS (pToken pusher) "GET" path params "" timestamp
    in RequestParams host port path qs
 
 mkPostRequest ::
@@ -108,20 +105,8 @@ mkPostRequest ::
   Word64 ->
   RequestParams
 mkPostRequest pusher subPath params bodyBS timestamp =
-  let host = pusherHost pusher
-      port = pusherPort pusher
-      path = pusherPath pusher <> subPath
-      qs = mkQS pusher "POST" path params bodyBS timestamp
+  let host = pHost pusher
+      port = pPort pusher
+      path = pPath pusher <> subPath
+      qs = makeQS (pToken pusher) "POST" path params bodyBS timestamp
    in RequestParams host port path qs
-
-mkQS ::
-  Pusher ->
-  B.ByteString ->
-  B.ByteString ->
-  Query ->
-  B.ByteString ->
-  Word64 ->
-  Query
-mkQS pusher =
-  let credentials = pusherCredentials pusher
-   in makeQS (credentialsAppKey credentials) (credentialsAppSecret credentials)

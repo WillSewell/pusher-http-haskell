@@ -1,26 +1,26 @@
 module Main where
 
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as A
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M
 import Data.Text.Encoding (decodeUtf8)
 import qualified Data.Yaml as Y
-import Network.Pusher (authenticatePresence)
+import qualified Network.Pusher as P
 import Snap.Core (Method (GET), Snap, getParams, method, writeBS)
 import Snap.Http.Server (quickHttpServe)
 
 main :: IO ()
-main = quickHttpServe $ method GET authHandler
+main = do
+  eitherSettings <- Y.decodeFileEither "../settings.yaml"
+  case eitherSettings of
+    Left e -> print e
+    Right settings -> do
+      pusher <- P.newPusher settings
+      quickHttpServe $ method GET $ authHandler pusher
 
-authHandler :: Snap ()
-authHandler = do
-  eitherCred <- liftIO $ Y.decodeFileEither "../credentials.yaml"
-  let cred =
-        case eitherCred of
-          Left e -> error $ show e
-          Right c -> c
+authHandler :: P.Pusher -> Snap ()
+authHandler pusher = do
   params <- getParams
   let userData =
         A.Object $
@@ -31,8 +31,8 @@ authHandler = do
               )
             ]
       signature =
-        authenticatePresence
-          cred
+        P.authenticatePresence
+          pusher
           (decodeUtf8 $ head $ params M.! "socket_id")
           (decodeUtf8 $ head $ params M.! "channel_name")
           userData

@@ -1,6 +1,6 @@
 module Auth where
 
-import Network.Pusher (Credentials (..))
+import Network.Pusher (Token (..))
 import Network.Pusher.Internal.Auth
   ( authenticatePresenceWithEncoder,
     authenticatePrivate,
@@ -17,8 +17,7 @@ test = do
     let body =
           "{\"name\":\"foo\",\"channels\":[\"project-3\"],\"data\":\"{\\\"some\\\":\\\"data\\\"}\"}"
      in makeQS
-          (credentialsAppKey credentials)
-          (credentialsAppSecret credentials)
+          token
           "POST"
           "/apps/3/events"
           []
@@ -36,7 +35,7 @@ test = do
     $ it "works"
     $
     -- Data from https://pusher.com/docs/channels/library_auth_reference/auth-signatures#worked-example
-    authenticatePrivate credentials "1234.1234" "private-foobar"
+    authenticatePrivate token "1234.1234" "private-foobar"
       `shouldBe` "278d425bdf160c739803:58df8b0c36d6982b82c3ecf6b4662e34fe8c25bba48f5369f135bf843651c3a4"
   describe "Auth.authenticatePresenceWithEncoder"
     $ it "works for presence channels"
@@ -45,17 +44,15 @@ test = do
     let userData = "{\"user_id\":10,\"user_info\":{\"name\":\"Mr. Pusher\"}}"
      in authenticatePresenceWithEncoder
           (const userData)
-          credentials
+          token
           "1234.1234"
           "presence-foobar"
           ("doesn't matter" :: String)
           `shouldBe` "278d425bdf160c739803:afaed3695da2ffd16931f457e338e6c9f2921fa133ce7dac49f529792be6304c"
 
-credentials :: Credentials
-credentials =
-  Credentials
-    { credentialsAppID = 3,
-      credentialsAppKey = "278d425bdf160c739803",
-      credentialsAppSecret = "7ad3773142a6692b25b8",
-      credentialsCluster = Nothing
+token :: Token
+token =
+  Token
+    { pusherKey = "278d425bdf160c739803",
+      pusherSecret = "7ad3773142a6692b25b8"
     }
