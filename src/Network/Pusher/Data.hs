@@ -27,9 +27,8 @@ import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import Data.Maybe (fromMaybe)
-import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
-import Data.Word (Word32)
+import Data.Word (Word16, Word32)
 import Network.HTTP.Client
   ( Manager,
     defaultManagerSettings,
@@ -43,8 +42,9 @@ import Network.Pusher.Internal.Util
 -- | All the required configuration needed to interact with the API.
 data Pusher
   = Pusher
-      { pusherHost :: T.Text,
-        pusherPath :: T.Text,
+      { pusherHost :: B.ByteString,
+        pusherPort :: Word16,
+        pusherPath :: B.ByteString,
         pusherCredentials :: Credentials,
         pusherConnectionManager :: Manager
       }
@@ -57,14 +57,14 @@ data Credentials
         credentialsAppSecret :: B.ByteString,
         -- | The cluster the current app resides on. Common clusters include:
         --  mt1,eu,ap1,ap2.
-        credentialsCluster :: Maybe T.Text
+        credentialsCluster :: Maybe B.ByteString
       }
 
 instance A.FromJSON Credentials where
   parseJSON (A.Object v) =
     Credentials <$> v .: "app-id" <*> (encodeUtf8 <$> v .: "app-key")
       <*> (encodeUtf8 <$> v .: "app-secret")
-      <*> v .:? "app-cluster"
+      <*> ((encodeUtf8 <$>) <$> v .:? "app-cluster")
   parseJSON v2 = failExpectObj v2
 
 -- | Use this to get an instance Pusher. This will fill in the host and path
@@ -75,26 +75,27 @@ getPusher cred = do
   return $ getPusherWithConnManager connManager Nothing cred
 
 -- | Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost :: MonadIO m => T.Text -> Credentials -> m Pusher
+getPusherWithHost :: MonadIO m => B.ByteString -> Credentials -> m Pusher
 getPusherWithHost apiHost cred = do
   connManager <- getConnManager
   return $ getPusherWithConnManager connManager (Just apiHost) cred
 
 -- | Get a Pusher instance with a given connection manager. This can be useful
 --  if you want to share a connection with your application code.
-getPusherWithConnManager :: Manager -> Maybe T.Text -> Credentials -> Pusher
+getPusherWithConnManager :: Manager -> Maybe B.ByteString-> Credentials -> Pusher
 getPusherWithConnManager connManager apiHost cred =
   let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
       mCluster = credentialsCluster cred
    in Pusher
         { pusherHost = fromMaybe (mkHost mCluster) apiHost,
+          pusherPort = 80,
           pusherPath = path,
           pusherCredentials = cred,
           pusherConnectionManager = connManager
         }
 
 -- | Given a possible cluster, return the corresponding host.
-mkHost :: Maybe T.Text -> T.Text
+mkHost :: Maybe B.ByteString -> B.ByteString
 mkHost mCluster =
   case mCluster of
     Nothing -> "http://api.pusherapp.com"

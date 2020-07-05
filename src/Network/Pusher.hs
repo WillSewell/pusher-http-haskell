@@ -92,7 +92,7 @@ import Control.Monad.Trans.Except
   ( ExceptT (ExceptT),
     runExceptT,
   )
-import qualified Data.ByteString.Char8 as BC
+import qualified Data.ByteString as B
 import qualified Data.Text as T
 import Network.Pusher.Data
   ( Credentials (..),
@@ -172,7 +172,7 @@ channels pusher prefixFilter attributes =
 channel ::
   MonadIO m =>
   Pusher ->
-  T.Text ->
+  B.ByteString ->
   -- | Can query user count and also subscription count (if enabled).
   ChannelInfoQuery ->
   m (Either PusherError FullChannelInfo)
@@ -184,7 +184,7 @@ channel pusher chan attributes = liftIO $ runExceptT $ do
   HTTP.get (pusherConnectionManager pusher) requestParams
 
 -- | Get a list of users in a presence channel.
-users :: MonadIO m => Pusher -> T.Text -> m (Either PusherError Users)
+users :: MonadIO m => Pusher -> B.ByteString -> m (Either PusherError Users)
 users pusher chan = liftIO $ runExceptT $ do
   requestParams <-
     liftIO $ Pusher.mkUsersRequest pusher chan <$> getSystemTimeSeconds
@@ -195,8 +195,8 @@ users pusher chan = liftIO $ runExceptT $ do
 --  is correctly encrypted by the corresponding 'AppSecret'.
 parseWebhookPayload ::
   Pusher ->
-  [(BC.ByteString, BC.ByteString)] ->
-  BC.ByteString ->
+  [(B.ByteString, B.ByteString)] ->
+  B.ByteString ->
   Maybe WebhookPayload
 parseWebhookPayload pusher =
   let credentials = pusherCredentials pusher
