@@ -41,8 +41,8 @@ import Network.Pusher.Internal.Util (show')
 makeQS ::
   B.ByteString ->
   B.ByteString ->
-  T.Text ->
-  T.Text ->
+  B.ByteString ->
+  B.ByteString ->
   -- | Any additional parameters.
   Query ->
   B.ByteString ->
@@ -68,7 +68,7 @@ makeQS appKey appSecret method path params body timestamp =
         authSignature appSecret $
           B.intercalate
             "\n"
-            [encodeUtf8 method, encodeUtf8 path, renderQuery False allParams]
+            [method, path, renderQuery False allParams]
    in -- Add the auth string to the list
       ("auth_signature", Just authSig) : allParams
 

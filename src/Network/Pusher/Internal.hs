@@ -76,56 +76,48 @@ mkChannelsRequest pusher prefixFilter attributes timestamp =
    in mkGetRequest pusher "channels" params timestamp
 
 mkChannelRequest ::
-  Pusher -> T.Text -> ChannelInfoQuery -> Word64 -> RequestParams
+  Pusher -> B.ByteString -> ChannelInfoQuery -> Word64 -> RequestParams
 mkChannelRequest pusher chan attributes timestamp =
   let params = [("info", Just $ encodeUtf8 $ toURLParam attributes)]
       subPath = "channels/" <> chan
    in mkGetRequest pusher subPath params timestamp
 
-mkUsersRequest :: Pusher -> T.Text -> Word64 -> RequestParams
+mkUsersRequest :: Pusher -> B.ByteString -> Word64 -> RequestParams
 mkUsersRequest pusher chan timestamp =
   let subPath = "channels/" <> chan <> "/users"
    in mkGetRequest pusher subPath [] timestamp
 
 mkGetRequest ::
   Pusher ->
-  T.Text ->
+  B.ByteString ->
   Query ->
   Word64 ->
   RequestParams
 mkGetRequest pusher subPath params timestamp =
-  let (ep, fullPath) = mkEndpoint pusher subPath
-      qs = mkQS pusher "GET" fullPath params "" timestamp
-   in RequestParams ep qs
+  let host = pusherHost pusher
+      port = pusherPort pusher
+      path = pusherPath pusher <> subPath
+      qs = mkQS pusher "GET" path params "" timestamp
+   in RequestParams host port path qs
 
 mkPostRequest ::
   Pusher ->
-  T.Text ->
+  B.ByteString ->
   Query ->
   B.ByteString ->
   Word64 ->
   RequestParams
 mkPostRequest pusher subPath params bodyBS timestamp =
-  let (ep, fullPath) = mkEndpoint pusher subPath
-      qs = mkQS pusher "POST" fullPath params bodyBS timestamp
-   in RequestParams ep qs
-
--- | Build a full endpoint from the details in Pusher and the subPath.
-mkEndpoint ::
-  Pusher ->
-  -- | The subpath of the specific request, e.g "events/channel-name".
-  T.Text ->
-  -- | The full endpoint, and just the path component.
-  (T.Text, T.Text)
-mkEndpoint pusher subPath =
-  let fullPath = pusherPath pusher <> subPath
-      endpoint = pusherHost pusher <> fullPath
-   in (endpoint, fullPath)
+  let host = pusherHost pusher
+      port = pusherPort pusher
+      path = pusherPath pusher <> subPath
+      qs = mkQS pusher "POST" path params bodyBS timestamp
+   in RequestParams host port path qs
 
 mkQS ::
   Pusher ->
-  T.Text ->
-  T.Text ->
+  B.ByteString ->
+  B.ByteString ->
   Query ->
   B.ByteString ->
   Word64 ->

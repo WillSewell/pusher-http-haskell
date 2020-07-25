@@ -9,7 +9,7 @@
 -- Maintainer  : me@willsewell.com
 -- Stability   : experimental
 --
--- A layer on top of the HTTP functions in the Wreq library which lifts the return
+-- A layer on top of the HTTP functions in the http-client library which lifts the return
 -- values to the typclasses we are using in this library. Non 200 responses are
 -- converted into MonadError errors.
 module Network.Pusher.Internal.HTTP
@@ -21,11 +21,13 @@ where
 
 import Control.Exception (displayException)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Except (ExceptT (ExceptT), throwE)
+import Control.Monad.Trans.Except (ExceptT, throwE)
 import qualified Data.Aeson as A
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8')
+import Data.Word (Word16)
 import qualified Network.HTTP.Client as HTTP.Client
 import Network.HTTP.Types (Query)
 import Network.HTTP.Types.Header (hContentType)
@@ -36,7 +38,9 @@ import Network.Pusher.Error (PusherError (..))
 data RequestParams
   = RequestParams
       { -- | The API endpoint, for example http://api.pusherapp.com/apps/123/events.
-        requestEndpoint :: T.Text,
+        requestHost :: B.ByteString,
+        requestPort :: Word16,
+        requestPath :: B.ByteString,
         -- | List of query string parameters as key-value tuples.
         requestQueryString :: Query
       }
@@ -49,8 +53,8 @@ get ::
   HTTP.Client.Manager ->
   RequestParams ->
   ExceptT PusherError IO a
-get connManager (RequestParams ep qs) = do
-  req <- ExceptT $ return $ mkRequest ep qs
+get connManager (RequestParams host port path query) = do
+  let req = mkRequest host port path query
   resp <- doRequest connManager req
   either
     (throwE . PusherInvalidResponseError . T.pack)
@@ -64,21 +68,25 @@ post ::
   RequestParams ->
   a ->
   ExceptT PusherError IO ()
-post connManager (RequestParams ep qs) body = do
-  req <- ExceptT $ return $ mkPost (A.encode body) <$> mkRequest ep qs
+post connManager (RequestParams host port path query) body = do
+  let req = mkPost (A.encode body) (mkRequest host port path query)
   _ <- doRequest connManager req
   return ()
 
 mkRequest ::
-  T.Text ->
+  B.ByteString ->
+  Word16 ->
+  B.ByteString ->
   Query ->
-  Either PusherError HTTP.Client.Request
-mkRequest ep qs =
-  case parseRequest $ T.unpack ep of
-    Nothing -> Left $ PusherArgumentError $ "failed to parse url: " <> ep
-    Just req -> Right $ HTTP.Client.setQueryString qs req
-  where
-    parseRequest = HTTP.Client.parseRequest
+  HTTP.Client.Request
+mkRequest host port path query =
+  HTTP.Client.setQueryString query $
+    HTTP.Client.defaultRequest
+      { HTTP.Client.secure = True,
+        HTTP.Client.host = host,
+        HTTP.Client.port = fromIntegral port,
+        HTTP.Client.path = path
+      }
 
 mkPost :: BL.ByteString -> HTTP.Client.Request -> HTTP.Client.Request
 mkPost body req =
