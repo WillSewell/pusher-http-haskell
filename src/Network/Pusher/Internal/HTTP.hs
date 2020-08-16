@@ -82,7 +82,7 @@ mkRequest ::
 mkRequest host port path query =
   HTTP.Client.setQueryString query $
     HTTP.Client.defaultRequest
-      { HTTP.Client.secure = True,
+      { HTTP.Client.secure = False,
         HTTP.Client.host = host,
         HTTP.Client.port = fromIntegral port,
         HTTP.Client.path = path
