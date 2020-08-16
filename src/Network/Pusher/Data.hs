@@ -98,8 +98,8 @@ getPusherWithConnManager connManager apiHost cred =
 mkHost :: Maybe B.ByteString -> B.ByteString
 mkHost mCluster =
   case mCluster of
-    Nothing -> "http://api.pusherapp.com"
-    Just c -> "http://api" <> c <> ".pusher.com"
+    Nothing -> "api.pusherapp.com"
+    Just c -> "api-" <> c <> ".pusher.com"
 
 getConnManager :: MonadIO m => m Manager
 getConnManager = liftIO $ newManager defaultManagerSettings
