@@ -26,13 +26,15 @@ import qualified Data.Aeson.Text as A
 import qualified Data.ByteArray as BA
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Base16 as B16
+import qualified Data.ByteString.Char8 as BC
+import Data.Char
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
 import Data.Word (Word64)
 import GHC.Exts (sortWith)
-import Network.HTTP.Types (Query, renderQuery)
+import Network.HTTP.Types (Query)
 import Network.Pusher.Data (Credentials (..))
 import Network.Pusher.Internal.Util (show')
 
@@ -49,28 +51,39 @@ makeQS ::
   Word64 ->
   Query
 makeQS appKey appSecret method path params body timestamp =
+  -- Generate all required parameters and add them to the list of existing ones
+  -- Parameters are:
+  -- - In alphabetical order
+  -- - Keys are lower case
   let allParams =
-        -- Generate all required parameters and add them to the list of existing
-        -- ones
-        sortWith fst $
-          params
-            ++ [ ("auth_key", Just appKey),
-                 ("auth_timestamp", Just $ show' timestamp),
-                 ("auth_version", Just "1.0"),
-                 ( "body_md5",
-                   Just
-                     $ B16.encode
-                     $ BA.convert (Hash.hash body :: Hash.Digest Hash.MD5)
-                 )
-               ]
+        alphabeticalOrder . lowercaseKeys . (params ++) $
+          [ ("auth_key", Just appKey),
+            ("auth_timestamp", Just $ show' timestamp),
+            ("auth_version", Just "1.0"),
+            ( "body_md5",
+              Just
+                $ B16.encode
+                $ BA.convert (Hash.hash body :: Hash.Digest Hash.MD5)
+            )
+          ]
       -- Generate the auth signature from the list of parameters
       authSig =
         authSignature appSecret $
           B.intercalate
             "\n"
-            [method, path, renderQuery False allParams]
+            [method, path, formQueryString allParams]
    in -- Add the auth string to the list
-      ("auth_signature", Just authSig) : allParams
+      (("auth_signature", Just authSig) : allParams)
+  where
+    alphabeticalOrder = sortWith fst
+    lowercaseKeys = map (\(k, v) -> (BC.map toLower k, v))
+
+-- | Render key-value tuple mapping of query string parameters into a string.
+formQueryString :: Query -> B.ByteString
+formQueryString = B.intercalate "&" . map formQueryItem
+  where
+    formQueryItem (k, Just v) = k <> "=" <> v
+    formQueryItem (k, Nothing) = k
 
 -- | Create a Pusher auth signature of a string using the provided credentials.
 authSignature :: B.ByteString -> B.ByteString -> B.ByteString
