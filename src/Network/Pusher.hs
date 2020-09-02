@@ -13,8 +13,10 @@
 -- API, as well as functions for generating auth signatures for private and
 -- presence channels.
 --
--- First create a 'Pusher' data structure with your Pusher Channels 'Credentials',
--- and then call the functions defined in this module to make the HTTP requests.
+-- First create a 'Settings'. The easiest way of doing this is by using
+-- 'defaultSettings'. From that you can use 'newPusher' to create a 'Pusher'
+-- instance and then call the functions defined in this module to make the HTTP
+-- requests.
 --
 -- If any of the requests fail, the return values of the functions will result in
 -- a 'Left' 'PusherError' when run.
@@ -23,13 +25,13 @@
 --
 -- @
 --   let
---     credentials = 'Credentials'
---       { 'credentialsAppID'     = 123
---       , 'credentialsAppKey'    = "wrd12344rcd234"
---       , 'credentialsAppSecret' = "124df34d545v"
---       , 'credentialsCluster'   = Nothing
---       }
---   pusher <- 'getPusher' credentials
+--     settings =
+--       'defaultSettings'
+--         { 'pusherAddress' = 'Cluster' "mt1",
+--           'pusherAppID' = 123,
+--           'pusherToken' = 'Token' "wrd12344rcd234" "124df34d545v"
+--         }
+--   pusher <- 'newPusher' settings
 --
 --   result <-
 --     'trigger' pusher ['Channel' 'Public' "my-channel"] "my-event" "my-data" Nothing
@@ -40,19 +42,23 @@
 --
 -- @
 --
--- There is a simple working example in the example/ directory.
+-- There are simple working examples in the example/ directory.
 --
 -- See https://pusher.com/docs/channels/server_api/http-api for more detail on the
 -- HTTP requests.
 module Network.Pusher
   ( -- * Data types
 
-    -- ** Pusher config type
-    Pusher (..),
-    Credentials (..),
-    getPusher,
-    getPusherWithHost,
-    getPusherWithConnManager,
+    -- ** Settings
+    Settings (..),
+    defaultSettings,
+    Token (..),
+    Address (..),
+
+    -- ** Main Pusher type
+    Pusher,
+    newPusher,
+    newPusherWithConnManager,
 
     -- * HTTP Requests
 
@@ -92,21 +98,21 @@ import Control.Monad.Trans.Except
   ( ExceptT (ExceptT),
     runExceptT,
   )
+import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
 import Network.Pusher.Data
-  ( Credentials (..),
+  ( Address (..),
     Pusher (..),
-    getPusher,
-    getPusherWithConnManager,
-    getPusherWithHost,
+    Settings (..),
+    Token (..),
+    defaultSettings,
+    newPusher,
+    newPusherWithConnManager,
   )
 import Network.Pusher.Error (PusherError (..))
 import qualified Network.Pusher.Internal as Pusher
-import Network.Pusher.Internal.Auth
-  ( authenticatePresence,
-    authenticatePrivate,
-  )
+import qualified Network.Pusher.Internal.Auth as Auth
 import qualified Network.Pusher.Internal.HTTP as HTTP
 import Network.Pusher.Internal.Util (getSystemTimeSeconds)
 import Network.Pusher.Protocol
@@ -145,7 +151,7 @@ trigger pusher chans event dat socketId = liftIO $ runExceptT $ do
     ExceptT $
       Pusher.mkTriggerRequest pusher chans event dat socketId
         <$> getSystemTimeSeconds
-  HTTP.post (pusherConnectionManager pusher) requestParams requestBody
+  HTTP.post (pConnectionManager pusher) requestParams requestBody
 
 -- | Query a list of channels for information.
 channels ::
@@ -166,7 +172,7 @@ channels pusher prefixFilter attributes =
           prefixFilter
           attributes
           <$> getSystemTimeSeconds
-    HTTP.get (pusherConnectionManager pusher) requestParams
+    HTTP.get (pConnectionManager pusher) requestParams
 
 -- | Query for information on a single channel.
 channel ::
@@ -181,14 +187,26 @@ channel pusher chan attributes = liftIO $ runExceptT $ do
     liftIO $
       Pusher.mkChannelRequest pusher chan attributes
         <$> getSystemTimeSeconds
-  HTTP.get (pusherConnectionManager pusher) requestParams
+  HTTP.get (pConnectionManager pusher) requestParams
 
 -- | Get a list of users in a presence channel.
 users :: MonadIO m => Pusher -> B.ByteString -> m (Either PusherError Users)
 users pusher chan = liftIO $ runExceptT $ do
   requestParams <-
     liftIO $ Pusher.mkUsersRequest pusher chan <$> getSystemTimeSeconds
-  HTTP.get (pusherConnectionManager pusher) requestParams
+  HTTP.get (pConnectionManager pusher) requestParams
+
+-- | Generate an auth signature of the form "app_key:auth_sig" for a user of a
+--  private channel.
+authenticatePrivate :: Pusher -> T.Text -> T.Text -> B.ByteString
+authenticatePrivate pusher = Auth.authenticatePrivate (pToken pusher)
+
+-- | Generate an auth signature of the form "app_key:auth_sig" for a user of a
+--  presence channel.
+authenticatePresence ::
+  A.ToJSON a => Pusher -> T.Text -> T.Text -> a -> B.ByteString
+authenticatePresence pusher = Auth.authenticatePresence (pToken pusher)
+  
 
 -- | Parse webhooks from a list of HTTP headers and a HTTP body given their
 --  'AppKey' matches the one in our Pusher Channels credentials and the webhook
@@ -199,9 +217,9 @@ parseWebhookPayload ::
   B.ByteString ->
   Maybe WebhookPayload
 parseWebhookPayload pusher =
-  let credentials = pusherCredentials pusher
-      ourAppKey = credentialsAppKey credentials
-      ourAppSecret = credentialsAppSecret credentials
+  let token = pToken pusher
+      ourAppKey = pusherKey token
+      ourAppSecret = pusherSecret token
       lookupKeysSecret whAppKey =
         if whAppKey == ourAppKey then Just ourAppSecret else Nothing
    in parseWebhookPayloadWith lookupKeysSecret

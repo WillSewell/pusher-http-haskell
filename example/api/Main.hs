@@ -10,11 +10,11 @@ import qualified Network.Pusher.Protocol as P
 
 main :: IO ()
 main = do
-  eitherCred <- Y.decodeFileEither "../credentials.yaml"
-  case eitherCred of
+  eitherSettings <- Y.decodeFileEither "../settings.yaml"
+  case eitherSettings of
     Left e -> print e
-    Right cred -> do
-      pusher <- P.getPusher cred
+    Right settings -> do
+      pusher <- P.newPusher settings
       demoTrigger pusher
       demoChannels pusher
       demoChannel pusher

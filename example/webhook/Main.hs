@@ -12,11 +12,11 @@ import qualified Snap.Http.Server as Snap
 
 main :: IO ()
 main = do
-  eitherCred <- Y.decodeFileEither "../credentials.yaml"
-  case eitherCred of
+  eitherSettings <- Y.decodeFileEither "../settings.yaml"
+  case eitherSettings of
     Left e -> print e
-    Right cred -> do
-      pusher <- P.getPusher cred
+    Right settings -> do
+      pusher <- P.newPusher settings
       Snap.quickHttpServe $ Snap.method Snap.POST $ webhookHandler pusher
 
 webhookHandler :: P.Pusher -> Snap.Snap ()

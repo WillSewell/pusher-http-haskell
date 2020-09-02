@@ -13,7 +13,8 @@
 <script src="http://js.pusher.com/2.2/pusher.min.js"></script>
 <script>
   Pusher.log = console.log.bind(console);
-  var pusher = new Pusher("7435d7e5de69a077ebe0", { // TODO: don't hardcode
+  var pusher = new Pusher("ebb0fb32ed472f7e5b06", { // TODO: don't hardcode
+    'cluster': "eu",
     'authEndpoint': "http://0.0.0.0:8000/",
     'authTransport': "jsonp"
   });
