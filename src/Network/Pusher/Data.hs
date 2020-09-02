@@ -27,10 +27,7 @@ import Network.HTTP.Client
     defaultManagerSettings,
     newManager,
   )
-import Network.Pusher.Internal.Util
-  ( failExpectObj,
-    show',
-  )
+import Network.Pusher.Internal.Util (show')
 
 -- | All the required configuration needed to interact with the API.
 data Settings
@@ -41,26 +38,26 @@ data Settings
       }
 
 instance A.FromJSON Settings where
-  parseJSON (A.Object v) = do
-    cluster <- (encodeUtf8 <$>) <$> v .:? "cluster"
-    host <- (encodeUtf8 <$>) <$> v .:? "host"
-    port <- v .:? "port"
-    address <- pure $ case (cluster, host, port) of
-      (Just c, Nothing, Nothing) -> Just $ Cluster c
-      (Nothing, Just h, Just p) -> Just $ HostPort h p
-      (Nothing, Nothing, Nothing) -> Nothing
-      _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
-    appID <- v .: "app_id"
-    token <- v .: "token"
-    let settings =
-          defaultSettings
-            { pusherAppID = appID,
-              pusherToken = token
-            }
-    pure $ case address of
-      Just a -> settings {pusherAddress = a}
-      Nothing -> settings
-  parseJSON v2 = failExpectObj v2
+  parseJSON =
+    A.withObject "Settings" $ \v -> do
+      cluster <- (encodeUtf8 <$>) <$> v .:? "cluster"
+      host <- (encodeUtf8 <$>) <$> v .:? "host"
+      port <- v .:? "port"
+      address <- pure $ case (cluster, host, port) of
+        (Just c, Nothing, Nothing) -> Just $ Cluster c
+        (Nothing, Just h, Just p) -> Just $ HostPort h p
+        (Nothing, Nothing, Nothing) -> Nothing
+        _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
+      appID <- v .: "app_id"
+      token <- v .: "token"
+      let settings =
+            defaultSettings
+              { pusherAppID = appID,
+                pusherToken = token
+              }
+      pure $ case address of
+        Just a -> settings {pusherAddress = a}
+        Nothing -> settings
 
 -- | A convenient way of creating an instance of 'Settings'. Another
 -- benefit is it prevents breaking changes when fields are added to
@@ -92,11 +89,11 @@ data Token
       }
 
 instance A.FromJSON Token where
-  parseJSON (A.Object v) = do
-    key <- encodeUtf8 <$> v .: "key"
-    secret <- encodeUtf8 <$> v .: "secret"
-    pure $ Token key secret
-  parseJSON v2 = failExpectObj v2
+  parseJSON =
+    A.withObject "Token" $ \v -> do
+      key <- encodeUtf8 <$> v .: "key"
+      secret <- encodeUtf8 <$> v .: "secret"
+      pure $ Token key secret
 
 -- | Typically you will want to connect directly to a standard Pusher Channels
 -- 'Cluster'.

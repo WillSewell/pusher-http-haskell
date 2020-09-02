@@ -35,7 +35,6 @@ import qualified Data.HashSet as HS
 import Data.Hashable (Hashable)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
-import Network.Pusher.Internal.Util (failExpectObj)
 
 -- | Types that can be serialised to a querystring parameter value.
 class ToURLParam a where
@@ -83,12 +82,13 @@ newtype ChannelsInfo
   deriving (Eq, Show)
 
 instance A.FromJSON ChannelsInfo where
-  parseJSON (A.Object v) = do
-    chansV <- v .: "channels"
-    case chansV of
-      A.Object cs -> ChannelsInfo <$> mapM (\info -> A.parseJSON info) cs
-      v1 -> failExpectObj v1
-  parseJSON v2 = failExpectObj v2
+  parseJSON =
+    A.withObject "ChannelsInfo" $ \v -> do
+      chansV <- v .: "channels"
+      A.withObject
+        "HashMap"
+        (\cs -> ChannelsInfo <$> mapM (\info -> A.parseJSON info) cs)
+        chansV
 
 -- | The possible returned channel attributes when multiple when multiple
 --  channels are queried.
@@ -99,8 +99,8 @@ newtype ChannelInfo
   deriving (Eq, Show)
 
 instance A.FromJSON ChannelInfo where
-  parseJSON (A.Object v) = ChannelInfo <$> v .:? "user_count"
-  parseJSON v = failExpectObj v
+  parseJSON =
+    A.withObject "ChannelInfo" $ \v -> ChannelInfo <$> v .:? "user_count"
 
 -- | The possible values returned by a query to a single channel.
 data FullChannelInfo
@@ -112,10 +112,10 @@ data FullChannelInfo
   deriving (Eq, Show)
 
 instance A.FromJSON FullChannelInfo where
-  parseJSON (A.Object v) =
-    FullChannelInfo <$> v .: "occupied" <*> v .:? "user_count"
-      <*> v .:? "subscription_count"
-  parseJSON v = failExpectObj v
+  parseJSON =
+    A.withObject "FullChannelInfo" $ \v ->
+      FullChannelInfo <$> v .: "occupied" <*> v .:? "user_count"
+        <*> v .:? "subscription_count"
 
 -- | A list of users returned by querying for users in a presence channel.
 newtype Users
@@ -123,10 +123,10 @@ newtype Users
   deriving (Eq, Show)
 
 instance A.FromJSON Users where
-  parseJSON (A.Object v) = do
-    users <- v .: "users"
-    Users <$> A.parseJSON users
-  parseJSON v = failExpectObj v
+  parseJSON =
+    A.withObject "FullChannelInfo" $ \v -> do
+      users <- v .: "users"
+      Users <$> A.parseJSON users
 
 -- | The data about a user returned when querying for users in a presence
 --  channel.
@@ -137,5 +137,4 @@ newtype User
   deriving (Eq, Show)
 
 instance A.FromJSON User where
-  parseJSON (A.Object v) = User <$> v .: "id"
-  parseJSON v = failExpectObj v
+  parseJSON = A.withObject "FullChannelInfo" $ \v -> User <$> v .: "id"
