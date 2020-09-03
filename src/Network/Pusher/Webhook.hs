@@ -26,7 +26,6 @@ import Data.Maybe (listToMaybe, mapMaybe)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
-import Network.Pusher.Internal.Util
 import Network.Pusher.Protocol (User (..))
 
 -- | A Webhook is received by POST request from Pusher to notify your server of
@@ -40,11 +39,9 @@ data Webhooks
   deriving (Eq, Show)
 
 instance A.FromJSON Webhooks where
-  parseJSON o =
-    case o of
-      A.Object v ->
-        Webhooks <$> v .: "time_ms" <*> v .: "events"
-      _ -> failExpectObj o
+  parseJSON =
+    A.withObject "Webhooks" $ \v ->
+      Webhooks <$> v .: "time_ms" <*> v .: "events"
 
 -- | A 'WebhookEv' is one of several events Pusher may send to your server in
 --  response to events your users may trigger.
@@ -75,24 +72,22 @@ data WebhookEv
   deriving (Eq, Show)
 
 instance A.FromJSON WebhookEv where
-  parseJSON o =
-    case o of
-      A.Object v -> do
-        name <- v .: "name"
-        case name :: T.Text of
-          "channel_occupied" -> ChannelOccupiedEv <$> v .: "channel"
-          "channel_vacated" -> ChannelVacatedEv <$> v .: "channel"
-          "member_added" ->
-            MemberAddedEv <$> v .: "channel" <*> (User <$> v .: "user_id")
-          "member_removed" ->
-            MemberRemovedEv <$> v .: "channel" <*> (User <$> v .: "user_id")
-          "client_event" ->
-            ClientEv <$> v .: "channel" <*> v .: "event"
-              <*> (A.decode . LB.fromStrict . encodeUtf8 <$> v .: "data")
-              <*> v .: "socket_id"
-              <*> (fmap User <$> v .: "user_id")
-          _ -> fail . ("Unknown client event. Got: " ++) . show $ o
-      _ -> failExpectObj o
+  parseJSON =
+    A.withObject "Webhooks" $ \v -> do
+      name <- v .: "name"
+      case name :: T.Text of
+        "channel_occupied" -> ChannelOccupiedEv <$> v .: "channel"
+        "channel_vacated" -> ChannelVacatedEv <$> v .: "channel"
+        "member_added" ->
+          MemberAddedEv <$> v .: "channel" <*> (User <$> v .: "user_id")
+        "member_removed" ->
+          MemberRemovedEv <$> v .: "channel" <*> (User <$> v .: "user_id")
+        "client_event" ->
+          ClientEv <$> v .: "channel" <*> v .: "event"
+            <*> (A.decode . LB.fromStrict . encodeUtf8 <$> v .: "data")
+            <*> v .: "socket_id"
+            <*> (fmap User <$> v .: "user_id")
+        _ -> fail . ("Unknown client event. Got: " ++) . show $ v
 
 data WebhookPayload
   = WebhookPayload
