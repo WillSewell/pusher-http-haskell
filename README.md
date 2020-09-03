@@ -1,6 +1,6 @@
 # Pusher Channels Haskell HTTP client library
 
-[![Build Status](https://travis-ci.org/WillSewell/pusher-http-haskell.svg?branch=master)](https://travis-ci.org/WillSewell/pusher-http-haskell)
+[![Build Status](https://travis-ci.com/WillSewell/pusher-http-haskell.svg?branch=master)](https://travis-ci.com/WillSewell/pusher-http-haskell)
 
 Note: _This is currently in the alpha stage of development_
 

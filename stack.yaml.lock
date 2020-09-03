@@ -5,26 +5,12 @@
 
 packages:
 - completed:
-    hackage: aeson-1.5.0.0@sha256:a4ec683c3e40a41665f4f6806521211ce2253a469c82d4df855aadb2cc34bec4,6812
-    pantry-tree:
-      size: 39758
-      sha256: 69b028939df0c092b1d8c3e9447461ca362e4fa8b93bfaf37fc199785df775da
-  original:
-    hackage: aeson-1.5.0.0
-- completed:
     hackage: Cabal-3.2.0.0@sha256:d0d7a1f405f25d0000f5ddef684838bc264842304fd4e7f80ca92b997b710874,27320
     pantry-tree:
       size: 40963
       sha256: b122f2d76dc82a350d3986fa0cbc4ecf9c3bb4f9c598ccbfb3b2bfdde02f3698
   original:
     hackage: Cabal-3.2.0.0
-- completed:
-    hackage: cryptonite-0.27@sha256:b75ec07ef0244574aa5374f0a1b349dff8c8f84583cb6c58fd95e565245716d4,18143
-    pantry-tree:
-      size: 22989
-      sha256: 1a63bb79748aeb2c0312d6a166fe8436a139929b017bf208f002e79073d21966
-  original:
-    hackage: cryptonite-0.27
 - completed:
     hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
     pantry-tree:
@@ -40,12 +26,12 @@ packages:
   original:
     hackage: http-client-0.7.0
 - completed:
-    hackage: process-1.6.9.0@sha256:0cafe6e1313790863bd81cf40563baf5feea9ca2957e79a4d92bacfcc455604a,2468
+    hackage: process-1.6.10.0@sha256:c0d2d8adaca7cea7ceaa60e67b61c775dc03727b83bdb1c97aa8cbeac9f5dd84,2469
     pantry-tree:
       size: 1211
-      sha256: e9a0a18f4c350f4170b20b38cf05cf3541999388b4438f1dc183e86e9472ae9d
+      sha256: 6e90778b5105753d7de0f7a0c502dadf8f04825f17a36186aa801e56ef7ca206
   original:
-    hackage: process-1.6.9.0
+    hackage: process-1.6.10.0
 - completed:
     hackage: time-1.10@sha256:536801b30aa2ce66da07cb19847827662650907efb2af4c8bef0a6276445075f,5738
     pantry-tree:
@@ -62,7 +48,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 502299
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/6/22.yaml
-    sha256: 3b16e1f2e6d77dace4d39e0e1f33205474dafeaf492e9b0d8936a74450db55df
-  original: nightly-2020-06-22
+    size: 527775
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/9/2.yaml
+    sha256: 92ec78ae38830f06ec9307c5ce346ae93982fab6179eb10dec9d57d5069c7f14
+  original: nightly-2020-09-02
