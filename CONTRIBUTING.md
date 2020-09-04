@@ -14,6 +14,7 @@ wish to contribute.
 
 - Format Haskell files with `ormolu`, Cabal files with `cabal format`, and
   with `prettier` for everything else that can be.
+- Apply suggestions from `hlint`.
 - Limit line length to 80 characters.
 - Module names should be singular, e.g. `Error` instead of `Errors`.
 - Record fields should be prefixed with the constructor name in lower case.

@@ -43,11 +43,11 @@ instance A.FromJSON Settings where
       cluster <- (encodeUtf8 <$>) <$> v .:? "cluster"
       host <- (encodeUtf8 <$>) <$> v .:? "host"
       port <- v .:? "port"
-      address <- pure $ case (cluster, host, port) of
-        (Just c, Nothing, Nothing) -> Just $ Cluster c
-        (Nothing, Just h, Just p) -> Just $ HostPort h p
-        (Nothing, Nothing, Nothing) -> Nothing
-        _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
+      let address = case (cluster, host, port) of
+            (Just c, Nothing, Nothing) -> Just $ Cluster c
+            (Nothing, Just h, Just p) -> Just $ HostPort h p
+            (Nothing, Nothing, Nothing) -> Nothing
+            _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
       appID <- v .: "app_id"
       token <- v .: "token"
       let settings =

@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TupleSections #-}
 
 -- |
 -- Module      : Network.Pusher.Protocol
@@ -87,7 +86,7 @@ instance A.FromJSON ChannelsInfo where
       chansV <- v .: "channels"
       A.withObject
         "HashMap"
-        (\cs -> ChannelsInfo <$> mapM (\info -> A.parseJSON info) cs)
+        (fmap ChannelsInfo . mapM A.parseJSON)
         chansV
 
 -- | The possible returned channel attributes when multiple when multiple

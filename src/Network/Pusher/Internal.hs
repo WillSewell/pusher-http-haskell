@@ -90,12 +90,7 @@ mkGetRequest ::
   Query ->
   Word64 ->
   RequestParams
-mkGetRequest pusher subPath params timestamp =
-  let host = pHost pusher
-      port = pPort pusher
-      path = pPath pusher <> subPath
-      qs = makeQS (pToken pusher) "GET" path params "" timestamp
-   in RequestParams host port path qs
+mkGetRequest pusher subPath params = mkRequest pusher "GET" subPath params ""
 
 mkPostRequest ::
   Pusher ->
@@ -104,9 +99,19 @@ mkPostRequest ::
   B.ByteString ->
   Word64 ->
   RequestParams
-mkPostRequest pusher subPath params bodyBS timestamp =
+mkPostRequest pusher = mkRequest pusher "POST"
+
+mkRequest ::
+  Pusher ->
+  B.ByteString ->
+  B.ByteString ->
+  Query ->
+  B.ByteString ->
+  Word64 ->
+  RequestParams
+mkRequest pusher method subPath params bodyBS timestamp =
   let host = pHost pusher
       port = pPort pusher
       path = pPath pusher <> subPath
-      qs = makeQS (pToken pusher) "POST" path params bodyBS timestamp
+      qs = makeQS (pToken pusher) method path params bodyBS timestamp
    in RequestParams host port path qs

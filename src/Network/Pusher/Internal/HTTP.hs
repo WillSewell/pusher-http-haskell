@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TupleSections #-}
 
 -- |
 -- Module      : Network.Pusher.Internal.HTTP
