@@ -21,13 +21,20 @@ matrix:
             - hvr-ghc
           packages:
             - ghc-8.6.5
-    - env: GHCVER=8.10.1
+    - env: GHCVER=ghc-8.8.4
       addons:
         apt:
           sources:
             - hvr-ghc
           packages:
-            - ghc-8.10.1
+            - ghc-8.8.4
+    - env: GHCVER=8.10.2 STACK_YAML=stack-nightly.yaml
+      addons:
+        apt:
+          sources:
+            - hvr-ghc
+          packages:
+            - ghc-8.10.2
 
 before_install:
   # stack
