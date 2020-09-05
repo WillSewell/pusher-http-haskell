@@ -8,9 +8,9 @@
 -- Maintainer  : me@willsewell.com
 -- Stability   : experimental
 --
--- This module contains helper functions for authenticating HTTP requests, as well
--- as publically facing functions for authentication private and presence channel
--- users; these functions are re-exported in the main Pusher module.
+-- This module contains helper functions for authenticating HTTP requests, as
+-- well as publicly facing functions for authentication private and presence
+-- channel users; these functions are re-exported in the main Pusher module.
 module Network.Pusher.Internal.Auth
   ( authenticatePresence,
     authenticatePresenceWithEncoder,

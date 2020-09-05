@@ -75,7 +75,7 @@ instance ToURLParam a => ToURLParam (HS.HashSet a) where
   toURLParam hs = T.intercalate "," $ toURLParam <$> HS.toList hs
 
 -- | A map of channels to their 'ChannelInfo'. The result of querying channel
---  info from multuple channels.
+--  info from multiple channels.
 newtype ChannelsInfo
   = ChannelsInfo (HM.HashMap T.Text ChannelInfo)
   deriving (Eq, Show)
@@ -83,11 +83,11 @@ newtype ChannelsInfo
 instance A.FromJSON ChannelsInfo where
   parseJSON =
     A.withObject "ChannelsInfo" $ \v -> do
-      chansV <- v .: "channels"
+      channelsV <- v .: "channels"
       A.withObject
         "HashMap"
         (fmap ChannelsInfo . mapM A.parseJSON)
-        chansV
+        channelsV
 
 -- | The possible returned channel attributes when multiple when multiple
 --  channels are queried.
