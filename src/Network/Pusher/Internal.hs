@@ -110,8 +110,9 @@ mkRequest ::
   Word64 ->
   RequestParams
 mkRequest pusher method subPath params bodyBS timestamp =
-  let host = pHost pusher
+  let useTLS = pUseTLS pusher
+      host = pHost pusher
       port = pPort pusher
       path = pPath pusher <> subPath
       qs = makeQS (pToken pusher) method path params bodyBS timestamp
-   in RequestParams host port path qs
+   in RequestParams useTLS host port path qs

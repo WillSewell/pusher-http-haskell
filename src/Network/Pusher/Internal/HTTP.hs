@@ -37,6 +37,7 @@ import Network.Pusher.Error (PusherError (..))
 data RequestParams
   = RequestParams
       { -- | The API endpoint, for example http://api.pusherapp.com/apps/123/events.
+        requestSecure :: Bool,
         requestHost :: B.ByteString,
         requestPort :: Word16,
         requestPath :: B.ByteString,
@@ -52,8 +53,8 @@ get ::
   HTTP.Client.Manager ->
   RequestParams ->
   ExceptT PusherError IO a
-get connManager (RequestParams host port path query) = do
-  let req = mkRequest host port path query
+get connManager (RequestParams secure host port path query) = do
+  let req = mkRequest secure host port path query
   resp <- doRequest connManager req
   either
     (throwE . PusherInvalidResponseError . T.pack)
@@ -67,21 +68,22 @@ post ::
   RequestParams ->
   a ->
   ExceptT PusherError IO ()
-post connManager (RequestParams host port path query) body = do
-  let req = mkPost (A.encode body) (mkRequest host port path query)
+post connManager (RequestParams secure host port path query) body = do
+  let req = mkPost (A.encode body) (mkRequest secure host port path query)
   _ <- doRequest connManager req
   return ()
 
 mkRequest ::
+  Bool ->
   B.ByteString ->
   Word16 ->
   B.ByteString ->
   Query ->
   HTTP.Client.Request
-mkRequest host port path query =
+mkRequest secure host port path query =
   HTTP.Client.setQueryString query $
     HTTP.Client.defaultRequest
-      { HTTP.Client.secure = False,
+      { HTTP.Client.secure = secure,
         HTTP.Client.host = host,
         HTTP.Client.port = fromIntegral port,
         HTTP.Client.path = path
