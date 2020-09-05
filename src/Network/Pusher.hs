@@ -146,10 +146,10 @@ trigger ::
   -- | An optional socket ID of a connection you wish to exclude.
   Maybe T.Text ->
   m (Either PusherError ())
-trigger pusher chans event dat socketId = liftIO $ runExceptT $ do
+trigger pusher channels event dat socketId = liftIO $ runExceptT $ do
   (requestParams, requestBody) <-
     ExceptT $
-      Pusher.mkTriggerRequest pusher chans event dat socketId
+      Pusher.mkTriggerRequest pusher channels event dat socketId
         <$> getSystemTimeSeconds
   HTTP.post (pConnectionManager pusher) requestParams requestBody
 

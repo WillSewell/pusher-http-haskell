@@ -8,9 +8,9 @@
 -- Maintainer  : me@willsewell.com
 -- Stability   : experimental
 --
--- A layer on top of the HTTP functions in the http-client library which lifts the return
--- values to the typclasses we are using in this library. Non 200 responses are
--- converted into MonadError errors.
+-- A layer on top of the HTTP functions in the http-client library which lifts
+-- the return values to the typeclasses we are using in this library. Non 200
+-- responses are converted into MonadError errors.
 module Network.Pusher.Internal.HTTP
   ( RequestParams (..),
     get,

@@ -42,14 +42,14 @@ mkTriggerRequest ::
   Maybe T.Text ->
   Word64 ->
   Either PusherError (RequestParams, A.Value)
-mkTriggerRequest pusher chans event dat socketId timestamp = do
+mkTriggerRequest pusher channels event dat socketId timestamp = do
   when
-    (length chans > 10)
+    (length channels > 10)
     (Left $ PusherArgumentError "Must be less than 10 channels")
   let body =
         A.object $
           [ ("name", A.String event),
-            ("channels", A.toJSON (map A.String chans)),
+            ("channels", A.toJSON (map A.String channels)),
             ("data", A.String dat)
           ]
             ++ maybeToList (fmap (\sID -> ("socket_id", A.String sID)) socketId)
