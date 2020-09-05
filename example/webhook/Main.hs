@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Arrow
+import Control.Arrow (first)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
