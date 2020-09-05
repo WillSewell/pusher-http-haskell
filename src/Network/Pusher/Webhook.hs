@@ -61,7 +61,7 @@ data WebhookEv
         withUser :: User
       }
   | -- | A client has sent a named client event with some json body. They have a
-    --  'SocketID' and a 'User' if they were in a presence channel.
+    --  socket_id and a 'User' if they were in a presence channel.
     ClientEv
       { onChannel :: T.Text,
         clientEvName :: T.Text,
