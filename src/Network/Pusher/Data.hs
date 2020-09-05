@@ -16,17 +16,14 @@ module Network.Pusher.Data
   )
 where
 
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word16, Word32)
-import Network.HTTP.Client
-  ( Manager,
-    defaultManagerSettings,
-    newManager,
-  )
+import Network.HTTP.Client (Manager)
+import Network.HTTP.Client.TLS (newTlsManager)
 import Network.Pusher.Internal.Util (show')
 
 -- | All the required configuration needed to interact with the API.
@@ -34,7 +31,8 @@ data Settings
   = Settings
       { pusherAddress :: Address,
         pusherAppID :: Word32,
-        pusherToken :: Token
+        pusherToken :: Token,
+        pusherUseTLS :: Bool
       }
 
 instance A.FromJSON Settings where
@@ -50,14 +48,20 @@ instance A.FromJSON Settings where
             _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
       appID <- v .: "app_id"
       token <- v .: "token"
+      useTLS <- v .:? "use_tls"
       let settings =
             defaultSettings
               { pusherAppID = appID,
                 pusherToken = token
               }
-      pure $ case address of
-        Just a -> settings {pusherAddress = a}
-        Nothing -> settings
+      pure $ setOptionals address useTLS settings
+    where
+      setOptionals maybeAddress maybeUseTLS =
+        setAddress maybeAddress . setUseTLS maybeUseTLS
+      setAddress (Just address) settings = settings {pusherAddress = address}
+      setAddress Nothing settings = settings
+      setUseTLS (Just useTLS) settings = settings {pusherUseTLS = useTLS}
+      setUseTLS Nothing settings = settings
 
 -- | A convenient way of creating an instance of 'Settings'. Another
 -- benefit is it prevents breaking changes when fields are added to
@@ -78,7 +82,8 @@ defaultSettings =
   Settings
     { pusherAddress = Cluster "mt1",
       pusherAppID = 1,
-      pusherToken = Token "" ""
+      pusherToken = Token "" "",
+      pusherUseTLS = True
     }
 
 -- | A Channels key and secret pair for a particular app.
@@ -107,7 +112,8 @@ data Address
 -- | The core handle to the Pusher API.
 data Pusher
   = Pusher
-      { pHost :: B.ByteString,
+      { pUseTLS :: Bool,
+        pHost :: B.ByteString,
         pPort :: Word16,
         pPath :: B.ByteString,
         pToken :: Token,
@@ -117,7 +123,7 @@ data Pusher
 -- | Use this to get a Pusher instance.
 newPusher :: MonadIO m => Settings -> m Pusher
 newPusher settings = do
-  connManager <- liftIO $ newManager defaultManagerSettings
+  connManager <- newTlsManager
   return $ newPusherWithConnManager connManager settings
 
 -- | Get a Pusher instance with a given connection manager. This can be useful
@@ -126,10 +132,11 @@ newPusherWithConnManager :: Manager -> Settings -> Pusher
 newPusherWithConnManager connectionManager settings =
   let (host, port) = case pusherAddress settings of
         HostPort h p -> (h, p)
-        Cluster c -> ("api-" <> c <> ".pusher.com", 80)
+        Cluster c -> ("api-" <> c <> ".pusher.com", if pusherUseTLS settings then 443 else 80)
       path = "/apps/" <> show' (pusherAppID settings) <> "/"
    in Pusher
-        { pHost = host,
+        { pUseTLS = pusherUseTLS settings,
+          pHost = host,
           pPort = port,
           pPath = path,
           pToken = pusherToken settings,
