@@ -206,7 +206,6 @@ authenticatePrivate pusher = Auth.authenticatePrivate (pToken pusher)
 authenticatePresence ::
   A.ToJSON a => Pusher -> T.Text -> T.Text -> a -> B.ByteString
 authenticatePresence pusher = Auth.authenticatePresence (pToken pusher)
-  
 
 -- | Parse webhooks from a list of HTTP headers and a HTTP body given their
 --  'AppKey' matches the one in our Pusher Channels credentials and the webhook

@@ -40,13 +40,13 @@ test = do
       \    }\
       \  }\
       \}"
-      `shouldBe` ( Just
-                     $ ChannelsInfo
-                     $ HM.fromList
-                       [ ("presence-foobar", ChannelInfo $ Just 42),
-                         ("presence-another", ChannelInfo $ Just 123)
-                       ]
-                 )
+      `shouldBe` Just
+        ( ChannelsInfo $
+            HM.fromList
+              [ ("presence-foobar", ChannelInfo $ Just 42),
+                ("presence-another", ChannelInfo $ Just 123)
+              ]
+        )
   describe "Protocol.FullChannelInfo"
     $ it "parsing works"
     $
@@ -57,7 +57,7 @@ test = do
       \  \"user_count\": 42,\
       \  \"subscription_count\": 42\
       \}"
-      `shouldBe` (Just $ FullChannelInfo True (Just 42) (Just 42))
+      `shouldBe` Just (FullChannelInfo True (Just 42) (Just 42))
   describe "Protocol.Users"
     $ it "parsing works"
     $ A.decode
@@ -67,4 +67,4 @@ test = do
       \    { \"id\": \"2\" }\
       \  ]\
       \}"
-      `shouldBe` (Just $ Users [User "1", User "2"])
+      `shouldBe` Just (Users [User "1", User "2"])

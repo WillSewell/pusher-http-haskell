@@ -23,6 +23,7 @@ import qualified Crypto.Hash as Hash
 import qualified Crypto.MAC.HMAC as HMAC
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Text as A
+import Data.Bifunctor (first)
 import qualified Data.ByteArray as BA
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Base16 as B16
@@ -75,7 +76,7 @@ makeQS token method path params body timestamp =
       (("auth_signature", Just authSig) : allParams)
   where
     alphabeticalOrder = sortWith fst
-    lowercaseKeys = map (\(k, v) -> (BC.map toLower k, v))
+    lowercaseKeys = map (first (BC.map toLower))
 
 -- | Render key-value tuple mapping of query string parameters into a string.
 formQueryString :: Query -> B.ByteString
@@ -104,10 +105,9 @@ authenticatePrivate token socketID channel =
 --  presence channel.
 authenticatePresence ::
   A.ToJSON a => Token -> T.Text -> T.Text -> a -> B.ByteString
-authenticatePresence token =
+authenticatePresence =
   authenticatePresenceWithEncoder
     (TL.toStrict . TL.toLazyText . A.encodeToTextBuilder . A.toJSON)
-    token
 
 -- | As above, but allows the encoder of the user data to be specified. This is
 --  useful for testing because the encoder can be mocked; aeson's encoder enodes

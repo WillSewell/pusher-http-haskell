@@ -23,4 +23,4 @@ show' = fromString . show
 getSystemTimeSeconds :: MonadIO m => m Word64
 getSystemTimeSeconds = do
   t <- liftIO getSystemTime
-  return $ fromIntegral $ systemSeconds $ t
+  return $ fromIntegral $ systemSeconds t
