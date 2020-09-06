@@ -94,10 +94,7 @@ import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,
   )
-import Control.Monad.Trans.Except
-  ( ExceptT (ExceptT),
-    runExceptT,
-  )
+import Control.Monad.Trans.Except (runExceptT)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
@@ -148,7 +145,7 @@ trigger ::
   m (Either PusherError ())
 trigger pusher chans event dat socketId = liftIO $ runExceptT $ do
   (requestParams, requestBody) <-
-    ExceptT $
+    liftIO $
       Pusher.mkTriggerRequest pusher chans event dat socketId
         <$> getSystemTimeSeconds
   HTTP.post (pConnectionManager pusher) requestParams requestBody

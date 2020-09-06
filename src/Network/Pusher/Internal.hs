@@ -13,7 +13,6 @@ module Network.Pusher.Internal
   )
 where
 
-import Control.Monad (when)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -23,7 +22,6 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 import Network.HTTP.Types (Query)
 import Network.Pusher.Data (Pusher (..))
-import Network.Pusher.Error (PusherError (..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Internal.HTTP
   ( RequestParams (RequestParams),
@@ -41,11 +39,8 @@ mkTriggerRequest ::
   T.Text ->
   Maybe T.Text ->
   Word64 ->
-  Either PusherError (RequestParams, A.Value)
-mkTriggerRequest pusher channels event dat socketId timestamp = do
-  when
-    (length channels > 10)
-    (Left $ PusherArgumentError "Must be less than 10 channels")
+  (RequestParams, A.Value)
+mkTriggerRequest pusher channels event dat socketId timestamp =
   let body =
         A.object $
           [ ("name", A.String event),
@@ -54,10 +49,7 @@ mkTriggerRequest pusher channels event dat socketId timestamp = do
           ]
             ++ maybeToList (fmap (\sID -> ("socket_id", A.String sID)) socketId)
       bodyBS = BL.toStrict $ A.encode body
-  when
-    (B.length bodyBS > 10000)
-    (Left $ PusherArgumentError "Body must be less than 10000 bytes long")
-  return (mkPostRequest pusher "events" [] bodyBS timestamp, body)
+   in (mkPostRequest pusher "events" [] bodyBS timestamp, body)
 
 mkChannelsRequest ::
   Pusher ->
