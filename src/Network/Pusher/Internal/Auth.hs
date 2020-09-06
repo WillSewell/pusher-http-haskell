@@ -57,7 +57,7 @@ makeQS token method path params body timestamp =
   -- - Keys are lower case
   let allParams =
         alphabeticalOrder . lowercaseKeys . (params ++) $
-          [ ("auth_key", Just $ pusherKey token),
+          [ ("auth_key", Just $ tokenKey token),
             ("auth_timestamp", Just $ show' timestamp),
             ("auth_version", Just "1.0"),
             ( "body_md5",
@@ -68,7 +68,7 @@ makeQS token method path params body timestamp =
           ]
       -- Generate the auth signature from the list of parameters
       authSig =
-        authSignature (pusherSecret token) $
+        authSignature (tokenSecret token) $
           B.intercalate
             "\n"
             [method, path, formQueryString allParams]
@@ -97,9 +97,9 @@ authenticatePrivate :: Token -> T.Text -> T.Text -> B.ByteString
 authenticatePrivate token socketID channel =
   let sig =
         authSignature
-          (pusherSecret token)
+          (tokenSecret token)
           (encodeUtf8 $ socketID <> ":" <> channel)
-   in pusherKey token <> ":" <> sig
+   in tokenKey token <> ":" <> sig
 
 -- | Generate an auth signature of the form "app_key:auth_sig" for a user of a
 --  presence channel.
@@ -124,5 +124,5 @@ authenticatePresenceWithEncoder userEncoder token socketID channel userData =
   let authString =
         encodeUtf8 $
           socketID <> ":" <> channel <> ":" <> userEncoder userData
-      sig = authSignature (pusherSecret token) authString
-   in pusherKey token <> ":" <> sig
+      sig = authSignature (tokenSecret token) authString
+   in tokenKey token <> ":" <> sig
