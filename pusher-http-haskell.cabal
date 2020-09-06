@@ -51,7 +51,6 @@ library
         memory >=0.7 && <0.16,
         text ==1.2.*,
         time >=1.5 && <1.11,
-        transformers >=0.4 && <0.6,
         unordered-containers ==0.2.*,
         vector >=0.10 && <0.13
 
@@ -80,7 +79,6 @@ test-suite tests
         QuickCheck -any,
         time -any,
         text -any,
-        transformers -any,
         unordered-containers -any,
         vector -any,
         scientific -any

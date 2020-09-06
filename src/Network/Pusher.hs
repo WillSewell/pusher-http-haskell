@@ -94,7 +94,6 @@ import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,
   )
-import Control.Monad.Trans.Except (runExceptT)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.Text as T
@@ -143,12 +142,11 @@ trigger ::
   -- | An optional socket ID of a connection you wish to exclude.
   Maybe T.Text ->
   m (Either PusherError ())
-trigger pusher chans event dat socketId = liftIO $ runExceptT $ do
+trigger pusher chans event dat socketId = do
   (requestParams, requestBody) <-
-    liftIO $
-      Pusher.mkTriggerRequest pusher chans event dat socketId
-        <$> getSystemTimeSeconds
-  HTTP.post (pConnectionManager pusher) requestParams requestBody
+    Pusher.mkTriggerRequest pusher chans event dat socketId
+      <$> getSystemTimeSeconds
+  liftIO $ HTTP.post (pConnectionManager pusher) requestParams requestBody
 
 -- | Query a list of channels for information.
 channels ::
@@ -160,16 +158,11 @@ channels ::
   ChannelsInfoQuery ->
   -- | The returned data.
   m (Either PusherError ChannelsInfo)
-channels pusher prefixFilter attributes =
-  liftIO $ runExceptT $ do
-    requestParams <-
-      liftIO $
-        Pusher.mkChannelsRequest
-          pusher
-          prefixFilter
-          attributes
-          <$> getSystemTimeSeconds
-    HTTP.get (pConnectionManager pusher) requestParams
+channels pusher prefixFilter attributes = do
+  requestParams <-
+    Pusher.mkChannelsRequest pusher prefixFilter attributes
+      <$> getSystemTimeSeconds
+  liftIO $ HTTP.get (pConnectionManager pusher) requestParams
 
 -- | Query for information on a single channel.
 channel ::
@@ -179,19 +172,16 @@ channel ::
   -- | Can query user count and also subscription count (if enabled).
   ChannelInfoQuery ->
   m (Either PusherError FullChannelInfo)
-channel pusher chan attributes = liftIO $ runExceptT $ do
+channel pusher chan attributes = do
   requestParams <-
-    liftIO $
-      Pusher.mkChannelRequest pusher chan attributes
-        <$> getSystemTimeSeconds
-  HTTP.get (pConnectionManager pusher) requestParams
+    Pusher.mkChannelRequest pusher chan attributes <$> getSystemTimeSeconds
+  liftIO $ HTTP.get (pConnectionManager pusher) requestParams
 
 -- | Get a list of users in a presence channel.
 users :: MonadIO m => Pusher -> B.ByteString -> m (Either PusherError Users)
-users pusher chan = liftIO $ runExceptT $ do
-  requestParams <-
-    liftIO $ Pusher.mkUsersRequest pusher chan <$> getSystemTimeSeconds
-  HTTP.get (pConnectionManager pusher) requestParams
+users pusher chan = do
+  requestParams <- Pusher.mkUsersRequest pusher chan <$> getSystemTimeSeconds
+  liftIO $ HTTP.get (pConnectionManager pusher) requestParams
 
 -- | Generate an auth signature of the form "app_key:auth_sig" for a user of a
 --  private channel.
