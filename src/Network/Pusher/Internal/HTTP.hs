@@ -59,7 +59,7 @@ get connManager (RequestParams secure host port path query) = do
     Left e -> Left e
     Right body ->
       either
-        (Left . PusherInvalidResponseError . T.pack)
+        (Left . InvalidResponse . T.pack)
         Right
         (A.eitherDecode body)
 
@@ -113,6 +113,6 @@ doRequest connManager req = do
         let decoded = decodeUtf8' $ statusMessage status
          in Left $
               either
-                (PusherInvalidResponseError . T.pack . displayException)
-                PusherNon200ResponseError
+                (InvalidResponse . T.pack . displayException)
+                Non200Response
                 decoded
