@@ -20,7 +20,6 @@ where
 
 import Control.Exception (displayException)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Except (ExceptT, throwE)
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -52,14 +51,17 @@ get ::
   A.FromJSON a =>
   HTTP.Client.Manager ->
   RequestParams ->
-  ExceptT PusherError IO a
+  IO (Either PusherError a)
 get connManager (RequestParams secure host port path query) = do
   let req = mkRequest secure host port path query
-  resp <- doRequest connManager req
-  either
-    (throwE . PusherInvalidResponseError . T.pack)
-    return
-    (A.eitherDecode resp)
+  eitherBody <- doRequest connManager req
+  return $ case eitherBody of
+    Left e -> Left e
+    Right body ->
+      either
+        (Left . PusherInvalidResponseError . T.pack)
+        Right
+        (A.eitherDecode body)
 
 -- | Issue an HTTP POST request.
 post ::
@@ -67,11 +69,11 @@ post ::
   HTTP.Client.Manager ->
   RequestParams ->
   a ->
-  ExceptT PusherError IO ()
+  IO (Either PusherError ())
 post connManager (RequestParams secure host port path query) body = do
   let req = mkPost (A.encode body) (mkRequest secure host port path query)
-  _ <- doRequest connManager req
-  return ()
+  eitherBody <- doRequest connManager req
+  return $ either Left (const $ Right ()) eitherBody
 
 mkRequest ::
   Bool ->
@@ -100,16 +102,17 @@ mkPost body req =
 doRequest ::
   HTTP.Client.Manager ->
   HTTP.Client.Request ->
-  ExceptT PusherError IO BL.ByteString
+  IO (Either PusherError BL.ByteString)
 doRequest connManager req = do
   response <- liftIO $ HTTP.Client.httpLbs req connManager
   let status = HTTP.Client.responseStatus response
-  if statusCode status == 200
-    then return $ HTTP.Client.responseBody response
-    else
-      let decoded = decodeUtf8' $ statusMessage status
-       in throwE $
-            either
-              (PusherInvalidResponseError . T.pack . displayException)
-              PusherNon200ResponseError
-              decoded
+  return $
+    if statusCode status == 200
+      then Right $ HTTP.Client.responseBody response
+      else
+        let decoded = decodeUtf8' $ statusMessage status
+         in Left $
+              either
+                (PusherInvalidResponseError . T.pack . displayException)
+                PusherNon200ResponseError
+                decoded

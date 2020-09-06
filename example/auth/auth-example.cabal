@@ -23,6 +23,5 @@ executable auth-example
         snap-core -any,
         snap-server -any,
         text -any,
-        transformers -any,
         unordered-containers -any,
         yaml -any
