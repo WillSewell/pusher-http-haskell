@@ -204,8 +204,8 @@ parseWebhookPayload ::
   Maybe WebhookPayload
 parseWebhookPayload pusher =
   let token = pToken pusher
-      ourAppKey = pusherKey token
-      ourAppSecret = pusherSecret token
+      ourAppKey = tokenKey token
+      ourAppSecret = tokenSecret token
       lookupKeysSecret whAppKey =
         if whAppKey == ourAppKey then Just ourAppSecret else Nothing
    in parseWebhookPayloadWith lookupKeysSecret

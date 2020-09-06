@@ -53,6 +53,6 @@ test = do
 token :: Token
 token =
   Token
-    { pusherKey = "278d425bdf160c739803",
-      pusherSecret = "7ad3773142a6692b25b8"
+    { tokenKey = "278d425bdf160c739803",
+      tokenSecret = "7ad3773142a6692b25b8"
     }

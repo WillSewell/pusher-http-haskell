@@ -74,7 +74,7 @@ instance A.FromJSON Settings where
 -- @
 -- defaultSettings
 --   { 'pusherAppID' = 123,
---     'pusherToken' = 'Token' { 'pusherKey' = "key", 'pusherSecret' "secret" }
+--     'pusherToken' = 'Token' { 'tokenKey' = "key", 'tokenSecret' "secret" }
 --   }
 -- @
 defaultSettings :: Settings
@@ -89,8 +89,8 @@ defaultSettings =
 -- | A Channels key and secret pair for a particular app.
 data Token
   = Token
-      { pusherKey :: B.ByteString,
-        pusherSecret :: B.ByteString
+      { tokenKey :: B.ByteString,
+        tokenSecret :: B.ByteString
       }
 
 instance A.FromJSON Token where
