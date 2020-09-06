@@ -16,10 +16,10 @@ executable webhook-example
     ghc-options:        -Wall -Wcompat -Wmissing-signatures
     build-depends:
         base -any,
-        pusher-http-haskell -any,
-        text -any,
-        yaml -any,
         bytestring -any,
+        case-insensitive -any,
+        pusher-http-haskell -any,
         snap-core -any,
         snap-server -any,
-        case-insensitive -any
+        yaml -any
+
