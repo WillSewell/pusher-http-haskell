@@ -8,9 +8,9 @@ import qualified Data.Text as T
 
 data PusherError
   = -- | Received non 200 response code from Pusher.
-    PusherNon200ResponseError T.Text
+    Non200Response T.Text
   | -- | Received unexpected data from Pusher.
-    PusherInvalidResponseError T.Text
+    InvalidResponse T.Text
   deriving (Show)
 
 instance Exception PusherError
