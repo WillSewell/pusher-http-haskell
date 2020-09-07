@@ -6,7 +6,7 @@
 -- Copyright   : (c) Will Sewell, 2016
 -- Licence     : MIT
 -- Maintainer  : me@willsewell.com
--- Stability   : experimental
+-- Stability   : stable
 --
 -- A layer on top of the HTTP functions in the http-client library which lifts
 -- the return values to the typeclasses we are using in this library. Non 200

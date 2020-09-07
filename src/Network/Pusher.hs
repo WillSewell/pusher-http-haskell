@@ -7,7 +7,7 @@
 -- Copyright   : (c) Will Sewell, 2016
 -- Licence     : MIT
 -- Maintainer  : me@willsewell.com
--- Stability   : experimental
+-- Stability   : stable
 --
 -- Exposes the functions necessary for interacting with the Pusher Channels HTTP
 -- API, as well as functions for generating auth signatures for private and
