@@ -24,13 +24,14 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8')
+import qualified Data.Text.Lazy as TL
+import Data.Text.Lazy.Encoding (decodeUtf8')
 import Data.Word (Word16)
 import qualified Network.HTTP.Client as HTTP.Client
 import Network.HTTP.Types (Query)
 import Network.HTTP.Types.Header (hContentType)
 import Network.HTTP.Types.Method (methodPost)
-import Network.HTTP.Types.Status (statusCode, statusMessage)
+import Network.HTTP.Types.Status (statusCode)
 import Network.Pusher.Error (PusherError (..))
 
 data RequestParams
@@ -56,12 +57,22 @@ get connManager (RequestParams secure host port path query) = do
   let req = mkRequest secure host port path query
   eitherBody <- doRequest connManager req
   return $ case eitherBody of
-    Left e -> Left e
+    Left requestError -> Left requestError
     Right body ->
-      either
-        (Left . InvalidResponse . T.pack)
-        Right
-        (A.eitherDecode body)
+      case A.eitherDecode body of
+        Left decodeError ->
+          Left $ InvalidResponse $
+            let bodyText = decodeUtf8' body
+             in case bodyText of
+                  Left e ->
+                    "Failed to decode body as UTF-8: "
+                      <> T.pack (displayException e)
+                  Right b ->
+                    "Failed to decode response as JSON: "
+                      <> T.pack decodeError
+                      <> ". Body: "
+                      <> TL.toStrict b
+        Right decodedBody -> Right decodedBody
 
 -- | Issue an HTTP POST request.
 post ::
@@ -106,13 +117,19 @@ doRequest ::
 doRequest connManager req = do
   response <- liftIO $ HTTP.Client.httpLbs req connManager
   let status = HTTP.Client.responseStatus response
+  let body = HTTP.Client.responseBody response
   return $
     if statusCode status == 200
-      then Right $ HTTP.Client.responseBody response
+      then Right body
       else
-        let decoded = decodeUtf8' $ statusMessage status
-         in Left $
-              either
-                (InvalidResponse . T.pack . displayException)
-                Non200Response
-                decoded
+        Left $
+          let bodyText = decodeUtf8' body
+           in case bodyText of
+                Left e ->
+                  InvalidResponse $
+                    "Failed to decode body as UTF-8: "
+                      <> T.pack (displayException e)
+                Right b ->
+                  Non200Response
+                    (fromIntegral $ statusCode status)
+                    (TL.toStrict b)
