@@ -1,370 +1,144 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveGeneric #-}
+-- |
+-- Module      : Network.Pusher.Data
+-- Description : Data structures representing Channels concepts and settings
+-- Copyright   : (c) Will Sewell, 2016
+-- Licence     : MIT
+-- Maintainer  : me@willsewell.com
+-- Stability   : stable
+module Network.Pusher.Data
+  ( Settings (..),
+    defaultSettings,
+    Token (..),
+    Address (..),
+    Pusher (..),
+    newPusher,
+    newPusherWithConnManager,
+  )
+where
 
-{-|
-Module      : Network.Pusher.Data
-Description : Data structure representing Pusher Channels concepts and config
-Copyright   : (c) Will Sewell, 2016
-Licence     : MIT
-Maintainer  : me@willsewell.com
-Stability   : experimental
-
-You must create an instance of the Pusher datatype with your particular Pusher
-Channels app credentials in order to run the main API functions.
-
-The other types represent channels and event fields.
--}
-module Network.Pusher.Data (
-  -- * Pusher config data type
-    AppID
-  , AppKey
-  , AppSecret
-  , Pusher(..)
-  , Credentials(..)
-  , Cluster(..)
-  , clusterMt1
-  , clusterEu
-  , clusterAp1
-  , clusterAp2
-  , getPusher
-  , getPusherWithHost
-  , getPusherWithConnManager
-  -- * Channels
-  , Channel(..)
-  , ChannelName
-  , ChannelType(..)
-  , renderChannel
-  , renderChannelPrefix
-  , parseChannel
-  -- Events
-  , Event
-  , EventData
-  , SocketID
-  -- * Notifications
-  , Notification(..)
-  , Interest
-  , mkInterest
-  , WebhookURL
-  , WebhookLevel(..)
-  , APNSPayload(..)
-  , GCMPayload(..)
-  , FCMPayload(..)
-  ) where
-
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Aeson ((.:), (.:?), (.=))
+import Control.Monad.IO.Class (MonadIO)
+import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
-import Data.Char (isAlphaNum)
-import Data.Foldable (asum)
-import qualified Data.HashSet as HS
-import Data.Hashable (Hashable)
-import Data.Maybe (fromMaybe)
-#if !(MIN_VERSION_base(4,11,0))
-import Data.Monoid ((<>))
-#endif
-import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
-import qualified Data.Vector as V
-import GHC.Generics (Generic)
-import Network.HTTP.Client
-       (Manager, defaultManagerSettings, newManager)
+import Data.Word (Word16, Word32)
+import Network.HTTP.Client (Manager)
+import Network.HTTP.Client.TLS (newTlsManager)
+import Network.Pusher.Internal.Util (show')
 
-import Network.Pusher.Internal.Util
-       (failExpectArray, failExpectObj, failExpectSingletonArray,
-        failExpectStr, show')
+-- | All the required configuration needed to interact with the API.
+data Settings
+  = Settings
+      { pusherAddress :: Address,
+        pusherAppID :: Word32,
+        pusherToken :: Token,
+        pusherUseTLS :: Bool
+      }
 
-type AppID = Integer
-
-type AppKey = B.ByteString
-
-type AppSecret = B.ByteString
-
--- |All the required configuration needed to interact with the API.
-data Pusher = Pusher
-  { pusherHost :: T.Text
-  , pusherPath :: T.Text
-  , pusherNotifyHost :: T.Text
-  , pusherNotifyPath :: T.Text
-  , pusherCredentials :: Credentials
-  , pusherConnectionManager :: Manager
-  }
-
--- |The credentials for the current app.
-data Credentials = Credentials
-  { credentialsAppID :: AppID
-  , credentialsAppKey :: AppKey
-  , credentialsAppSecret :: AppSecret
-  , credentialsCluster :: Maybe Cluster
-  }
-
-instance A.FromJSON Credentials where
-  parseJSON (A.Object v) =
-    Credentials <$> v .: "app-id" <*> (encodeUtf8 <$> v .: "app-key") <*>
-    (encodeUtf8 <$> v .: "app-secret") <*>
-    v .:? "app-cluster"
-  parseJSON v2 = failExpectObj v2
-
--- |The cluster the current app resides on. Common clusters include:
--- mt1,eu,ap1,ap2.
-newtype Cluster = Cluster
-  { clusterName :: T.Text
-  }
-
-clusterMt1, clusterEu, clusterAp1, clusterAp2 :: Cluster
-clusterMt1 = Cluster "mt1"
-
-clusterEu = Cluster "eu"
-
-clusterAp1 = Cluster "ap1"
-
-clusterAp2 = Cluster "ap2"
-
--- The possible cluster suffix given in a host name
-renderClusterSuffix :: Cluster -> T.Text
-renderClusterSuffix cluster = "-" <> clusterName cluster
-
-instance A.FromJSON Cluster where
-  parseJSON v =
-    case v of
-      A.String txt -> return . Cluster $ txt
-      _ -> failExpectStr v
-
--- |Use this to get an instance Pusher. This will fill in the host and path
--- automatically.
-getPusher :: MonadIO m => Credentials -> m Pusher
-getPusher cred = do
-  connManager <- getConnManager
-  return $ getPusherWithConnManager connManager Nothing Nothing cred
-
--- |Get a Pusher instance that uses a specific API endpoint.
-getPusherWithHost :: MonadIO m => T.Text -> T.Text -> Credentials -> m Pusher
-getPusherWithHost apiHost notifyHost cred = do
-  connManager <- getConnManager
-  return $
-    getPusherWithConnManager connManager (Just apiHost) (Just notifyHost) cred
-
--- |Get a Pusher instance with a given connection manager. This can be useful
--- if you want to share a connection with your application code.
-getPusherWithConnManager ::
-     Manager -> Maybe T.Text -> Maybe T.Text -> Credentials -> Pusher
-getPusherWithConnManager connManager apiHost notifyAPIHost cred =
-  let path = "/apps/" <> show' (credentialsAppID cred) <> "/"
-      mCluster = credentialsCluster cred
-      notifyPath =
-        "/server_api/v1/apps/" <> show' (credentialsAppID cred) <> "/"
-  in Pusher
-     { pusherHost = fromMaybe (mkHost mCluster) apiHost
-     , pusherPath = path
-     , pusherNotifyHost =
-         fromMaybe "http://nativepush-cluster1.pusher.com" notifyAPIHost
-     , pusherNotifyPath = notifyPath
-     , pusherCredentials = cred
-     , pusherConnectionManager = connManager
-     }
-
--- |Given a possible cluster, return the corresponding host.
-mkHost :: Maybe Cluster -> T.Text
-mkHost mCluster =
-  case mCluster of
-    Nothing -> "http://api.pusherapp.com"
-    Just c -> "http://api" <> renderClusterSuffix c <> ".pusher.com"
-
-getConnManager :: MonadIO m => m Manager
-getConnManager = liftIO $ newManager defaultManagerSettings
-
-type ChannelName = T.Text
-
--- |The possible types of channel.
-data ChannelType
-  = Public
-  | Private
-  | Presence
-  deriving (Eq, Generic, Show)
-
-instance Hashable ChannelType
-
-renderChannelPrefix :: ChannelType -> T.Text
-renderChannelPrefix Public = ""
-renderChannelPrefix Private = "private-"
-renderChannelPrefix Presence = "presence-"
-
--- |The channel name (not including the channel type prefix) and its type.
-data Channel = Channel
-  { channelType :: ChannelType
-  , channelName :: ChannelName
-  } deriving (Eq, Generic, Show)
-
-instance Hashable Channel
-
-instance A.FromJSON Channel where
-  parseJSON s =
-    case s of
-      A.String txt -> return $ parseChannel txt
-      _ -> failExpectStr s
-
-renderChannel :: Channel -> T.Text
-renderChannel (Channel cType cName) = renderChannelPrefix cType <> cName
-
--- |Convert string representation, e.g. private-chan into the datatype.
-parseChannel :: T.Text -> Channel
-parseChannel chan
-  -- Attempt to parse it as a private or presence channel; default to public
- =
-  fromMaybe
-    (Channel Public chan)
-    (asum [parseChanAs Private, parseChanAs Presence])
-  where
-    parseChanAs chanType =
-      let split = T.splitOn (renderChannelPrefix chanType) chan
-    -- If the prefix appears at the start, then the first element will be empty
-      in if length split > 1 && T.null (head split)
-           then Just $ Channel chanType (T.concat $ tail split)
-           else Nothing
-
-type Event = T.Text
-
-type EventData = T.Text
-
-type SocketID = T.Text
-
--- |Up to 164 characters where each character is ASCII upper or lower case, a
--- number or one of _=@,.;
---
--- Note: hyphen - is NOT valid as it is reserved for the possibility of marking
--- interest names with prefixes such as private- or presence-.
-newtype Interest =
-  Interest T.Text
-  deriving (Eq, Show)
-
-mkInterest :: T.Text -> Maybe Interest
-mkInterest txt
-  | 0 < T.length txt &&
-      T.length txt <= 164 &&
-      T.all (\c -> isAlphaNum c || HS.member c permitted) txt =
-    Just . Interest $ txt
-  | otherwise = Nothing
-  where
-    permitted = HS.fromList "_=@,.;"
-
-instance A.FromJSON Interest where
-  parseJSON v =
-    case v of
-      A.String s ->
-        case mkInterest s of
-          Nothing ->
-            fail $
-            "An Interest contains invalid characters or is too long: " ++ show s
-          Just istr -> pure istr
-      _ -> failExpectStr v
-
-instance A.ToJSON Interest where
-  toJSON (Interest txt) = A.String txt
-
--- |URL to which Pusher Channels will send information about sent push
--- notifications.
-type WebhookURL = T.Text
-
--- |Level of detail sent to WebhookURL. Defaults to Info.
-data WebhookLevel
-  = Info -- ^ Errors only
-  | Debug -- ^ Everything
-  deriving (Eq, Show)
-
-instance A.FromJSON WebhookLevel where
-  parseJSON v =
-    case v of
-      A.String s
-        | s == "INFO" -> pure Info
-        | s == "DEBUG" -> pure Debug
-      _ -> failExpectStr v
-
-instance A.ToJSON WebhookLevel where
-  toJSON w =
-    A.String $
-    case w of
-      Info -> "INFO"
-      Debug -> "DEBUG"
-
--- |Apple push notification service payload.
-data APNSPayload =
-  -- TODO: Replace JSON object with a stronger encoding
-  APNSPayload A.Object
-  deriving (Eq, Show)
-
-instance A.FromJSON APNSPayload where
-  parseJSON v =
-    case v of
-      A.Object o -> pure . APNSPayload $ o
-      _ -> failExpectObj v
-
-instance A.ToJSON APNSPayload where
-  toJSON (APNSPayload o) = A.Object o
-
--- |Google Cloud Messaging payload.
-data GCMPayload =
-  -- TODO: Replace JSON object with a stronger encoding
-  GCMPayload A.Object
-  deriving (Eq, Show)
-
-instance A.FromJSON GCMPayload where
-  parseJSON v =
-    case v of
-      A.Object o -> pure . GCMPayload $ o
-      _ -> failExpectObj v
-
-instance A.ToJSON GCMPayload where
-  toJSON (GCMPayload o) = A.Object o
-
--- |Firebase Cloud Messaging payload.
-data FCMPayload =
-  -- TODO: Replace JSON object with a stronger encoding
-  FCMPayload A.Object
-  deriving (Eq, Show)
-
-instance A.FromJSON FCMPayload where
-  parseJSON v =
-    case v of
-      A.Object o -> pure . FCMPayload $ o
-      _ -> failExpectObj v
-
-instance A.ToJSON FCMPayload where
-  toJSON (FCMPayload o) = A.Object o
-
-data Notification = Notification
-  { notificationInterest :: Interest
-  , notificationWebhookURL :: Maybe WebhookURL
-  , notificationWebhookLevel :: Maybe WebhookLevel
-  , notificationAPNSPayload :: Maybe APNSPayload
-  , notificationGCMPayload :: Maybe GCMPayload
-  , notificationFCMPayload :: Maybe FCMPayload
-  } deriving (Eq, Show)
-
-instance A.FromJSON Notification where
-  parseJSON (A.Object v) =
-    Notification <$>
-    (do interests <- v A..: "interests"
-        case interests of
-          A.Array arr
-            | V.length arr == 1 -> A.parseJSON $ V.head arr
-            | otherwise -> failExpectSingletonArray interests
-          v' -> failExpectArray v') <*>
-    v .:? "webhook_url" <*>
-    v .:? "webhook_level" <*>
-    v .:? "apns" <*>
-    v .:? "gcm" <*>
-    v .:? "fcm"
-  parseJSON v = failExpectObj v
-
-instance A.ToJSON Notification where
-  toJSON (Notification interests mWebhookURL mWebhookLevel mAPNS mGCMP mFCMP) =
-    let requiredFields = ["interests" .= [interests]]
-        consOptionals =
-          consJust "webhook_level" mWebhookLevel .
-          consJust "webhook_url" mWebhookURL .
-          consJust "apns" mAPNS . consJust "gcm" mGCMP . consJust "fcm" mFCMP
-        fields = consOptionals requiredFields
-    in A.object fields
-      -- Cons a attribute value pair if Just
+instance A.FromJSON Settings where
+  parseJSON =
+    A.withObject "Settings" $ \v -> do
+      cluster <- (encodeUtf8 <$>) <$> v .:? "cluster"
+      host <- (encodeUtf8 <$>) <$> v .:? "host"
+      port <- v .:? "port"
+      let address = case (cluster, host, port) of
+            (Just c, Nothing, Nothing) -> Just $ Cluster c
+            (Nothing, Just h, Just p) -> Just $ HostPort h p
+            (Nothing, Nothing, Nothing) -> Nothing
+            _ -> fail "`cluster` is mutually exclusive with `host` and `port`"
+      appID <- v .: "app_id"
+      token <- v .: "token"
+      useTLS <- v .:? "use_tls"
+      let settings =
+            defaultSettings
+              { pusherAppID = appID,
+                pusherToken = token
+              }
+      pure $ setOptionals address useTLS settings
     where
-      consJust attr = maybe id ((:) . (attr .=))
+      setOptionals maybeAddress maybeUseTLS =
+        setAddress maybeAddress . setUseTLS maybeUseTLS
+      setAddress (Just address) settings = settings {pusherAddress = address}
+      setAddress Nothing settings = settings
+      setUseTLS (Just useTLS) settings = settings {pusherUseTLS = useTLS}
+      setUseTLS Nothing settings = settings
+
+-- | A convenient way of creating an instance of 'Settings'. Another
+-- benefit is it prevents breaking changes when fields are added to
+-- 'Settings', see <https://www.yesodweb.com/book/settings-types>.You
+-- must set 'pusherAppID' and 'pusherToken'. Currently 'pusherAddress'
+-- defaults to the @mt1@ cluster.
+--
+-- Example:
+--
+-- @
+-- defaultSettings
+--   { 'pusherAppID' = 123,
+--     'pusherToken' = 'Token' { 'tokenKey' = "key", 'tokenSecret' "secret" }
+--   }
+-- @
+defaultSettings :: Settings
+defaultSettings =
+  Settings
+    { pusherAddress = Cluster "mt1",
+      pusherAppID = 1,
+      pusherToken = Token "" "",
+      pusherUseTLS = True
+    }
+
+-- | A Channels key and secret pair for a particular app.
+data Token
+  = Token
+      { tokenKey :: B.ByteString,
+        tokenSecret :: B.ByteString
+      }
+
+instance A.FromJSON Token where
+  parseJSON =
+    A.withObject "Token" $ \v -> do
+      key <- encodeUtf8 <$> v .: "key"
+      secret <- encodeUtf8 <$> v .: "secret"
+      pure $ Token key secret
+
+-- | Typically you will want to connect directly to a standard Pusher Channels
+-- 'Cluster'.
+data Address
+  = -- | The cluster the current app resides on. Common clusters include:
+    -- @mt1@, @eu@, @ap1@, @ap2@.
+    Cluster B.ByteString
+  | -- | Used to connect to a raw address:port.
+    HostPort B.ByteString Word16
+
+-- | The core handle to the Pusher API.
+data Pusher
+  = Pusher
+      { pUseTLS :: Bool,
+        pHost :: B.ByteString,
+        pPort :: Word16,
+        pPath :: B.ByteString,
+        pToken :: Token,
+        pConnectionManager :: Manager
+      }
+
+-- | Use this to get a Pusher instance.
+newPusher :: MonadIO m => Settings -> m Pusher
+newPusher settings = do
+  connManager <- newTlsManager
+  return $ newPusherWithConnManager connManager settings
+
+-- | Get a Pusher instance with a given connection manager. This can be useful
+--  if you want to share a connection with your application code.
+newPusherWithConnManager :: Manager -> Settings -> Pusher
+newPusherWithConnManager connectionManager settings =
+  let (host, port) = case pusherAddress settings of
+        HostPort h p -> (h, p)
+        Cluster c -> ("api-" <> c <> ".pusher.com", if pusherUseTLS settings then 443 else 80)
+      path = "/apps/" <> show' (pusherAppID settings) <> "/"
+   in Pusher
+        { pUseTLS = pusherUseTLS settings,
+          pHost = host,
+          pPort = port,
+          pPath = path,
+          pToken = pusherToken settings,
+          pConnectionManager = connectionManager
+        }

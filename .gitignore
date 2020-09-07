@@ -2,4 +2,4 @@
 cabal.sandbox.config
 dist/
 .stack-work/
-example/credentials.yaml
+example/settings.yaml

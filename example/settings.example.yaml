@@ -1,0 +1,6 @@
+app_id: <Your app ID>
+token:
+  key: <Your app key>
+  secret: <Your app secret>
+cluster: <Your app cluster>
+use_tls: true

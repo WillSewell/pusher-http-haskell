@@ -1,12 +1,7 @@
-{-# LANGUAGE CPP #-}
-
 module Main where
 
 import Control.Exception (displayException)
 import qualified Data.HashSet as HS
-#if !(MIN_VERSION_base(4,11,0))
-import Data.Monoid ((<>))
-#endif
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Yaml as Y
@@ -15,22 +10,19 @@ import qualified Network.Pusher.Protocol as P
 
 main :: IO ()
 main = do
-  eitherCred <- Y.decodeFileEither "../credentials.yaml"
-  case eitherCred of
+  eitherSettings <- Y.decodeFileEither "../settings.yaml"
+  case eitherSettings of
     Left e -> print e
-    Right cred -> do
-      pusher <- P.getPusher cred
+    Right settings -> do
+      pusher <- P.newPusher settings
       demoTrigger pusher
       demoChannels pusher
       demoChannel pusher
       demoUsers pusher
 
-channel :: P.Channel
-channel = P.Channel P.Presence "messages"
-
 demoTrigger :: P.Pusher -> IO ()
 demoTrigger pusher = do
-  triggerResult <- P.trigger pusher [channel] "some_event" "data" Nothing
+  triggerResult <- P.trigger pusher ["presence-messages"] "some_event" "data" Nothing
   case triggerResult of
     Left e -> T.putStrLn $ "trigger failed: " <> T.pack (displayException e)
     Right () -> return ()
@@ -38,7 +30,7 @@ demoTrigger pusher = do
 demoChannels :: P.Pusher -> IO ()
 demoChannels pusher = do
   let channelsInfoQuery = P.ChannelsInfoQuery $ HS.singleton P.ChannelsUserCount
-  channelsResult <- P.channels pusher (Just P.Presence) "" channelsInfoQuery
+  channelsResult <- P.channels pusher "presence-" channelsInfoQuery
   case channelsResult of
     Left e -> T.putStrLn $ "channels failed: " <> T.pack (displayException e)
     Right channels -> putStrLn $ "channels result: " ++ show channels
@@ -47,14 +39,14 @@ demoChannel :: P.Pusher -> IO ()
 demoChannel pusher = do
   let chanAttrs = HS.fromList [P.ChannelUserCount, P.ChannelSubscriptionCount]
       channelInfoQuery = P.ChannelInfoQuery chanAttrs
-  channelResult <- P.channel pusher channel channelInfoQuery
+  channelResult <- P.channel pusher "presence-messages" channelInfoQuery
   case channelResult of
     Left e -> T.putStrLn $ "channel failed: " <> T.pack (displayException e)
     Right chan -> putStrLn $ "channel result: " ++ show chan
 
 demoUsers :: P.Pusher -> IO ()
 demoUsers pusher = do
-  usersResult <- P.users pusher channel
+  usersResult <- P.users pusher "presence-messages"
   case usersResult of
     Left e -> T.putStrLn $ "users failed: " <> T.pack (displayException e)
     Right users -> putStrLn $ "users result: " ++ show users
