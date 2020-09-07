@@ -4,7 +4,7 @@
 -- Copyright   : (c) Will Sewell, 2016
 -- Licence     : MIT
 -- Maintainer  : me@willsewell.com
--- Stability   : experimental
+-- Stability   : stable
 module Network.Pusher.Internal.Util
   ( show',
     getSystemTimeSeconds,

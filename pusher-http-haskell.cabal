@@ -6,7 +6,7 @@ license-file:  LICENSE
 copyright:     (c) Will Sewell, 2016
 maintainer:    me@willsewell.com
 author:        Will Sewell
-stability:     experimental
+stability:     stable
 tested-with:   ghc >=8.6.5
 homepage:      https://github.com/WillSewell/pusher-http-haskell
 bug-reports:   https://github.com/WillSewell/pusher-http-haskell/issues

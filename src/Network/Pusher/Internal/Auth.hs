@@ -6,7 +6,7 @@
 -- Copyright   : (c) Will Sewell, 2016
 -- Licence     : MIT
 -- Maintainer  : me@willsewell.com
--- Stability   : experimental
+-- Stability   : stable
 --
 -- This module contains helper functions for authenticating HTTP requests, as
 -- well as publicly facing functions for authentication private and presence
