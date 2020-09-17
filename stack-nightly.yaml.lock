@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: base16-bytestring-1.0.0.0@sha256:1ea8ad312ecd773db3488f0810bc2a6182345558bc3be039bfe463d5defee540,2641
+    pantry-tree:
+      size: 595
+      sha256: a24a70a2c79a19503894ee5a4778f184a8c2b9336ad6c376c15d066ae2e14bf3
+  original:
+    hackage: base16-bytestring-1.0.0.0
+- completed:
     hackage: Cabal-3.2.0.0@sha256:d0d7a1f405f25d0000f5ddef684838bc264842304fd4e7f80ca92b997b710874,27320
     pantry-tree:
       size: 40963
@@ -48,7 +55,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 527775
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/9/2.yaml
-    sha256: 92ec78ae38830f06ec9307c5ce346ae93982fab6179eb10dec9d57d5069c7f14
-  original: nightly-2020-09-02
+    size: 531501
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/9/17.yaml
+    sha256: e00e06f1bfe5612168c83111c7cde37943a045e61553a01835f0d17140d67fcc
+  original: nightly-2020-09-17
