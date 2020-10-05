@@ -1,6 +1,6 @@
 packages:
   - .
-resolver: nightly-2020-09-17
+resolver: nightly-2020-10-03
 extra-deps:
   - base16-bytestring-1.0.0.0
   - Cabal-3.2.0.0
