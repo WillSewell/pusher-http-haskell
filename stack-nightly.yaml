@@ -1,12 +1,19 @@
 packages:
   - .
-resolver: nightly-2020-09-17
+resolver: nightly-2020-10-16
 extra-deps:
   - base16-bytestring-1.0.0.0
-  - Cabal-3.2.0.0
+  - binary-0.8.8.0
+  - bytestring-0.11.0.0
+  - git: https://github.com/haskell/cabal.git
+    commit: 81fd8d935a25212d9b38c9b8b41fac2c22d42d58 # Cabal-3.4.0.0-rc4
+    subdirs:
+      - Cabal
   - directory-1.3.6.1
   - http-client-0.7.0
+  - parsec-3.1.14.0
   - process-1.6.10.0
+  - text-1.2.4.0
   - time-1.10
   - unix-2.7.2.2
 allow-newer: true
