@@ -14,6 +14,6 @@ extra-deps:
   - parsec-3.1.14.0
   - process-1.6.10.0
   - text-1.2.4.0
-  - time-1.10
+  - time-1.11
   - unix-2.7.2.2
 allow-newer: true
