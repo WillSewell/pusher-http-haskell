@@ -31,13 +31,20 @@ packages:
     version: 3.4.0.0
     git: https://github.com/haskell/cabal.git
     pantry-tree:
-      size: 47125
-      sha256: c2b04a397539fa8ed1c81ec880823c8db49357fd40d0572cd947bf2af23914ee
-    commit: 81fd8d935a25212d9b38c9b8b41fac2c22d42d58
+      size: 47316
+      sha256: 33ad519214639b7f463cc891740093684cc350ec6f22e57aa9a05f7fd3cd15e6
+    commit: 97582dd2cbf56bcc19830c4c3a3d98f4af7d1a0e
   original:
     subdir: Cabal
     git: https://github.com/haskell/cabal.git
-    commit: 81fd8d935a25212d9b38c9b8b41fac2c22d42d58
+    commit: 97582dd2cbf56bcc19830c4c3a3d98f4af7d1a0e
+- completed:
+    hackage: cryptonite-0.28@sha256:b6c75e62b4c655d4cb1bcbb80d01430d136aac32bd6962c86c84738935cc8f9d,18195
+    pantry-tree:
+      size: 23132
+      sha256: d80d7be9b1d0799a8e401ca5d4f4f424e0d8c42d4a30cc37bf6f82970232bfcf
+  original:
+    hackage: cryptonite-0.28
 - completed:
     hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
     pantry-tree:
@@ -89,7 +96,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 539493
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/10/16.yaml
-    sha256: 0f9c0d67cca3132eeef7de3ffed316e09de8726199b91e721ffcbd2c11925211
-  original: nightly-2020-10-16
+    size: 564620
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/1/28.yaml
+    sha256: 9e4736fce684b4ec5a9ded22a59e8d47602958cbaed71e9d31eef8ed03fd746f
+  original: nightly-2021-01-28
