@@ -1,6 +1,6 @@
 # Pusher Channels Haskell HTTP client library
 
-[![Build Status](https://travis-ci.com/WillSewell/pusher-http-haskell.svg?branch=master)](https://travis-ci.com/WillSewell/pusher-http-haskell)
+[![Build Status](https://github.com/WillSewell/pusher-http-haskell/workflows/Tests/badge.svg)](https://github.com/WillSewell/pusher-http-haskell/actions?query=workflow%3ATests+branch%3Amaster)
 [![pusher-http-haskell on Hackage](https://img.shields.io/hackage/v/pusher-http-haskell)](https://hackage.haskell.org/package/pusher-http-haskell)
 [![pusher-http-haskell on Stackage LTS 16](https://stackage.org/package/pusher-http-haskell/badge/lts-16)](https://stackage.org/lts-16/package/pusher-http-haskell)
 [![pusher-http-haskell on Stackage Nightly](https://stackage.org/package/pusher-http-haskell/badge/nightly)](https://stackage.org/nightly/package/pusher-http-haskell)
