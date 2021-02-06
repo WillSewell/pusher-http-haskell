@@ -1,6 +1,6 @@
 packages:
   - .
-resolver: nightly-2021-01-28
+resolver: nightly-2021-02-05
 extra-deps:
   - base16-bytestring-1.0.0.0
   - binary-0.8.8.0
