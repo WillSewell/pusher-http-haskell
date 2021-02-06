@@ -13,7 +13,8 @@ jobs:
       matrix:
         resolver-yaml:
         - stack-14.27.yaml # GHC 8.6
-        - stack.yaml # GHC 8.8
+        - stack-16.31.yaml # GHC 8.6
+        - stack.yaml # GHC 8.10
         - stack-nightly.yaml
 
     steps:
