@@ -64,6 +64,10 @@ module Network.Pusher
 
     -- ** Trigger events
     trigger,
+    triggerBatch,
+
+    -- *** Event type for 'triggerBatch'
+    Event (..),
 
     -- ** Channel queries
     channels,
@@ -99,6 +103,7 @@ import qualified Data.ByteString as B
 import qualified Data.Text as T
 import Network.Pusher.Data
   ( Address (..),
+    Event (..),
     Pusher (..),
     Settings (..),
     Token (..),
@@ -146,6 +151,18 @@ trigger pusher chans event dat socketId = do
   (requestParams, requestBody) <-
     Pusher.mkTriggerRequest pusher chans event dat socketId
       <$> getSystemTimeSeconds
+  liftIO $ HTTP.post (pConnectionManager pusher) requestParams requestBody
+
+-- | Trigger multiple events.
+triggerBatch ::
+  MonadIO m =>
+  Pusher ->
+  -- | The list of events to trigger.
+  [Event] ->
+  m (Either PusherError ())
+triggerBatch pusher events = do
+  (requestParams, requestBody) <-
+    Pusher.mkTriggerBatchRequest pusher events <$> getSystemTimeSeconds
   liftIO $ HTTP.post (pConnectionManager pusher) requestParams requestBody
 
 -- | Query a list of channels for information.

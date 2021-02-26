@@ -13,6 +13,7 @@ module Network.Pusher.Data
     Pusher (..),
     newPusher,
     newPusherWithConnManager,
+    Event (..),
   )
 where
 
@@ -20,6 +21,8 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson ((.:), (.:?))
 import qualified Data.Aeson as A
 import qualified Data.ByteString as B
+import Data.Maybe (maybeToList)
+import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word16, Word32)
 import Network.HTTP.Client (Manager)
@@ -142,3 +145,24 @@ newPusherWithConnManager connectionManager settings =
           pToken = pusherToken settings,
           pConnectionManager = connectionManager
         }
+
+data Event
+  = Event
+      { -- | Channel to trigger on.
+        eventChannel :: T.Text,
+        -- | Event name.
+        eventName :: T.Text,
+        -- | Event data. Often encoded JSON.
+        eventData :: T.Text,
+        -- | An optional socket ID of a connection you wish to exclude.
+        eventSocketId :: Maybe T.Text
+      }
+
+instance A.ToJSON Event where
+  toJSON (Event channel name dat socketId) =
+    A.object $
+      [ ("name", A.String name),
+        ("channel", A.String channel),
+        ("data", A.String dat)
+      ]
+        ++ maybeToList (fmap (\sID -> ("socket_id", A.String sID)) socketId)

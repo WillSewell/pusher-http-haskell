@@ -16,6 +16,7 @@ main = do
     Right settings -> do
       pusher <- P.newPusher settings
       demoTrigger pusher
+      demoTriggerBatch pusher
       demoChannels pusher
       demoChannel pusher
       demoUsers pusher
@@ -25,6 +26,17 @@ demoTrigger pusher = do
   triggerResult <- P.trigger pusher ["presence-messages"] "some_event" "data" Nothing
   case triggerResult of
     Left e -> T.putStrLn $ "trigger failed: " <> T.pack (displayException e)
+    Right () -> return ()
+
+demoTriggerBatch :: P.Pusher -> IO ()
+demoTriggerBatch pusher = do
+  let events =
+        [ P.Event "presence-messages" "some_event_0" "data_0" Nothing,
+          P.Event "other-messages" "some_event_1" "data_1" Nothing
+        ]
+  triggerResult <- P.triggerBatch pusher events
+  case triggerResult of
+    Left e -> T.putStrLn $ "triggerBatch failed: " <> T.pack (displayException e)
     Right () -> return ()
 
 demoChannels :: P.Pusher -> IO ()

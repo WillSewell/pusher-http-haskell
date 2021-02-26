@@ -7,6 +7,7 @@
 -- Stability   : stable
 module Network.Pusher.Internal
   ( mkTriggerRequest,
+    mkTriggerBatchRequest,
     mkChannelsRequest,
     mkChannelRequest,
     mkUsersRequest,
@@ -21,7 +22,7 @@ import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 import Network.HTTP.Types (Query)
-import Network.Pusher.Data (Pusher (..))
+import Network.Pusher.Data (Event, Pusher (..))
 import Network.Pusher.Internal.Auth (makeQS)
 import Network.Pusher.Internal.HTTP
   ( RequestParams (RequestParams),
@@ -50,6 +51,16 @@ mkTriggerRequest pusher channels event dat socketId timestamp =
             ++ maybeToList (fmap (\sID -> ("socket_id", A.String sID)) socketId)
       bodyBS = BL.toStrict $ A.encode body
    in (mkPostRequest pusher "events" [] bodyBS timestamp, body)
+
+mkTriggerBatchRequest ::
+  Pusher ->
+  [Event] ->
+  Word64 ->
+  (RequestParams, A.Value)
+mkTriggerBatchRequest pusher events timestamp =
+  let body = A.object [("batch", A.toJSON events)]
+      bodyBS = BL.toStrict $ A.encode body
+   in (mkPostRequest pusher "batch_events" [] bodyBS timestamp, body)
 
 mkChannelsRequest ::
   Pusher ->
