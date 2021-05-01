@@ -5,13 +5,6 @@
 
 packages:
 - completed:
-    hackage: base16-bytestring-1.0.0.0@sha256:1ea8ad312ecd773db3488f0810bc2a6182345558bc3be039bfe463d5defee540,2641
-    pantry-tree:
-      size: 595
-      sha256: a24a70a2c79a19503894ee5a4778f184a8c2b9336ad6c376c15d066ae2e14bf3
-  original:
-    hackage: base16-bytestring-1.0.0.0
-- completed:
     hackage: binary-0.8.8.0@sha256:e9387a7ef2b34c6a23b09664c306e37cc01ae2cb4e4511a1c96ffb14008c24b0,6262
     pantry-tree:
       size: 1976
@@ -19,32 +12,30 @@ packages:
   original:
     hackage: binary-0.8.8.0
 - completed:
-    hackage: bytestring-0.11.0.0@sha256:99961fcc8d1b8af8a6c0a5149e5f3be16da308bbaf4084567e17b37276301d62,5903
+    hackage: bytestring-0.11.1.0@sha256:84a15ec06aca21c4af8772a0e847fdda1b58235b801774dd205edb03bfeb8518,7631
     pantry-tree:
-      size: 1915
-      sha256: 2fdb3d3b297b6eb23fbc45fe91ed87594400877f5ff815d9b3ae9bffd14ddb06
+      size: 2654
+      sha256: 0d357667b42c3b4f5860b3c22d867254a4fb0c526280d31f3ca96833065cbc0f
   original:
-    hackage: bytestring-0.11.0.0
+    hackage: bytestring-0.11.1.0
 - completed:
-    subdir: Cabal
-    name: Cabal
-    version: 3.4.0.0
-    git: https://github.com/haskell/cabal.git
+    hackage: Cabal-3.4.0.0@sha256:74ca2bc93297dc20b291c8dc721055278aa4a7942b0b5aca86766d407e3cbe5f,30533
     pantry-tree:
-      size: 47316
-      sha256: 33ad519214639b7f463cc891740093684cc350ec6f22e57aa9a05f7fd3cd15e6
-    commit: 97582dd2cbf56bcc19830c4c3a3d98f4af7d1a0e
+      size: 45845
+      sha256: b378b1f4a94f2911e9774c67e16859d7deae1ee1bad787cf790443e1f031388f
   original:
-    subdir: Cabal
-    git: https://github.com/haskell/cabal.git
-    commit: 97582dd2cbf56bcc19830c4c3a3d98f4af7d1a0e
+    hackage: Cabal-3.4.0.0
 - completed:
-    hackage: cryptonite-0.28@sha256:b6c75e62b4c655d4cb1bcbb80d01430d136aac32bd6962c86c84738935cc8f9d,18195
+    size: 633770
+    url: https://github.com/amesgen/cryptonite/archive/c5b2630ac396ad2d14ee1ed5d216907acaf2e79e.tar.gz
+    name: cryptonite
+    version: '0.28'
+    sha256: cfa3b053f96b64dc32fdc1218ad7e41b3e7607366818b17c82de73fc1818aee6
     pantry-tree:
-      size: 23132
-      sha256: d80d7be9b1d0799a8e401ca5d4f4f424e0d8c42d4a30cc37bf6f82970232bfcf
+      size: 24660
+      sha256: 87f261d1616291268d87450e729becf272004f00e089e104d3f1e7bc8f9611a6
   original:
-    hackage: cryptonite-0.28
+    url: https://github.com/amesgen/cryptonite/archive/c5b2630ac396ad2d14ee1ed5d216907acaf2e79e.tar.gz
 - completed:
     hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
     pantry-tree:
@@ -60,10 +51,21 @@ packages:
   original:
     hackage: http-client-0.7.0
 - completed:
-    hackage: parsec-3.1.14.0@sha256:63a4555d6ea2aaccd8588fc809e5d137e72b668898ab3b171ce8458b792f0f36,4356
+    size: 44309
+    url: https://github.com/andrewthad/hs-memory/archive/683b402965e68800337af8f9b237d28be273c0d8.tar.gz
+    name: memory
+    version: 0.15.0
+    sha256: ae6688d73becd7a85a8f313643f3fc9d1624c833aaa6de17d510e6d5c58847d2
+    pantry-tree:
+      size: 2748
+      sha256: 541d19bed505c22c1d27ea2903dba4bfc06e5833791b1e9c89a255bb75a348e1
+  original:
+    url: https://github.com/andrewthad/hs-memory/archive/683b402965e68800337af8f9b237d28be273c0d8.tar.gz
+- completed:
+    hackage: parsec-3.1.14.0@sha256:72d5c57e6e126adaa781ab97b19dc76f68490c0a3d88f14038219994cabe94e1,4356
     pantry-tree:
       size: 2574
-      sha256: c17cc12ba9a912521d58d8bcee07830351fe27483d9309ebdac8e32175e10706
+      sha256: 495a86688c6e89faf38b8804cc4c9216709e9a6a93cf56c2f07d5bef83f09a17
   original:
     hackage: parsec-3.1.14.0
 - completed:
@@ -74,12 +76,12 @@ packages:
   original:
     hackage: process-1.6.10.0
 - completed:
-    hackage: text-1.2.4.0@sha256:8c24450feb8e3bbb7ea3e17af24ef57e85db077c4bf53e5bcc345b283d1b1d5b,10081
+    hackage: text-1.2.4.1@sha256:e12b468008b3c2bbc1f39bd2dcb75ba8f563c65aa5e54ee223b76463a845b6f1,7184
     pantry-tree:
-      size: 7457
-      sha256: 3437b0a73ce2ae1a81aa8b3438d41a85981c00894cdbee0d6d6d6873046a5d5d
+      size: 7720
+      sha256: b1fd81329340a9c6eea4e78313d36c6a333a5de6032ec1536ff6c70a4300b46c
   original:
-    hackage: text-1.2.4.0
+    hackage: text-1.2.4.1
 - completed:
     hackage: time-1.11@sha256:fefd32bab844f3c8dd9f1b4e7b22f5f919d09ac73312ab3069c03c1966bd0c9d,6226
     pantry-tree:
@@ -88,15 +90,15 @@ packages:
   original:
     hackage: time-1.11
 - completed:
-    hackage: unix-2.7.2.2@sha256:9e93f93cc5a065248120136e83a0a6d1ce93d6eb5ef2a2543f9593e93e164d24,3496
+    hackage: unix-2.7.2.2@sha256:ddb8fc5d5eede81dfad7846eceb65267fe4cf8b4f324bc74542f694a32335ef2,3496
     pantry-tree:
       size: 3536
-      sha256: 0b54bf49636d2a8c06e28315710e4437e001e05b4523d6e3cb083ba2426a38b2
+      sha256: c40c15db09b6af866110699f7aa517e98dbcbc7dc339c1443fbcfbf5c4c4b28e
   original:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 565469
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/2/5.yaml
-    sha256: 80a9f1a1253188324effeef2a7f8132256802c01014ef772c5af6b1e51ddd5b6
-  original: nightly-2021-02-05
+    size: 581702
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/5/1.yaml
+    sha256: 0bed3abcbb0b4b1c19effa1ca0cef05642ef22ddd33977f5557bb5806e52ad31
+  original: nightly-2021-05-01

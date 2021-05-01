@@ -1,20 +1,21 @@
 packages:
   - .
-resolver: nightly-2021-02-05
+resolver: nightly-2021-05-01
+compiler: ghc-9.0.1
+compiler-check: match-exact
 extra-deps:
-  - base16-bytestring-1.0.0.0
   - binary-0.8.8.0
-  - bytestring-0.11.0.0
-  - git: https://github.com/haskell/cabal.git
-    commit: 97582dd2cbf56bcc19830c4c3a3d98f4af7d1a0e # Cabal-3.4.0.0-rc7
-    subdirs:
-      - Cabal
-  - cryptonite-0.28
+  - bytestring-0.11.1.0
+  - Cabal-3.4.0.0
+  - github: amesgen/cryptonite
+    commit: c5b2630ac396ad2d14ee1ed5d216907acaf2e79e # https://github.com/haskell-crypto/cryptonite/pull/338
   - directory-1.3.6.1
   - http-client-0.7.0
+  - github: andrewthad/hs-memory
+    commit: 683b402965e68800337af8f9b237d28be273c0d8 # https://github.com/vincenthz/hs-memory/pull/81
   - parsec-3.1.14.0
   - process-1.6.10.0
-  - text-1.2.4.0
+  - text-1.2.4.1
   - time-1.11
   - unix-2.7.2.2
 allow-newer: true
