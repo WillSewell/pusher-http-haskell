@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: base-4.15.0.0@sha256:5b769b2e609e714bbfa82701823e9ef0ddec0f1c1898916973be5c9aee9c2225,11783
+    pantry-tree:
+      size: 19179
+      sha256: 93a5a4b65c8e409a56b043bc1623d30a534edbb636346de0fb0bfd214f3bb4ca
+  original:
+    hackage: base-4.15.0.0
+- completed:
     hackage: binary-0.8.8.0@sha256:e9387a7ef2b34c6a23b09664c306e37cc01ae2cb4e4511a1c96ffb14008c24b0,6262
     pantry-tree:
       size: 1976
@@ -26,16 +33,12 @@ packages:
   original:
     hackage: Cabal-3.4.0.0
 - completed:
-    size: 633770
-    url: https://github.com/amesgen/cryptonite/archive/c5b2630ac396ad2d14ee1ed5d216907acaf2e79e.tar.gz
-    name: cryptonite
-    version: '0.28'
-    sha256: cfa3b053f96b64dc32fdc1218ad7e41b3e7607366818b17c82de73fc1818aee6
+    hackage: cryptonite-0.29@sha256:147724f6a8e4394fcbd51bf52aba7a8b92d3fc8f42055cd6ca9486655e2ab614,18312
     pantry-tree:
-      size: 24660
-      sha256: 87f261d1616291268d87450e729becf272004f00e089e104d3f1e7bc8f9611a6
+      size: 23323
+      sha256: 087de3ed0552cfb1f84d03629b0f98c77aadc076b85bb5cb787f77c5e5dac136
   original:
-    url: https://github.com/amesgen/cryptonite/archive/c5b2630ac396ad2d14ee1ed5d216907acaf2e79e.tar.gz
+    hackage: cryptonite-0.29
 - completed:
     hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
     pantry-tree:
@@ -51,16 +54,12 @@ packages:
   original:
     hackage: http-client-0.7.0
 - completed:
-    size: 44309
-    url: https://github.com/andrewthad/hs-memory/archive/683b402965e68800337af8f9b237d28be273c0d8.tar.gz
-    name: memory
-    version: 0.15.0
-    sha256: ae6688d73becd7a85a8f313643f3fc9d1624c833aaa6de17d510e6d5c58847d2
+    hackage: memory-0.16.0@sha256:3bf01f8267c0ee1745a1c0c4aa0dc311709801e950d605d90b5d1a26e2773e49,4895
     pantry-tree:
-      size: 2748
-      sha256: 541d19bed505c22c1d27ea2903dba4bfc06e5833791b1e9c89a255bb75a348e1
+      size: 2436
+      sha256: 9bd98c34cb359b7f8cdc3ad900ec903461b4d785de7c03575f809980acc84073
   original:
-    url: https://github.com/andrewthad/hs-memory/archive/683b402965e68800337af8f9b237d28be273c0d8.tar.gz
+    hackage: memory-0.16.0
 - completed:
     hackage: parsec-3.1.14.0@sha256:72d5c57e6e126adaa781ab97b19dc76f68490c0a3d88f14038219994cabe94e1,4356
     pantry-tree:
@@ -98,7 +97,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 581702
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/5/1.yaml
-    sha256: 0bed3abcbb0b4b1c19effa1ca0cef05642ef22ddd33977f5557bb5806e52ad31
-  original: nightly-2021-05-01
+    size: 582149
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/5/9.yaml
+    sha256: 0f6ddc8da2e9868bbcea117ef3f8927c8dd44b674803c9c2c5524e82d713ab75
+  original: nightly-2021-05-09
