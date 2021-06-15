@@ -50,7 +50,7 @@ library
         http-types >=0.8 && <0.13,
         memory >=0.7 && <0.17,
         text ==1.2.*,
-        time >=1.5 && <1.12,
+        time >=1.5 && <1.13,
         unordered-containers ==0.2.*
 
 test-suite tests
