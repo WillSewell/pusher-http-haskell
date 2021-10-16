@@ -3,87 +3,73 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-snapshots:
-- original: nightly-2021-06-14
-  completed:
-    sha256: a5edd4e65bdb6e56760e7d7c1275d2c3b24fb95e730e957e9d60824315e8801d
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/6/14.yaml
-    size: 585393
 packages:
-- original:
-    hackage: binary-0.8.8.0
-  completed:
+- completed:
+    hackage: aeson-2.0.1.0@sha256:ee0847af4d1fb9ece3f24f443d8d8406431c32688a57880314ac36617da937eb,6229
     pantry-tree:
-      sha256: 271cd1e75af293fc25a489d860f094dc635a4ed8b56aa5b343c58f4637736ca3
+      size: 37910
+      sha256: e7a9eec09f1ea56548b07c7e82b53bf32a974827ffc402d852c667b5f5d89efd
+  original:
+    hackage: aeson-2.0.1.0
+- completed:
+    hackage: binary-0.8.9.0@sha256:9cac9a1d86bfa3e7f75cc8bffaa256f3967ebb6d76f67a42f9679384c5c5e18a,6523
+    pantry-tree:
       size: 1976
-    hackage: binary-0.8.8.0@sha256:e9387a7ef2b34c6a23b09664c306e37cc01ae2cb4e4511a1c96ffb14008c24b0,6262
-- original:
-    hackage: bytestring-0.11.1.0
-  completed:
-    pantry-tree:
-      sha256: 0d357667b42c3b4f5860b3c22d867254a4fb0c526280d31f3ca96833065cbc0f
-      size: 2654
+      sha256: 61308af6be2cdb6ba09390d35f3fa1ebb45e3af688bf04922658532398eaa276
+  original:
+    hackage: binary-0.8.9.0
+- completed:
     hackage: bytestring-0.11.1.0@sha256:84a15ec06aca21c4af8772a0e847fdda1b58235b801774dd205edb03bfeb8518,7631
-- original:
-    hackage: Cabal-3.4.0.0
-  completed:
     pantry-tree:
-      sha256: b378b1f4a94f2911e9774c67e16859d7deae1ee1bad787cf790443e1f031388f
-      size: 45845
-    hackage: Cabal-3.4.0.0@sha256:74ca2bc93297dc20b291c8dc721055278aa4a7942b0b5aca86766d407e3cbe5f,30533
-- original:
-    hackage: directory-1.3.6.1
-  completed:
+      size: 2654
+      sha256: 0d357667b42c3b4f5860b3c22d867254a4fb0c526280d31f3ca96833065cbc0f
+  original:
+    hackage: bytestring-0.11.1.0
+- completed:
+    hackage: directory-1.3.7.0@sha256:fa5aa98b70559eb9c26a8c1332a55618876ad825233271142f182c3502e1f23c,2811
     pantry-tree:
-      sha256: 9247d0e7cfbf9946b922d23bd56a6b765cdb91f71d72f8ae6ed22c94dbd9f1db
       size: 3433
-    hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
-- original:
-    hackage: http-client-0.7.0
-  completed:
-    pantry-tree:
-      sha256: f6128a3803d43521ffd9c4f6068a2407ebc9438bd9d49732bd9d4861b35c396f
-      size: 2459
-    hackage: http-client-0.7.0@sha256:868faa3479fa330ac6eb897e6888296a32f10a249d2d91ece5ab2add9f0c24d4,5350
-- original:
-    hackage: memory-0.16.0
-  completed:
-    pantry-tree:
-      sha256: 9bd98c34cb359b7f8cdc3ad900ec903461b4d785de7c03575f809980acc84073
-      size: 2436
-    hackage: memory-0.16.0@sha256:3bf01f8267c0ee1745a1c0c4aa0dc311709801e950d605d90b5d1a26e2773e49,4895
-- original:
-    hackage: parsec-3.1.14.0
-  completed:
-    pantry-tree:
-      sha256: 495a86688c6e89faf38b8804cc4c9216709e9a6a93cf56c2f07d5bef83f09a17
-      size: 2574
+      sha256: df5201446a80fc4fd9c284343bbdce90f44989043426a2f7aa3d7cfe24e67a15
+  original:
+    hackage: directory-1.3.7.0
+- completed:
     hackage: parsec-3.1.14.0@sha256:72d5c57e6e126adaa781ab97b19dc76f68490c0a3d88f14038219994cabe94e1,4356
-- original:
-    hackage: process-1.6.10.0
-  completed:
     pantry-tree:
-      sha256: 6e90778b5105753d7de0f7a0c502dadf8f04825f17a36186aa801e56ef7ca206
-      size: 1211
-    hackage: process-1.6.10.0@sha256:c0d2d8adaca7cea7ceaa60e67b61c775dc03727b83bdb1c97aa8cbeac9f5dd84,2469
-- original:
-    hackage: text-1.2.4.1
-  completed:
+      size: 2574
+      sha256: 495a86688c6e89faf38b8804cc4c9216709e9a6a93cf56c2f07d5bef83f09a17
+  original:
+    hackage: parsec-3.1.14.0
+- completed:
+    hackage: process-1.6.13.2@sha256:9733aa8a27b3e6c0f08a87a5c7287b3b73302d396f68f5655f9990a641368e3e,2845
     pantry-tree:
-      sha256: b1fd81329340a9c6eea4e78313d36c6a333a5de6032ec1536ff6c70a4300b46c
-      size: 7720
-    hackage: text-1.2.4.1@sha256:e12b468008b3c2bbc1f39bd2dcb75ba8f563c65aa5e54ee223b76463a845b6f1,7184
-- original:
-    hackage: time-1.12
-  completed:
+      size: 1543
+      sha256: b46aab2c7633f17d71a99e03257aa4f3aea493c22d8719850c0d5e05bdc41552
+  original:
+    hackage: process-1.6.13.2
+- completed:
+    hackage: text-1.2.5.0@sha256:791f0f6c97ed96113f17ab520cf0efe1a3a4f883a8c85910a5660567c8241c40,7895
     pantry-tree:
-      sha256: 7cc3bf724fa7963044107f6f136cefb6e8b88e962df4dd0ee4ce02ec8ff06b43
-      size: 7060
+      size: 7395
+      sha256: f41504ec5c04a3f3358ef104362f02fdef29cbce4e5e4e6dbd6b6db70c40d4bf
+  original:
+    hackage: text-1.2.5.0
+- completed:
     hackage: time-1.12@sha256:3628ae73e599c15208ba49b136af41ac4c376c269d2b2831e4583553410c5ed2,6234
-- original:
-    hackage: unix-2.7.2.2
-  completed:
     pantry-tree:
-      sha256: c40c15db09b6af866110699f7aa517e98dbcbc7dc339c1443fbcfbf5c4c4b28e
+      size: 7060
+      sha256: 7cc3bf724fa7963044107f6f136cefb6e8b88e962df4dd0ee4ce02ec8ff06b43
+  original:
+    hackage: time-1.12
+- completed:
+    hackage: unix-2.7.2.2@sha256:15f5365c5995634e45de1772b9504761504a310184e676bc2ef60a14536dbef9,3496
+    pantry-tree:
       size: 3536
-    hackage: unix-2.7.2.2@sha256:ddb8fc5d5eede81dfad7846eceb65267fe4cf8b4f324bc74542f694a32335ef2,3496
+      sha256: 36434ced74d679622d61b69e8d92e1bd632d9ef3e284c63094653b2e473b0553
+  original:
+    hackage: unix-2.7.2.2
+snapshots:
+- completed:
+    size: 585552
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/10/12.yaml
+    sha256: 16f87f3537744b964b3d924e9e9a4a51fafdd93d31822ddd21a5663475f995ee
+  original: nightly-2021-10-12

@@ -84,10 +84,7 @@ instance A.FromJSON ChannelsInfo where
   parseJSON =
     A.withObject "ChannelsInfo" $ \v -> do
       channelsV <- v .: "channels"
-      A.withObject
-        "HashMap"
-        (fmap ChannelsInfo . mapM A.parseJSON)
-        channelsV
+      ChannelsInfo <$> A.parseJSON channelsV
 
 -- | The possible returned channel attributes when multiple when multiple
 --  channels are queried.

@@ -6,6 +6,7 @@ import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.HashMap.Strict as HM
+import qualified Data.Text as T
 import Data.Word (Word64)
 import Network.Pusher
   ( WebhookEv (..),
@@ -148,9 +149,9 @@ clientEventPayload =
         { onChannel = "presence-foo",
           clientEvName = "client-event",
           clientEvBody =
-            Just
-              $ A.Object
-              $ HM.fromList [("name", A.String "John"), ("message", A.String "Hello")],
+            Just $
+              A.toJSON
+                (HM.fromList [("name", "John"), ("message", "Hello")] :: HM.HashMap T.Text T.Text),
           withSocketId = "219049.596715",
           withPossibleUser = Just . User $ "sturdy-window-821"
         }
