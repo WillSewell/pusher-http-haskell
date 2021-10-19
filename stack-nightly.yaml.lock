@@ -54,12 +54,12 @@ packages:
   original:
     hackage: text-1.2.5.0
 - completed:
-    hackage: time-1.12@sha256:3628ae73e599c15208ba49b136af41ac4c376c269d2b2831e4583553410c5ed2,6234
+    hackage: time-1.13@sha256:30ed9ad5d27730a367b20805581cbc525cbeee688c865549347407c2b286be06,6293
     pantry-tree:
-      size: 7060
-      sha256: 7cc3bf724fa7963044107f6f136cefb6e8b88e962df4dd0ee4ce02ec8ff06b43
+      size: 7208
+      sha256: 0f8c9d4b5fa68341cf6e69ed1bf19bd9a095ea74ae42517ea9849ae930cbc7c0
   original:
-    hackage: time-1.12
+    hackage: time-1.13
 - completed:
     hackage: unix-2.7.2.2@sha256:15f5365c5995634e45de1772b9504761504a310184e676bc2ef60a14536dbef9,3496
     pantry-tree:
