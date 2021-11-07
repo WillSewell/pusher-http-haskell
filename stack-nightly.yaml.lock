@@ -33,6 +33,13 @@ packages:
   original:
     hackage: directory-1.3.7.0
 - completed:
+    hackage: hashable-1.4.0.0@sha256:2d553c615bfea61a0b0ff7bc208904d009ff57dbd56f211fbae8584c12f432f9,4773
+    pantry-tree:
+      size: 1248
+      sha256: 3820fb4738fa6f2c88d0ebc2519bd9ea987747933ef15a13438f8e9d7df270f1
+  original:
+    hackage: hashable-1.4.0.0
+- completed:
     hackage: parsec-3.1.14.0@sha256:72d5c57e6e126adaa781ab97b19dc76f68490c0a3d88f14038219994cabe94e1,4356
     pantry-tree:
       size: 2574
@@ -69,7 +76,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 585552
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/10/12.yaml
-    sha256: 16f87f3537744b964b3d924e9e9a4a51fafdd93d31822ddd21a5663475f995ee
-  original: nightly-2021-10-12
+    size: 594850
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/11/6.yaml
+    sha256: b5d7eef8b8b34d08a9604179e2594a9a5025d872146556b51f9d2f7bfead834b
+  original: nightly-2021-11-06
