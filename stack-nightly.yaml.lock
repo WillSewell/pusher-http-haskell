@@ -12,6 +12,27 @@ packages:
   original:
     hackage: aeson-2.0.1.0
 - completed:
+    hackage: attoparsec-0.14.2@sha256:8b6a8e16ed48da006beb075578b61809cd84b2defacb36f9c342c9c2853343d2,5980
+    pantry-tree:
+      size: 5305
+      sha256: e2a9c8604f873832c2c44a3d56cb737857678b8c7ba7f863f4d14a4517d3dfdd
+  original:
+    hackage: attoparsec-0.14.2
+- completed:
+    hackage: base-compat-0.12.1@sha256:20e50848d9dfee1523fafe8950060b04fae43d402c15553da5c7cacd116f7846,6960
+    pantry-tree:
+      size: 9038
+      sha256: 2f2c14615443954f117613d77835234b598718e611fb4cf4522e01980bf1bcbd
+  original:
+    hackage: base-compat-0.12.1
+- completed:
+    hackage: base-compat-batteries-0.12.1@sha256:88dcb20568a09c19928d70469c4d67b134ac055263f4bc0ce87dc6d18fd787a7,8891
+    pantry-tree:
+      size: 11169
+      sha256: ceb9c2eba51c58b7d634dccccc3566d0f33af6a016f539f4a7c837a60710a4a4
+  original:
+    hackage: base-compat-batteries-0.12.1
+- completed:
     hackage: binary-0.8.9.0@sha256:9cac9a1d86bfa3e7f75cc8bffaa256f3967ebb6d76f67a42f9679384c5c5e18a,6523
     pantry-tree:
       size: 1976
@@ -74,9 +95,44 @@ packages:
       sha256: 36434ced74d679622d61b69e8d92e1bd632d9ef3e284c63094653b2e473b0553
   original:
     hackage: unix-2.7.2.2
+- completed:
+    size: 638902
+    url: https://github.com/josephcsible/cryptonite/archive/3b081e3ad027b0550fc87f171dffecbb20dedafe.tar.gz
+    name: cryptonite
+    version: '0.29'
+    sha256: 9ac43c0194562b624475cb99f3568779baadcf6ae652a03c815a838a5d31b0eb
+    pantry-tree:
+      size: 24851
+      sha256: 139a1368d5e64f673ce60e5ae008e61fd9fed7f1d3acc9cd9e0bc6cca8278cff
+  original:
+    url: https://github.com/josephcsible/cryptonite/archive/3b081e3ad027b0550fc87f171dffecbb20dedafe.tar.gz
+- completed:
+    size: 306459
+    subdir: basement
+    url: https://github.com/TomMD/foundation/archive/0bb195e1fea06d144dafc5af9a0ff79af0a5f4a0.tar.gz
+    name: basement
+    version: 0.0.12
+    sha256: 8dc96f5dc1b42c907e5fedf5b78c2f7c0b0ea1edb40e506bfc99cbfdda0d3539
+    pantry-tree:
+      size: 5928
+      sha256: 5f1af5468f8271a286b006226858c0ab76bb2447e9cbe7e7cbadffeab4a59fd4
+  original:
+    subdir: basement
+    url: https://github.com/TomMD/foundation/archive/0bb195e1fea06d144dafc5af9a0ff79af0a5f4a0.tar.gz
+- completed:
+    size: 44894
+    url: https://github.com/tfausak/hs-memory/archive/3cf661a8a9a8ac028df77daa88e8d65c55a3347a.tar.gz
+    name: memory
+    version: 0.16.0
+    sha256: dbfa72fc4aef871725254e0365cdd6589277440bc1f2c20df08d3ea24600dc13
+    pantry-tree:
+      size: 2819
+      sha256: 0edf661bab420ffb43689afbb649cb69d49fc817c0f20007767da9b60cb6657e
+  original:
+    url: https://github.com/tfausak/hs-memory/archive/3cf661a8a9a8ac028df77daa88e8d65c55a3347a.tar.gz
 snapshots:
 - completed:
-    size: 594850
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/11/6.yaml
-    sha256: b5d7eef8b8b34d08a9604179e2594a9a5025d872146556b51f9d2f7bfead834b
-  original: nightly-2021-11-06
+    size: 596363
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/11/15.yaml
+    sha256: 4eb51ee07b71a0e11a4a9d32020ce6a5305e5a2f17da739afecdf7e876c78fec
+  original: nightly-2021-11-15
