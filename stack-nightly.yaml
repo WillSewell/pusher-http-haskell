@@ -1,8 +1,13 @@
 packages:
   - .
-resolver: nightly-2021-11-06
+resolver: nightly-2021-11-15
+compiler: ghc-9.2.1
+compiler-check: match-exact
 extra-deps:
   - aeson-2.0.1.0
+  - attoparsec-0.14.2
+  - base-compat-0.12.1
+  - base-compat-batteries-0.12.1
   - binary-0.8.9.0
   - bytestring-0.11.1.0
   - directory-1.3.7.0
@@ -12,4 +17,12 @@ extra-deps:
   - text-1.2.5.0
   - time-1.13
   - unix-2.7.2.2
+  - github: josephcsible/cryptonite # https://github.com/haskell-crypto/cryptonite/pull/354
+    commit: 3b081e3ad027b0550fc87f171dffecbb20dedafe
+  - github: TomMD/foundation # https://github.com/haskell-foundation/foundation/pull/555
+    commit: 0bb195e1fea06d144dafc5af9a0ff79af0a5f4a0
+    subdirs:
+      - basement
+  - github: tfausak/hs-memory # https://github.com/vincenthz/hs-memory/pull/87
+    commit: 3cf661a8a9a8ac028df77daa88e8d65c55a3347a
 allow-newer: true
