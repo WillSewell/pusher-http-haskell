@@ -12,13 +12,6 @@ packages:
   original:
     hackage: aeson-2.0.1.0
 - completed:
-    hackage: attoparsec-0.14.2@sha256:8b6a8e16ed48da006beb075578b61809cd84b2defacb36f9c342c9c2853343d2,5980
-    pantry-tree:
-      size: 5305
-      sha256: e2a9c8604f873832c2c44a3d56cb737857678b8c7ba7f863f4d14a4517d3dfdd
-  original:
-    hackage: attoparsec-0.14.2
-- completed:
     hackage: base-compat-0.12.1@sha256:20e50848d9dfee1523fafe8950060b04fae43d402c15553da5c7cacd116f7846,6960
     pantry-tree:
       size: 9038
@@ -60,13 +53,6 @@ packages:
       sha256: 3820fb4738fa6f2c88d0ebc2519bd9ea987747933ef15a13438f8e9d7df270f1
   original:
     hackage: hashable-1.4.0.0
-- completed:
-    hackage: parsec-3.1.14.0@sha256:72d5c57e6e126adaa781ab97b19dc76f68490c0a3d88f14038219994cabe94e1,4356
-    pantry-tree:
-      size: 2574
-      sha256: 495a86688c6e89faf38b8804cc4c9216709e9a6a93cf56c2f07d5bef83f09a17
-  original:
-    hackage: parsec-3.1.14.0
 - completed:
     hackage: process-1.6.13.2@sha256:9733aa8a27b3e6c0f08a87a5c7287b3b73302d396f68f5655f9990a641368e3e,2845
     pantry-tree:
@@ -132,7 +118,7 @@ packages:
     url: https://github.com/tfausak/hs-memory/archive/3cf661a8a9a8ac028df77daa88e8d65c55a3347a.tar.gz
 snapshots:
 - completed:
-    size: 596363
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/11/15.yaml
-    sha256: 4eb51ee07b71a0e11a4a9d32020ce6a5305e5a2f17da739afecdf7e876c78fec
-  original: nightly-2021-11-15
+    size: 621066
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/12/26.yaml
+    sha256: b0ce4f7d53851f1e875b52df2a8a20d77c65883d8350b997580ded88eec0a4b2
+  original: nightly-2021-12-26
