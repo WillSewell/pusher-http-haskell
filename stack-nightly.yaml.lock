@@ -5,13 +5,6 @@
 
 packages:
 - completed:
-    hackage: aeson-2.0.1.0@sha256:ee0847af4d1fb9ece3f24f443d8d8406431c32688a57880314ac36617da937eb,6229
-    pantry-tree:
-      size: 37910
-      sha256: e7a9eec09f1ea56548b07c7e82b53bf32a974827ffc402d852c667b5f5d89efd
-  original:
-    hackage: aeson-2.0.1.0
-- completed:
     hackage: base-compat-0.12.1@sha256:20e50848d9dfee1523fafe8950060b04fae43d402c15553da5c7cacd116f7846,6960
     pantry-tree:
       size: 9038
@@ -33,12 +26,12 @@ packages:
   original:
     hackage: binary-0.8.9.0
 - completed:
-    hackage: bytestring-0.11.1.0@sha256:84a15ec06aca21c4af8772a0e847fdda1b58235b801774dd205edb03bfeb8518,7631
+    hackage: bytestring-0.11.2.0@sha256:f299f22fb266228a417c2ff6ac1244ad32b8098fbdd8ba25501decb550812226,7274
     pantry-tree:
-      size: 2654
-      sha256: 0d357667b42c3b4f5860b3c22d867254a4fb0c526280d31f3ca96833065cbc0f
+      size: 3748
+      sha256: 96050e0d2405e16e43dffd9cd0187c4d2478f1dc51f78c591c6d6024ab1b7178
   original:
-    hackage: bytestring-0.11.1.0
+    hackage: bytestring-0.11.2.0
 - completed:
     hackage: directory-1.3.7.0@sha256:fa5aa98b70559eb9c26a8c1332a55618876ad825233271142f182c3502e1f23c,2811
     pantry-tree:
@@ -47,12 +40,19 @@ packages:
   original:
     hackage: directory-1.3.7.0
 - completed:
-    hackage: hashable-1.4.0.0@sha256:2d553c615bfea61a0b0ff7bc208904d009ff57dbd56f211fbae8584c12f432f9,4773
+    hackage: hashable-1.4.0.1@sha256:c35c9c1adc33bcfa31359e33e4c3db98305406eaa460f0e04d628f2a1de19be5,4804
     pantry-tree:
       size: 1248
-      sha256: 3820fb4738fa6f2c88d0ebc2519bd9ea987747933ef15a13438f8e9d7df270f1
+      sha256: a1e0d12da785b0c52b8cd755c4aceb75a955ed6d9f3e7c9401aa08c9b2c8032c
   original:
-    hackage: hashable-1.4.0.0
+    hackage: hashable-1.4.0.1
+- completed:
+    hackage: parsec-3.1.15.0@sha256:a162d4cc8884014ba35192545cad293af0529fe11497aad8834bbaaa3dfffc26,4429
+    pantry-tree:
+      size: 2630
+      sha256: cbddc1e3c5ada6925354850cc0a8fadcd8643689098a504a0ed25ef9e0b932b8
+  original:
+    hackage: parsec-3.1.15.0
 - completed:
     hackage: process-1.6.13.2@sha256:9733aa8a27b3e6c0f08a87a5c7287b3b73302d396f68f5655f9990a641368e3e,2845
     pantry-tree:
@@ -61,12 +61,12 @@ packages:
   original:
     hackage: process-1.6.13.2
 - completed:
-    hackage: text-1.2.5.0@sha256:791f0f6c97ed96113f17ab520cf0efe1a3a4f883a8c85910a5660567c8241c40,7895
+    hackage: text-2.0@sha256:86e64bc76fefb8f0f6529d28ddf24b2a29d43591a8b9b7c7094f481a0db2fb7d,7788
     pantry-tree:
-      size: 7395
-      sha256: f41504ec5c04a3f3358ef104362f02fdef29cbce4e5e4e6dbd6b6db70c40d4bf
+      size: 7364
+      sha256: 894b84358fbad3cb8c16f224d3d8b7a1d7b6bcae68cda5a9998dd964904a6560
   original:
-    hackage: text-1.2.5.0
+    hackage: text-2.0
 - completed:
     hackage: time-1.13@sha256:30ed9ad5d27730a367b20805581cbc525cbeee688c865549347407c2b286be06,6293
     pantry-tree:
@@ -81,6 +81,17 @@ packages:
       sha256: 36434ced74d679622d61b69e8d92e1bd632d9ef3e284c63094653b2e473b0553
   original:
     hackage: unix-2.7.2.2
+- completed:
+    size: 39742195
+    url: https://github.com/haskell/aeson/archive/df83212c7a0566fea55fb19682454a2c2621019d.tar.gz
+    name: aeson
+    version: 2.0.2.0
+    sha256: aa90d5a8bf16ef2bc4529b51c524a17e93c09d067ac4b0d50e7859e5ac58940b
+    pantry-tree:
+      size: 120216
+      sha256: 7d6cdc9a13564f64cf3de4a1cb6beacd4d29b05e78673b4eeef0c90eaa2dc1da
+  original:
+    url: https://github.com/haskell/aeson/archive/df83212c7a0566fea55fb19682454a2c2621019d.tar.gz
 - completed:
     size: 638902
     url: https://github.com/josephcsible/cryptonite/archive/3b081e3ad027b0550fc87f171dffecbb20dedafe.tar.gz
