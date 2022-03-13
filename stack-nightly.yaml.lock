@@ -26,12 +26,19 @@ packages:
   original:
     hackage: binary-0.8.9.0
 - completed:
-    hackage: bytestring-0.11.2.0@sha256:f299f22fb266228a417c2ff6ac1244ad32b8098fbdd8ba25501decb550812226,7274
+    hackage: bytestring-0.11.3.0@sha256:15fa88b9c1eb6eeac27dc0b99e8eb627c62af784141df8067172f6c60ad54a23,7447
     pantry-tree:
-      size: 3748
-      sha256: 96050e0d2405e16e43dffd9cd0187c4d2478f1dc51f78c591c6d6024ab1b7178
+      size: 3945
+      sha256: cde4d131c533a0644d9117a774de2bc5afcbe6cabb60c77a80ced159542dac2c
   original:
-    hackage: bytestring-0.11.2.0
+    hackage: bytestring-0.11.3.0
+- completed:
+    hackage: cryptonite-0.30@sha256:12c85dea7be63e5ad90bcb487eb3846bf3c413347f94336fa1dede7b28f9936a,18301
+    pantry-tree:
+      size: 23323
+      sha256: df1cbe4cc40d569cc75ffed40bc5deac43cb085653980b42b9b6a5d4b745a30a
+  original:
+    hackage: cryptonite-0.30
 - completed:
     hackage: directory-1.3.7.0@sha256:fa5aa98b70559eb9c26a8c1332a55618876ad825233271142f182c3502e1f23c,2811
     pantry-tree:
@@ -40,12 +47,19 @@ packages:
   original:
     hackage: directory-1.3.7.0
 - completed:
-    hackage: hashable-1.4.0.1@sha256:c35c9c1adc33bcfa31359e33e4c3db98305406eaa460f0e04d628f2a1de19be5,4804
+    hackage: hashable-1.4.0.2@sha256:0cddd0229d1aac305ea0404409c0bbfab81f075817bd74b8b2929eff58333e55,5005
     pantry-tree:
       size: 1248
-      sha256: a1e0d12da785b0c52b8cd755c4aceb75a955ed6d9f3e7c9401aa08c9b2c8032c
+      sha256: 51dda0aa70849588d074125f324beba1c8736cfa486e7f4a90a798b1d0e6019d
   original:
-    hackage: hashable-1.4.0.1
+    hackage: hashable-1.4.0.2
+- completed:
+    hackage: memory-0.17.0@sha256:c8809b0b3026193c813a88c1f626758c923fae7e0b0d6b96b91c6ce5e14173ec,4468
+    pantry-tree:
+      size: 2436
+      sha256: d63a3ac4e57e9b9288209eb4b01bc348309c6966f3e3ed5e9952f0803f78eb65
+  original:
+    hackage: memory-0.17.0
 - completed:
     hackage: parsec-3.1.15.0@sha256:a162d4cc8884014ba35192545cad293af0529fe11497aad8834bbaaa3dfffc26,4429
     pantry-tree:
@@ -54,12 +68,12 @@ packages:
   original:
     hackage: parsec-3.1.15.0
 - completed:
-    hackage: process-1.6.13.2@sha256:9733aa8a27b3e6c0f08a87a5c7287b3b73302d396f68f5655f9990a641368e3e,2845
+    hackage: process-1.6.14.0@sha256:b6ad76fd3f4bf133cdc2dc9176e23447f2a0a8e9316047d53154cd11f871446d,2845
     pantry-tree:
-      size: 1543
-      sha256: b46aab2c7633f17d71a99e03257aa4f3aea493c22d8719850c0d5e05bdc41552
+      size: 1544
+      sha256: 72300155a8fd5a91f6b25dfebb77db05aa27a0b866dbfb2d7098c5e4580ca105
   original:
-    hackage: process-1.6.13.2
+    hackage: process-1.6.14.0
 - completed:
     hackage: text-2.0@sha256:86e64bc76fefb8f0f6529d28ddf24b2a29d43591a8b9b7c7094f481a0db2fb7d,7788
     pantry-tree:
@@ -81,55 +95,9 @@ packages:
       sha256: 36434ced74d679622d61b69e8d92e1bd632d9ef3e284c63094653b2e473b0553
   original:
     hackage: unix-2.7.2.2
-- completed:
-    size: 39742195
-    url: https://github.com/haskell/aeson/archive/df83212c7a0566fea55fb19682454a2c2621019d.tar.gz
-    name: aeson
-    version: 2.0.2.0
-    sha256: aa90d5a8bf16ef2bc4529b51c524a17e93c09d067ac4b0d50e7859e5ac58940b
-    pantry-tree:
-      size: 120216
-      sha256: 7d6cdc9a13564f64cf3de4a1cb6beacd4d29b05e78673b4eeef0c90eaa2dc1da
-  original:
-    url: https://github.com/haskell/aeson/archive/df83212c7a0566fea55fb19682454a2c2621019d.tar.gz
-- completed:
-    size: 638902
-    url: https://github.com/josephcsible/cryptonite/archive/3b081e3ad027b0550fc87f171dffecbb20dedafe.tar.gz
-    name: cryptonite
-    version: '0.29'
-    sha256: 9ac43c0194562b624475cb99f3568779baadcf6ae652a03c815a838a5d31b0eb
-    pantry-tree:
-      size: 24851
-      sha256: 139a1368d5e64f673ce60e5ae008e61fd9fed7f1d3acc9cd9e0bc6cca8278cff
-  original:
-    url: https://github.com/josephcsible/cryptonite/archive/3b081e3ad027b0550fc87f171dffecbb20dedafe.tar.gz
-- completed:
-    size: 306459
-    subdir: basement
-    url: https://github.com/TomMD/foundation/archive/0bb195e1fea06d144dafc5af9a0ff79af0a5f4a0.tar.gz
-    name: basement
-    version: 0.0.12
-    sha256: 8dc96f5dc1b42c907e5fedf5b78c2f7c0b0ea1edb40e506bfc99cbfdda0d3539
-    pantry-tree:
-      size: 5928
-      sha256: 5f1af5468f8271a286b006226858c0ab76bb2447e9cbe7e7cbadffeab4a59fd4
-  original:
-    subdir: basement
-    url: https://github.com/TomMD/foundation/archive/0bb195e1fea06d144dafc5af9a0ff79af0a5f4a0.tar.gz
-- completed:
-    size: 44894
-    url: https://github.com/tfausak/hs-memory/archive/3cf661a8a9a8ac028df77daa88e8d65c55a3347a.tar.gz
-    name: memory
-    version: 0.16.0
-    sha256: dbfa72fc4aef871725254e0365cdd6589277440bc1f2c20df08d3ea24600dc13
-    pantry-tree:
-      size: 2819
-      sha256: 0edf661bab420ffb43689afbb649cb69d49fc817c0f20007767da9b60cb6657e
-  original:
-    url: https://github.com/tfausak/hs-memory/archive/3cf661a8a9a8ac028df77daa88e8d65c55a3347a.tar.gz
 snapshots:
 - completed:
-    size: 621066
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2021/12/26.yaml
-    sha256: b0ce4f7d53851f1e875b52df2a8a20d77c65883d8350b997580ded88eec0a4b2
-  original: nightly-2021-12-26
+    size: 610848
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/3/13.yaml
+    sha256: a66df032f70de92b36489bb75834b66589a4538806856c81f9f07682f26e7c64
+  original: nightly-2022-03-13
