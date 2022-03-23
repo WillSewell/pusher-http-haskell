@@ -5,61 +5,12 @@
 
 packages:
 - completed:
-    hackage: base-compat-0.12.1@sha256:20e50848d9dfee1523fafe8950060b04fae43d402c15553da5c7cacd116f7846,6960
-    pantry-tree:
-      size: 9038
-      sha256: 2f2c14615443954f117613d77835234b598718e611fb4cf4522e01980bf1bcbd
-  original:
-    hackage: base-compat-0.12.1
-- completed:
-    hackage: base-compat-batteries-0.12.1@sha256:88dcb20568a09c19928d70469c4d67b134ac055263f4bc0ce87dc6d18fd787a7,8891
-    pantry-tree:
-      size: 11169
-      sha256: ceb9c2eba51c58b7d634dccccc3566d0f33af6a016f539f4a7c837a60710a4a4
-  original:
-    hackage: base-compat-batteries-0.12.1
-- completed:
-    hackage: binary-0.8.9.0@sha256:9cac9a1d86bfa3e7f75cc8bffaa256f3967ebb6d76f67a42f9679384c5c5e18a,6523
-    pantry-tree:
-      size: 1976
-      sha256: 61308af6be2cdb6ba09390d35f3fa1ebb45e3af688bf04922658532398eaa276
-  original:
-    hackage: binary-0.8.9.0
-- completed:
-    hackage: bytestring-0.11.3.0@sha256:15fa88b9c1eb6eeac27dc0b99e8eb627c62af784141df8067172f6c60ad54a23,7447
-    pantry-tree:
-      size: 3945
-      sha256: cde4d131c533a0644d9117a774de2bc5afcbe6cabb60c77a80ced159542dac2c
-  original:
-    hackage: bytestring-0.11.3.0
-- completed:
-    hackage: cryptonite-0.30@sha256:12c85dea7be63e5ad90bcb487eb3846bf3c413347f94336fa1dede7b28f9936a,18301
-    pantry-tree:
-      size: 23323
-      sha256: df1cbe4cc40d569cc75ffed40bc5deac43cb085653980b42b9b6a5d4b745a30a
-  original:
-    hackage: cryptonite-0.30
-- completed:
     hackage: directory-1.3.7.0@sha256:fa5aa98b70559eb9c26a8c1332a55618876ad825233271142f182c3502e1f23c,2811
     pantry-tree:
       size: 3433
       sha256: df5201446a80fc4fd9c284343bbdce90f44989043426a2f7aa3d7cfe24e67a15
   original:
     hackage: directory-1.3.7.0
-- completed:
-    hackage: hashable-1.4.0.2@sha256:0cddd0229d1aac305ea0404409c0bbfab81f075817bd74b8b2929eff58333e55,5005
-    pantry-tree:
-      size: 1248
-      sha256: 51dda0aa70849588d074125f324beba1c8736cfa486e7f4a90a798b1d0e6019d
-  original:
-    hackage: hashable-1.4.0.2
-- completed:
-    hackage: memory-0.17.0@sha256:c8809b0b3026193c813a88c1f626758c923fae7e0b0d6b96b91c6ce5e14173ec,4468
-    pantry-tree:
-      size: 2436
-      sha256: d63a3ac4e57e9b9288209eb4b01bc348309c6966f3e3ed5e9952f0803f78eb65
-  original:
-    hackage: memory-0.17.0
 - completed:
     hackage: parsec-3.1.15.0@sha256:a162d4cc8884014ba35192545cad293af0529fe11497aad8834bbaaa3dfffc26,4429
     pantry-tree:
@@ -97,7 +48,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 610848
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/3/13.yaml
-    sha256: a66df032f70de92b36489bb75834b66589a4538806856c81f9f07682f26e7c64
-  original: nightly-2022-03-13
+    size: 517915
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/3/23.yaml
+    sha256: cb8f5a11e08dfb56a756ae96455346488efb1dadef3d8670d8c566ce6625e6ce
+  original: nightly-2022-03-23
