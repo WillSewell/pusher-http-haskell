@@ -5,12 +5,26 @@
 
 packages:
 - completed:
+    hackage: aeson-2.1.0.0@sha256:b0bdd457ff05f0924f6055e5265a5a70e8f719f6e92b3c98a6af922495539ef2,5937
+    pantry-tree:
+      size: 38191
+      sha256: 416127fd578b11c2bbb3cabdce212d939f040ddf390c54caebf4ceda02222872
+  original:
+    hackage: aeson-2.1.0.0
+- completed:
     hackage: directory-1.3.7.0@sha256:fa5aa98b70559eb9c26a8c1332a55618876ad825233271142f182c3502e1f23c,2811
     pantry-tree:
       size: 3433
       sha256: df5201446a80fc4fd9c284343bbdce90f44989043426a2f7aa3d7cfe24e67a15
   original:
     hackage: directory-1.3.7.0
+- completed:
+    hackage: generically-0.1@sha256:16d54a08bcdf708395c2200a28ffcba55e90479dc96ed617dbb94f0411f7a7af,1024
+    pantry-tree:
+      size: 232
+      sha256: 302b140ee5ccf6754ab96154486051f9ab989d3cbaa7c9674e1e9f0de7cdd07b
+  original:
+    hackage: generically-0.1
 - completed:
     hackage: parsec-3.1.15.0@sha256:a162d4cc8884014ba35192545cad293af0529fe11497aad8834bbaaa3dfffc26,4429
     pantry-tree:
@@ -48,7 +62,7 @@ packages:
     hackage: unix-2.7.2.2
 snapshots:
 - completed:
-    size: 517915
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/3/23.yaml
-    sha256: cb8f5a11e08dfb56a756ae96455346488efb1dadef3d8670d8c566ce6625e6ce
-  original: nightly-2022-03-23
+    size: 611629
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/6/15.yaml
+    sha256: e6aa206ca389d8ad5b07d48cc54ca4787e27ed9dde90b0edf8875e6caec16bd2
+  original: nightly-2022-06-15
