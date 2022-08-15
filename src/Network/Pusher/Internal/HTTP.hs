@@ -84,7 +84,7 @@ post ::
 post connManager (RequestParams secure host port path query) body = do
   let req = mkPost (A.encode body) (mkRequest secure host port path query)
   eitherBody <- doRequest connManager req
-  return $ either Left (const $ Right ()) eitherBody
+  return $ const (Right ()) =<< eitherBody
 
 mkRequest ::
   Bool ->

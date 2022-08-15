@@ -7,14 +7,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         resolver-yaml:
         - stack-14.27.yaml # GHC 8.6
         - stack-16.31.yaml # GHC 8.6
-        - stack.yaml # GHC 8.10
+        - stack-18.28.yaml # GHC 8.10
+        - stack.yaml # GHC 9.0
         - stack-nightly.yaml
 
     steps:
@@ -22,10 +23,10 @@ jobs:
       run: 'echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV'
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup stack
-      uses: mstksg/setup-stack@v1
+      uses: mstksg/setup-stack@v2
 
     - name: Install dependencies
       # hlint does not build on current stack nightly
