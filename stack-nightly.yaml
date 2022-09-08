@@ -15,8 +15,4 @@ extra-deps:
   - text-2.0.1
   - time-1.12.2
   - unix-2.7.3
-  - github: parsonsmatt/foundation
-    commit: 8166c31a115521f2ce5fabfba8247982979eeebf
-    subdirs:
-      - basement
 allow-newer: true

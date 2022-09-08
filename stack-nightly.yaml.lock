@@ -81,19 +81,6 @@ packages:
       sha256: a7b72595b7b7c56c23faef6a6bb27bc18b040c675c457117623d413a9e7444b8
   original:
     hackage: unix-2.7.3
-- completed:
-    size: 306212
-    subdir: basement
-    url: https://github.com/parsonsmatt/foundation/archive/8166c31a115521f2ce5fabfba8247982979eeebf.tar.gz
-    name: basement
-    version: 0.0.14
-    sha256: 1a44595c49a534dda9c83dba414d2887411f6566b84c20ef20b1007eff7032a8
-    pantry-tree:
-      size: 5799
-      sha256: 32757f9b5f3c656c3cf7a229dbe78e84f924d4db82d83f311f9082bcead2d8c8
-  original:
-    subdir: basement
-    url: https://github.com/parsonsmatt/foundation/archive/8166c31a115521f2ce5fabfba8247982979eeebf.tar.gz
 snapshots:
 - completed:
     size: 634323
