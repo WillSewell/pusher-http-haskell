@@ -33,6 +33,13 @@ packages:
   original:
     hackage: generically-0.1
 - completed:
+    hackage: memory-0.18.0@sha256:e12bde756b01c1a28c62e46f0f8433c4890898051a786794a7d88907ca14abca,4468
+    pantry-tree:
+      size: 2436
+      sha256: 55d15393452ad50b1f8dbe3ff2c4961a3cde9381f2c348f904449a3339c6951d
+  original:
+    hackage: memory-0.18.0
+- completed:
     hackage: parsec-3.1.15.1@sha256:8c7a36aaadff12a38817fc3c4ff6c87e3352cffd1a58df640de7ed7a97ad8fa3,4601
     pantry-tree:
       size: 2630
@@ -87,20 +94,9 @@ packages:
   original:
     subdir: basement
     url: https://github.com/parsonsmatt/foundation/archive/8166c31a115521f2ce5fabfba8247982979eeebf.tar.gz
-- completed:
-    size: 44224
-    url: https://github.com/parsonsmatt/hs-memory/archive/0f760c8ba0b7d5aacf04a7294e87e5e4fff53f40.tar.gz
-    name: memory
-    version: 0.17.0
-    sha256: 3503a3e6432e45e7cd3b2e0563c3f6249d1741baa21406521515ae7370ff0de3
-    pantry-tree:
-      size: 2801
-      sha256: 08b1fe98d7e69163811f520dd8c76f9ca0fda024addab19585ff801cde024808
-  original:
-    url: https://github.com/parsonsmatt/hs-memory/archive/0f760c8ba0b7d5aacf04a7294e87e5e4fff53f40.tar.gz
 snapshots:
 - completed:
-    size: 630417
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/8/14.yaml
-    sha256: f06063214f995549c436b7b091e7ba6785a4bd146d05e963036b451adeb3bd8e
-  original: nightly-2022-08-14
+    size: 634323
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/9/8.yaml
+    sha256: 7fbf4aab8837574f2e8af2f7b95e5d61800270a9387b2cd882377d3deb9c8b64
+  original: nightly-2022-09-08
