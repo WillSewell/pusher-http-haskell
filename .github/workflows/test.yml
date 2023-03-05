@@ -15,7 +15,8 @@ jobs:
         - stack-14.27.yaml # GHC 8.6
         - stack-16.31.yaml # GHC 8.6
         - stack-18.28.yaml # GHC 8.10
-        - stack.yaml # GHC 9.0
+        - stack-19.33.yaml # GHC 9.0
+        - stack.yaml # GHC 9.2
         - stack-nightly.yaml
 
     steps:
