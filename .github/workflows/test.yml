@@ -26,19 +26,26 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Setup stack
-      uses: mstksg/setup-stack@v2
+      uses: haskell/actions/setup@v2
+      with:
+        enable-stack: true
+        stack-version: latest
+
+    - name: Set up HLint
+      uses: haskell/actions/hlint-setup@v2
 
     - name: Install dependencies
-      # hlint does not build on current stack nightly
-      run: |
-        if [ "$STACK_YAML" != "stack-nightly.yaml" ]; then stack --no-terminal --skip-ghc-check install hlint; fi
-        stack --no-terminal --install-ghc test --only-dependencies
+      run: stack --no-terminal --install-ghc test --only-dependencies
       env:
         STACK_YAML: ${{ matrix.resolver-yaml }}
 
-    - name: Build
-      run: |
-        stack --no-terminal test --haddock --no-haddock-deps
-        if [ "$STACK_YAML" != "stack-nightly.yaml" ]; then hlint .; fi
+    - name: Test
+      run: stack --no-terminal test --haddock --no-haddock-deps
       env:
         STACK_YAML: ${{ matrix.resolver-yaml }}
+
+    - name: HLint
+      uses: haskell/actions/hlint-run@v2
+      with:
+        path: .
+        fail-on: warning
