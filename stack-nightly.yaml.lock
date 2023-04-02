@@ -3,10 +3,17 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: base-4.18.0.0@sha256:df2cb2e3b13ac71dcb105dd53cf219dbd4627587a697aa75b5edcba0fba640e8,13052
+    pantry-tree:
+      size: 21126
+      sha256: 1eca21f3b3fd68d05fc2f36d6a3f070577ba9d597b9dc0095da49c5c6ea1553e
+  original:
+    hackage: base-4.18.0.0
 snapshots:
 - completed:
-    size: 598785
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2023/3/5.yaml
-    sha256: d08cba48a93881905b529a6896763b90086596889c6c4643816d639260fc12f4
-  original: nightly-2023-03-05
+    size: 600122
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2023/4/2.yaml
+    sha256: 12e1d19832c69e6d8c7bbb039141c84de7b787366b9f89f476e6b86b7ae4491f
+  original: nightly-2023-04-02
