@@ -5,15 +5,39 @@
 
 packages:
 - completed:
-    hackage: base-4.18.0.0@sha256:df2cb2e3b13ac71dcb105dd53cf219dbd4627587a697aa75b5edcba0fba640e8,13052
+    hackage: aeson-2.2.0.0@sha256:deeab33f7f2a235c9e9ea76168f27a3669ad51bbdb363e830015352a3b2874ec,6217
     pantry-tree:
-      size: 21126
-      sha256: 1eca21f3b3fd68d05fc2f36d6a3f070577ba9d597b9dc0095da49c5c6ea1553e
+      sha256: 2c65659ff9ab19047728c8cc2f20869ba7ca78a09fe03cecf826f5857f3d4c95
+      size: 83036
   original:
-    hackage: base-4.18.0.0
+    hackage: aeson-2.2.0.0
+- completed:
+    name: text-iso8601
+    pantry-tree:
+      sha256: f72aa62f5f4d1155b3d3f35e8227548a27cee83fb5d0742564b5ef26597f1431
+      size: 427
+    sha256: 337c4e028a4065615c3a7c40bc6641195b5493c253b9afbe95cf89082ccd88ce
+    size: 386910
+    subdir: text-iso8601
+    url: https://github.com/haskell/aeson/archive/c8831dd552457cf96e60b62e2bdd99a2cb2d4070.tar.gz
+    version: '0.1'
+  original:
+    subdir: text-iso8601
+    url: https://github.com/haskell/aeson/archive/c8831dd552457cf96e60b62e2bdd99a2cb2d4070.tar.gz
+- completed:
+    name: integer-conversion
+    pantry-tree:
+      sha256: 205985fd769be4e19ea09c3ba4b229f843b1854d0867139d9a7d1a3ba1c814e6
+      size: 954
+    sha256: f5ac209444df1ef8cc949a2675c83bb5b83cfa1052d9f4f100cdacaac92a9e9b
+    size: 10990
+    url: https://github.com/phadej/integer-conversion/archive/dbba7eb7e6c512e6a923a1c9b4c9455a40365450.tar.gz
+    version: '0.1'
+  original:
+    url: https://github.com/phadej/integer-conversion/archive/dbba7eb7e6c512e6a923a1c9b4c9455a40365450.tar.gz
 snapshots:
 - completed:
-    size: 600122
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2023/4/2.yaml
-    sha256: 12e1d19832c69e6d8c7bbb039141c84de7b787366b9f89f476e6b86b7ae4491f
-  original: nightly-2023-04-02
+    sha256: 7cb8c85885c204500c43790ea0e7802a6f8bdaf1a27309de33cbd8898f2c1c00
+    size: 531943
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2023/6/27.yaml
+  original: nightly-2023-06-27
