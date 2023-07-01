@@ -1,8 +1,12 @@
 packages:
   - .
-resolver: nightly-2023-04-02
-compiler: ghc-9.6.1
-compiler-check: match-exact
+resolver: nightly-2023-06-27
 extra-deps:
-  - base-4.18.0.0
+  - aeson-2.2.0.0
+  - github: haskell/aeson
+    commit: c8831dd552457cf96e60b62e2bdd99a2cb2d4070
+    subdirs:
+      - text-iso8601
+  - github: phadej/integer-conversion
+    commit: dbba7eb7e6c512e6a923a1c9b4c9455a40365450
 allow-newer: true
