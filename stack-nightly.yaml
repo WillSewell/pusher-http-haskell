@@ -1,12 +1,19 @@
 packages:
   - .
-resolver: nightly-2023-06-27
+resolver: nightly-2023-07-06
 extra-deps:
   - aeson-2.2.0.0
+  - binary-0.8.9.1
+  - directory-1.3.8.1
+  - bytestring-0.12.0.0
+  - filepath-1.4.100.3
+  - integer-conversion-0.1
+  - parsec-3.1.16.1
+  - process-1.6.17.0
+  - text-2.0.2
+  - unix-2.8.1.1
   - github: haskell/aeson
     commit: c8831dd552457cf96e60b62e2bdd99a2cb2d4070
     subdirs:
       - text-iso8601
-  - github: phadej/integer-conversion
-    commit: dbba7eb7e6c512e6a923a1c9b4c9455a40365450
 allow-newer: true
