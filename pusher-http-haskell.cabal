@@ -49,7 +49,7 @@ library
         http-client-tls ==0.3.*,
         http-types >=0.8 && <0.13,
         memory >=0.7 && <0.19,
-        text >=1.2 && < 2.1,
+        text >=1.2 && < 2.2,
         time >=1.5 && <1.14,
         unordered-containers ==0.2.*
 
