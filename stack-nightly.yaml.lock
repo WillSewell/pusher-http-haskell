@@ -5,16 +5,19 @@
 
 packages:
 - completed:
-    name: aeson
+    hackage: aeson-2.2.1.0@sha256:a23a61aada8233e10573e1612c0b2efe5a1aba0d59b05dbe2f63301822f136cb,6582
     pantry-tree:
-      sha256: ef37a76f9e38ce4f917225cf23731a77194c0aa3fb5a98e9de20966af77bf4c0
-      size: 92968
-    sha256: 18458fd79086347c00494e4159cfaf8d7dad5794241a3c9cbd221ce23d594d21
-    size: 386829
-    url: https://github.com/haskell/aeson/archive/2ff1736de826d1800e0139d4f79ec2b6986469f6.tar.gz
-    version: 2.2.0.0
+      sha256: 8a50c54b9ecba80ecc3df3ea67faa4d155d6f6a6b3e342c74f3e6b0dcdc87e13
+      size: 83518
   original:
-    url: https://github.com/haskell/aeson/archive/2ff1736de826d1800e0139d4f79ec2b6986469f6.tar.gz
+    hackage: aeson-2.2.1.0
+- completed:
+    hackage: base-4.19.0.0@sha256:f8d40d8ef08249228674f64a00d4a6eb06a1d667755992b2336628db20d7d460,13261
+    pantry-tree:
+      sha256: 0429b67c818737cc8a8a8a56a7269ba591da7dacd61398db2e1e42810c666619
+      size: 21393
+  original:
+    hackage: base-4.19.0.0
 - completed:
     hackage: binary-0.8.9.1@sha256:81f468c1c75fd6535152ab69b2d32ac6cfcc03e345267b069abe4da56ec95801,6523
     pantry-tree:
@@ -23,13 +26,6 @@ packages:
   original:
     hackage: binary-0.8.9.1
 - completed:
-    hackage: directory-1.3.8.1@sha256:e384a4831b0ac0f8908a1d99d14ce44bf9c5fe2092eec5b2c47ea072d477a493,2942
-    pantry-tree:
-      sha256: 5265dc75d29245961933e91bbae05b5f7630da84489b6e157a44d95d4c097618
-      size: 3519
-  original:
-    hackage: directory-1.3.8.1
-- completed:
     hackage: bytestring-0.12.0.2@sha256:9fc077ff5b7ed2246773c3ac4370ef8822e4834d4587522b68ae551a5968fb86,7891
     pantry-tree:
       sha256: 05b5b3ef529f137062c632c38d9c94482ee25bcc0438d51a4be5448dafe690c9
@@ -37,12 +33,19 @@ packages:
   original:
     hackage: bytestring-0.12.0.2
 - completed:
-    hackage: filepath-1.4.100.3@sha256:31c12ea982650ec3792863bb25a4f5a6d21d3819f77d33e3a016427b214f0198,5845
+    hackage: directory-1.3.8.1@sha256:e384a4831b0ac0f8908a1d99d14ce44bf9c5fe2092eec5b2c47ea072d477a493,2942
     pantry-tree:
-      sha256: 8d06b2b83db52cf352b98bbfe7178f083f5e5ef989390bb60c04369c603dedb4
-      size: 3407
+      sha256: 5265dc75d29245961933e91bbae05b5f7630da84489b6e157a44d95d4c097618
+      size: 3519
   original:
-    hackage: filepath-1.4.100.3
+    hackage: directory-1.3.8.1
+- completed:
+    hackage: filepath-1.4.100.4@sha256:2de84756d3907308230e34fcc7c1917a73f218f6d53838618b7d5b95dd33e2c3,5536
+    pantry-tree:
+      sha256: 3f8869f574ea76933efe77ed3c6e4e5a646317b38e8962970c8d0d092266f230
+      size: 3346
+  original:
+    hackage: filepath-1.4.100.4
 - completed:
     hackage: parsec-3.1.16.1@sha256:5769242043b01bf759b07b7efedcb19607837ee79015fcddde34645664136aed,4691
     pantry-tree:
@@ -65,28 +68,22 @@ packages:
   original:
     hackage: text-2.1
 - completed:
-    hackage: unix-2.8.1.1@sha256:91cbc951a742fc2c95d5902be38fcf1b859c2891241bc353ff16154a8f7c35ae,7314
+    hackage: th-abstraction-0.6.0.0@sha256:d8959fa6a2812afcdd5f6f255fd6be8b3e0ca01e425586a554544fcb70b0ec7c,2303
     pantry-tree:
-      sha256: aa218d0cf5715c0af52556432efae6b41d0b76a41ad0be788a2be77b9b8c9d09
+      sha256: 985be7c00f4358e474188ef2126cdb2d345345a9bcb9b9cf95035d037939f0d8
+      size: 671
+  original:
+    hackage: th-abstraction-0.6.0.0
+- completed:
+    hackage: unix-2.8.1.1@sha256:ac8543fb9a80e3b9836cea7e71cd3a8fd56d7563dd59389d9731e71a688c19db,7610
+    pantry-tree:
+      sha256: 38451cb8e110edc764f6e58d835031961f0a9dea8ca8ea84e2a434ca1c1a6c46
       size: 5642
   original:
     hackage: unix-2.8.1.1
-- completed:
-    name: text-iso8601
-    pantry-tree:
-      sha256: f72aa62f5f4d1155b3d3f35e8227548a27cee83fb5d0742564b5ef26597f1431
-      size: 427
-    sha256: 337c4e028a4065615c3a7c40bc6641195b5493c253b9afbe95cf89082ccd88ce
-    size: 386910
-    subdir: text-iso8601
-    url: https://github.com/haskell/aeson/archive/c8831dd552457cf96e60b62e2bdd99a2cb2d4070.tar.gz
-    version: '0.1'
-  original:
-    subdir: text-iso8601
-    url: https://github.com/haskell/aeson/archive/c8831dd552457cf96e60b62e2bdd99a2cb2d4070.tar.gz
 snapshots:
 - completed:
-    sha256: ef64ad2dff8573fe227104852d4d3b3f42f108a33f14c72318d431d3d89d3845
-    size: 659086
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2023/8/29.yaml
-  original: nightly-2023-08-29
+    sha256: 190531f603c5d5115f66c3fd692a26eaa7958914e6450f78cd7028c401328578
+    size: 695333
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2023/10/23.yaml
+  original: nightly-2023-10-23
