@@ -1,19 +1,18 @@
 packages:
   - .
-resolver: nightly-2023-08-29
+resolver: nightly-2023-10-23
+compiler: ghc-9.8.1
+compiler-check: match-exact
 extra-deps:
-  - github: haskell/aeson
-    commit: 2ff1736de826d1800e0139d4f79ec2b6986469f6
+  - aeson-2.2.1.0
+  - base-4.19.0.0
   - binary-0.8.9.1
-  - directory-1.3.8.1
   - bytestring-0.12.0.2
-  - filepath-1.4.100.3
+  - directory-1.3.8.1
+  - filepath-1.4.100.4
   - parsec-3.1.16.1
   - process-1.6.17.0
   - text-2.1
+  - th-abstraction-0.6.0.0
   - unix-2.8.1.1
-  - github: haskell/aeson
-    commit: c8831dd552457cf96e60b62e2bdd99a2cb2d4070
-    subdirs:
-      - text-iso8601
 allow-newer: true

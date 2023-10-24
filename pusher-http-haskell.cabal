@@ -40,7 +40,7 @@ library
     ghc-options:        -Wcompat -Wmissing-signatures -Wall
     build-depends:
         aeson >=1.0 && <2.3,
-        base >=4.11 && <4.19,
+        base >=4.11 && <4.20,
         bytestring >=0.10 && <0.13,
         base16-bytestring >=0.1 && <1.1,
         cryptonite >=0.6 && <0.31,
