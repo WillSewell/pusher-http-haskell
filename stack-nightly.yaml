@@ -3,3 +3,5 @@ packages:
 resolver: nightly-2024-09-03
 compiler: ghc-9.8.2
 compiler-check: match-exact
+extra-deps:
+  - hashable-1.5.0.0
