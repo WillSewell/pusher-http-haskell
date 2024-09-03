@@ -1,3 +1,5 @@
 packages:
   - "."
 resolver: lts-16.31
+extra-deps:
+  - crypton-0.32

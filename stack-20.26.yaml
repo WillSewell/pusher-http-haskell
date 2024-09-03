@@ -1,3 +1,5 @@
 packages:
   - "."
 resolver: lts-20.26
+extra-deps:
+  - crypton-0.32
