@@ -7,7 +7,7 @@ copyright:     (c) Will Sewell, 2016
 maintainer:    me@willsewell.com
 author:        Will Sewell
 stability:     stable
-tested-with:   ghc >=8.6.5
+tested-with:   ghc >=8.8.4
 homepage:      https://github.com/WillSewell/pusher-http-haskell
 bug-reports:   https://github.com/WillSewell/pusher-http-haskell/issues
 synopsis:      Haskell client library for the Pusher Channels HTTP API
@@ -43,8 +43,8 @@ library
         base >=4.11 && <4.20,
         bytestring >=0.10 && <0.13,
         base16-bytestring >=0.1 && <1.1,
-        cryptonite >=0.6 && <0.31,
-        hashable >=1.2 && <1.5,
+        crypton >=0.32 && <1.1,
+        hashable >=1.2 && <1.6,
         http-client >=0.4.30 && <0.8,
         http-client-tls ==0.3.*,
         http-types >=0.8 && <0.13,
