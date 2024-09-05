@@ -7,7 +7,7 @@ copyright:     (c) Will Sewell, 2016
 maintainer:    me@willsewell.com
 author:        Will Sewell
 stability:     stable
-tested-with:   ghc >=8.6.5
+tested-with:   ghc >=8.8.4
 homepage:      https://github.com/WillSewell/pusher-http-haskell
 bug-reports:   https://github.com/WillSewell/pusher-http-haskell/issues
 synopsis:      Haskell client library for the Pusher Channels HTTP API
