@@ -40,7 +40,7 @@ library
     ghc-options:        -Wcompat -Wmissing-signatures -Wall
     build-depends:
         aeson >=1.0 && <2.3,
-        base >=4.11 && <4.20,
+        base >=4.11 && <4.21,
         bytestring >=0.10 && <0.13,
         base16-bytestring >=0.1 && <1.1,
         crypton >=0.32 && <1.1,
@@ -50,7 +50,7 @@ library
         http-types >=0.8 && <0.13,
         memory >=0.7 && <0.19,
         text >=1.2 && < 2.2,
-        time >=1.5 && <1.14,
+        time >=1.5 && <1.15,
         unordered-containers ==0.2.*
 
 test-suite tests
