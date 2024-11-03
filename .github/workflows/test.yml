@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -21,20 +21,17 @@ jobs:
         - stack-nightly.yaml
 
     steps:
-    - name: 'https://github.com/mstksg/setup-stack/issues/13'
-      run: 'echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV'
-
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup stack
-      uses: haskell/actions/setup@v2
+      uses: haskell-actions/setup@v2
       with:
         enable-stack: true
         stack-version: latest
 
     - name: Set up HLint
-      uses: haskell/actions/hlint-setup@v2
+      uses: haskell-actions/hlint-setup@v2
 
     - name: Install dependencies
       run: stack --no-terminal --install-ghc test --only-dependencies
@@ -47,7 +44,7 @@ jobs:
         STACK_YAML: ${{ matrix.resolver-yaml }}
 
     - name: HLint
-      uses: haskell/actions/hlint-run@v2
+      uses: haskell-actions/hlint-run@v2
       with:
         path: .
         fail-on: warning
