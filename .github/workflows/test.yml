@@ -17,8 +17,10 @@ jobs:
         - stack-19.33.yaml # GHC 9.0
         - stack-20.26.yaml # GHC 9.2
         - stack-21.25.yaml # GHC 9.4
-        - stack.yaml # GHC 9.6
-        - stack-nightly.yaml
+        - stack-22.43.yaml # GHC 9.6
+        - stack.yaml # GHC 9.8
+        # TODO: need stack 3.3 to be released
+        # - stack-nightly.yaml
 
     steps:
     - name: Checkout
