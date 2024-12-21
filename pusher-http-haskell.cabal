@@ -1,6 +1,6 @@
 cabal-version: 1.18
 name:          pusher-http-haskell
-version:       2.1.0.19
+version:       2.1.0.20
 license:       MIT
 license-file:  LICENSE
 copyright:     (c) Will Sewell, 2016
