@@ -1,5 +1,0 @@
-packages:
-  - "."
-resolver: lts-19.33
-extra-deps:
-  - crypton-0.32

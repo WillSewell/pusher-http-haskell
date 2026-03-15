@@ -1,21 +1,45 @@
 packages:
   - .
-resolver: nightly-2025-08-08
-compiler: ghc-9.12.2
+resolver: nightly-2026-03-08
+compiler: ghc-9.14.1
 compiler-check: match-exact
 extra-deps:
-  - base-4.21.0.0
-  - directory-1.3.9.0
-  - file-io-0.1.5
-  - filepath-1.4.301.0
-  - process-1.6.26.1
+  - crypton-1.1.0
+  - crypton-connection-0.4.6
+  - crypton-x509-1.9.0
+  - crypton-x509-store-1.9.0
+  - crypton-x509-system-1.9.0
+  - crypton-x509-validation-1.9.0
+  - directory-1.3.10.1
+  - file-io-0.2.0
+  - filepath-1.5.5.0
+  - hpke-0.1.0
+  - http-client-tls-0.4.0
+  - process-1.6.27.0
   - time-1.15
-  - unix-2.8.7.0
-# These packages currently require time < 1.15
+  - tls-2.3.0
+  - unix-2.8.8.0
+flags:
+  directory:
+    os-string: true
+  file-io:
+    os-string: true
+  process:
+    os-string: true
+  unix:
+    os-string: true
 allow-newer: true
 allow-newer-deps:
-  - aeson
-  - directory
-  - serialise
-  - text-iso8601
-  - time-compat
+- aeson
+- base64
+- cborg
+- directory
+- indexed-traversable
+- indexed-traversable-instances
+- semialign
+- serialise
+- tagged
+- text-iso8601
+- these
+- time-compat
+- uuid-types

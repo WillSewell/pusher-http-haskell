@@ -1,3 +1,18 @@
 packages:
   - "."
-resolver: lts-24.2
+resolver: lts-24.34
+extra-deps:
+  - crypton-1.1.0
+  - crypton-asn1-encoding-0.10.0
+  - crypton-asn1-parse-0.10.0
+  - crypton-asn1-types-0.4.1
+  - crypton-connection-0.4.6
+  - crypton-x509-1.9.0
+  - crypton-x509-store-1.9.0
+  - crypton-x509-system-1.9.0
+  - crypton-x509-validation-1.9.0
+  - hpke-0.1.0
+  - http-client-tls-0.4.0
+  - time-hourglass-0.3.0
+  - ram-0.21.1
+  - tls-2.3.0
