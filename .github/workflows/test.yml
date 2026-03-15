@@ -12,15 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         resolver-yaml:
-        - stack-16.31.yaml # GHC 8.8
-        - stack-18.28.yaml # GHC 8.10
-        - stack-19.33.yaml # GHC 9.0
-        - stack-20.26.yaml # GHC 9.2
-        - stack-21.25.yaml # GHC 9.4
-        - stack-22.43.yaml # GHC 9.6
-        - stack.yaml # GHC 9.8
-        # TODO: need stack 3.3 to be released
-        # - stack-nightly.yaml
+        - stack.yaml # GHC 9.10
+        - stack-nightly.yaml # GHC 9.14
 
     steps:
     - name: Checkout
