@@ -48,7 +48,7 @@ library
         http-client >=0.4.30 && <0.8,
         http-client-tls >=0.3 && <0.5,
         http-types >=0.8 && <0.13,
-        ram ==0.21.*,
+        ram >=0.21 && <0.23,
         text >=1.2 && < 2.2,
         time >=1.5 && <1.16,
         unordered-containers ==0.2.*

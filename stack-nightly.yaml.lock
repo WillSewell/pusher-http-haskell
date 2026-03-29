@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: crypton-1.1.0@sha256:9ca8ac5c6f2b0eb39c50286a4f73782f7ded55265e7bd18c437b55448a9dbbf2,16751
+    hackage: crypton-1.1.2@sha256:98681a0ac0c09adda61469354e0853deaf21ff1a2234d6294fdb0e9a5d2f976d,15142
     pantry-tree:
-      sha256: 6b91a1d3e0f42e877658b2686dcadc290c94b62befd46a37dd5969029907dfdf
-      size: 23411
+      sha256: bd84b2f05917eb50912576949becdd8806c93cf8428be5f48d16a33eee8ad01b
+      size: 23412
   original:
-    hackage: crypton-1.1.0
+    hackage: crypton-1.1.2
 - completed:
     hackage: crypton-connection-0.4.6@sha256:0daaf114a49fb5f6fd575ae72996b3124d9dbafacdf790824ba1376698389e03,1542
     pantry-tree:
@@ -61,13 +61,6 @@ packages:
   original:
     hackage: file-io-0.2.0
 - completed:
-    hackage: filepath-1.5.5.0@sha256:c6ec08084ffc90838ad36d03c3792be70fa171942a3677ec68e9be8b437754fe,5314
-    pantry-tree:
-      sha256: abb3039d7b4380db4d74db6d0d4e51fd83610ce9b081bb026ed5d9823cc1f000
-      size: 2274
-  original:
-    hackage: filepath-1.5.5.0
-- completed:
     hackage: hpke-0.1.0@sha256:fb107670a0aeb91b4626e0b1dff4e7ec3342e48931cc994938d95af1a23f645d,1801
     pantry-tree:
       sha256: 9bb04f6d3456c81ac18fa50815c128cef8f86b5676f08af4037930e0fbd7cf76
@@ -111,7 +104,7 @@ packages:
     hackage: unix-2.8.8.0
 snapshots:
 - completed:
-    sha256: 80f089d702df65774c7d11c1a8cf326c5e303692aa43641886e2cbfb44826257
-    size: 732702
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/3/8.yaml
-  original: nightly-2026-03-08
+    sha256: 83ec1662a1999cfc71624b02e75c801553e14dd7ed9be6711d3113a357216bb8
+    size: 732282
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/3/29.yaml
+  original: nightly-2026-03-29
