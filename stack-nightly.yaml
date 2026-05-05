@@ -1,6 +1,6 @@
 packages:
   - .
-resolver: nightly-2026-03-29
+resolver: nightly-2026-05-04
 compiler: ghc-9.14.1
 compiler-check: match-exact
 extra-deps:
@@ -15,7 +15,7 @@ extra-deps:
   - hpke-0.1.0
   - http-client-tls-0.4.0
   - process-1.6.27.0
-  - time-1.15
+  - time-1.16
   - tls-2.3.0
   - unix-2.8.8.0
 flags:
@@ -41,4 +41,5 @@ allow-newer-deps:
 - text-iso8601
 - these
 - time-compat
+- unix
 - uuid-types

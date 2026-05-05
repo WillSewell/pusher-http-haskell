@@ -82,12 +82,12 @@ packages:
   original:
     hackage: process-1.6.27.0
 - completed:
-    hackage: time-1.15@sha256:e96c2f73330c2907ac8c41ea45bd2bd7476e34f80ef8feabedaa34ed0f4fed94,7472
+    hackage: time-1.16@sha256:0a8064c2f0a1e45b20f29008231db59607865504ae10fec78947a06bec811f9d,8197
     pantry-tree:
-      sha256: a0236deee889895790315a4fbc0a330e6f10912c5a7a121bd1637673c05a6301
-      size: 7549
+      sha256: 087677f7864129f5c4e000164d5d5c7ab12039c343aee98b08951564e036c0cb
+      size: 7688
   original:
-    hackage: time-1.15
+    hackage: time-1.16
 - completed:
     hackage: tls-2.3.0@sha256:5ad1ee6ab5da31073451155ea957632124ef8ad338500283a429ac334e52c9e8,7292
     pantry-tree:
@@ -104,7 +104,7 @@ packages:
     hackage: unix-2.8.8.0
 snapshots:
 - completed:
-    sha256: 83ec1662a1999cfc71624b02e75c801553e14dd7ed9be6711d3113a357216bb8
-    size: 732282
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/3/29.yaml
-  original: nightly-2026-03-29
+    sha256: 166db4ed96cf0ddaae06d6edaf60bf4229feb543e091ec9cd4a84216558c1094
+    size: 746654
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/5/4.yaml
+  original: nightly-2026-05-04
