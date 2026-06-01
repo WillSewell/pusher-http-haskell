@@ -1,9 +1,10 @@
 packages:
   - .
-resolver: nightly-2026-05-04
+resolver: nightly-2026-05-29
 compiler: ghc-9.14.1
 compiler-check: match-exact
 extra-deps:
+  - aeson-2.3.0.0
   - crypton-1.1.2
   - crypton-connection-0.4.6
   - crypton-x509-1.9.0
