@@ -104,7 +104,7 @@ packages:
     hackage: tls-2.3.0
 snapshots:
 - completed:
-    sha256: 91dfbdf885fb0110f0e63cdba42e13ff375dc7efc2f69f02d238b31ca3c1064f
-    size: 728778
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/39.yaml
-  original: lts-24.39
+    sha256: 3c412a7c13dba6d3d808455a458e0776c58b6cf99b8a7961a2f5e55589d6f1d6
+    size: 729011
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/43.yaml
+  original: lts-24.43

@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: aeson-2.3.0.0@sha256:cf239fd16964d3aede1c626dc276c86369b1849a4bb18c73d61dcd045938daee,6601
+    pantry-tree:
+      sha256: 10f87edba228a0d01561480f31416df3a956d72f4e6453a520393628f93df724
+      size: 83440
+  original:
+    hackage: aeson-2.3.0.0
+- completed:
     hackage: crypton-1.1.2@sha256:98681a0ac0c09adda61469354e0853deaf21ff1a2234d6294fdb0e9a5d2f976d,15142
     pantry-tree:
       sha256: bd84b2f05917eb50912576949becdd8806c93cf8428be5f48d16a33eee8ad01b
@@ -104,7 +111,7 @@ packages:
     hackage: unix-2.8.8.0
 snapshots:
 - completed:
-    sha256: 166db4ed96cf0ddaae06d6edaf60bf4229feb543e091ec9cd4a84216558c1094
-    size: 746654
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/5/4.yaml
-  original: nightly-2026-05-04
+    sha256: c78e4ff31e5f63d5a4365834e73405017a82fedbdd8df62fc63e444b9f755135
+    size: 754435
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/5/29.yaml
+  original: nightly-2026-05-29

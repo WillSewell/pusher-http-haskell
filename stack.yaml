@@ -1,6 +1,6 @@
 packages:
   - "."
-resolver: lts-24.39
+resolver: lts-24.43
 extra-deps:
   - crypton-1.1.2
   - crypton-asn1-encoding-0.10.0
