@@ -1,8 +1,0 @@
-# GHC 9.12 has no LTS yet; retain coverage alongside the latest GHC.
-packages:
-  - .
-resolver: nightly-2026-09-29
-extra-deps:
-  - aeson-2.3.0.0
-  - crypton-2.1.2
-  - text-iso8601-0.2.0.0
