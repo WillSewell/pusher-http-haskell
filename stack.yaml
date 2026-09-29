@@ -1,18 +1,25 @@
 packages:
   - "."
-resolver: lts-24.43
+resolver: lts-24.60
 extra-deps:
-  - crypton-1.1.2
+  - crypton-2.1.2
   - crypton-asn1-encoding-0.10.0
   - crypton-asn1-parse-0.10.0
   - crypton-asn1-types-0.4.1
   - crypton-connection-0.4.6
-  - crypton-x509-1.9.0
+  - crypton-x509-1.9.1
   - crypton-x509-store-1.9.0
   - crypton-x509-system-1.9.0
-  - crypton-x509-validation-1.9.0
-  - hpke-0.1.0
+  - crypton-x509-validation-1.9.1
+  - hpke-0.2.0
   - http-client-tls-0.4.0
   - time-hourglass-0.3.0
-  - ram-0.22.0
-  - tls-2.3.0
+  - ram-0.22.1
+  - tls-2.4.6
+  - mlkem-0.2.3.0
+# crypton-x509-store has not yet widened its crypton upper bound.
+allow-newer: true
+allow-newer-deps:
+  - crypton-x509-store
+  # crypton-connection still requires tls <2.4.
+  - crypton-connection
