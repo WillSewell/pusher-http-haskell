@@ -12,7 +12,14 @@ jobs:
       fail-fast: false
       matrix:
         resolver-yaml:
+        - stack-18.28.yaml # GHC 8.10
+        - stack-19.33.yaml # GHC 9.0
+        - stack-20.26.yaml # GHC 9.2
+        - stack-21.25.yaml # GHC 9.4
+        - stack-22.44.yaml # GHC 9.6
+        - stack-23.28.yaml # GHC 9.8
         - stack.yaml # GHC 9.10
+        - stack-9.12.yaml # GHC 9.12
         - stack-nightly.yaml # GHC 9.14
 
     steps:

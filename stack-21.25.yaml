@@ -1,0 +1,13 @@
+packages:
+  - .
+resolver: lts-21.25
+extra-deps:
+  - crypton-2.1.2
+  - ram-0.22.1
+  - primitive-0.9.1.0
+  - base16-1.0
+  - data-array-byte-0.1.0.2
+# aeson 2.1 predates primitive 0.9.
+allow-newer: true
+allow-newer-deps:
+  - aeson

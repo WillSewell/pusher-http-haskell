@@ -33,9 +33,9 @@ packages:
   original:
     hackage: crypton-asn1-types-0.4.1
 - completed:
-    hackage: crypton-connection-0.4.6@sha256:0daaf114a49fb5f6fd575ae72996b3124d9dbafacdf790824ba1376698389e03,1542
+    hackage: crypton-connection-0.4.6@sha256:a3764a44de9f43b1e9f590009ebbea1401fc3911e3ba41ce4d9b93d9f2a8d22e,1599
     pantry-tree:
-      sha256: 6aeb6fa0f63eec1fa259f1de59c81aef7779db25927da03d7c3c98c009f1712f
+      sha256: 87455e2624bb4ee57043d5c64854b07c7d83cf90a69c5f02447dc6bd79a1d82d
       size: 464
   original:
     hackage: crypton-connection-0.4.6
@@ -47,9 +47,9 @@ packages:
   original:
     hackage: crypton-x509-1.9.1
 - completed:
-    hackage: crypton-x509-store-1.9.0@sha256:9746160b993c24c175e560e27051dfe4616c6413014712776f1297e2ca8bba8a,1700
+    hackage: crypton-x509-store-1.9.0@sha256:ad388a99b25d8c11727d96f9f933341aaba0ef8cbfee1dccf3c1a09568674cc4,1714
     pantry-tree:
-      sha256: 52bdc316b066536be88adc53b141f52e292c074a79d72bf57688cd78fc463871
+      sha256: e08654254a48592b52e876413d320d468fe7beae6ceefde7cc8f5a830e5fa9c4
       size: 458
   original:
     hackage: crypton-x509-store-1.9.0
@@ -109,9 +109,30 @@ packages:
       size: 1831
   original:
     hackage: mlkem-0.2.3.0
+- completed:
+    hackage: ech-config-0.0.1@sha256:2b3eaf49d7b94bd4abdbdc1725419f1167dffe3e771a324fb0a55f438cd105cd,1388
+    pantry-tree:
+      sha256: 8e9dc0e9495fdb6513a13a23150dcceda38c4afbdeb3d81c504155ce88293b17
+      size: 283
+  original:
+    hackage: ech-config-0.0.1
+- completed:
+    hackage: crypton-pem-0.3.0@sha256:fd7e60d8c3a2d7c43bc3cfec95e6df1f0f05ee08d7d038bb9f9074a1001cc046,1641
+    pantry-tree:
+      sha256: c5faee5674a44855fcd555b7c4b14fdeb30fe3b4fe9f4278dbf263c950592e6f
+      size: 551
+  original:
+    hackage: crypton-pem-0.3.0
+- completed:
+    hackage: zlib-0.7.1.1@sha256:56d8bb3f9656059ff24b705d59cc65f6f37e3ea92b6b5f5bb202bd607738bb6f,5356
+    pantry-tree:
+      sha256: 22ab2292da807240a024dcecf15cc5ecd26636966d0202c507be9db425654c08
+      size: 1519
+  original:
+    hackage: zlib-0.7.1.1
 snapshots:
 - completed:
-    sha256: 5851c9fcb30f350a167916d8873bdd53c149ce73ceb9637f4caba0cd554c2af6
-    size: 732465
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/60.yaml
-  original: lts-24.60
+    sha256: 7e724f347d5969cb5e8dde9f9aae30996e3231c29d1dafd45f21f1700d4c4fcb
+    size: 684460
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/23/28.yaml
+  original: lts-23.28

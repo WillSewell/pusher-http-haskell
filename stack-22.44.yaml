@@ -1,6 +1,6 @@
 packages:
-  - "."
-resolver: lts-24.60
+  - .
+resolver: lts-22.44
 extra-deps:
   - crypton-2.1.2
   - crypton-asn1-encoding-0.10.0
@@ -17,9 +17,14 @@ extra-deps:
   - ram-0.22.1
   - tls-2.4.6
   - mlkem-0.2.3.0
-# crypton-x509-store has not yet widened its crypton upper bound.
+  - primitive-0.9.1.0
+  - ech-config-0.0.1
+  - crypton-socks-0.6.2
+  - crypton-pem-0.3.0
+  - zlib-0.7.1.1
+# These releases still have conservative upper bounds.
 allow-newer: true
 allow-newer-deps:
   - crypton-x509-store
-  # crypton-connection still requires tls <2.4.
   - crypton-connection
+  - aeson
