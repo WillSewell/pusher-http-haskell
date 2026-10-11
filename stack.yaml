@@ -1,6 +1,8 @@
 packages:
   - "."
 resolver: lts-24.62
+# Remove these overrides once the LTS resolver includes crypton 2 and its
+# compatible dependency set.
 extra-deps:
   - crypton-2.2.0
   - crypton-asn1-encoding-0.10.0
