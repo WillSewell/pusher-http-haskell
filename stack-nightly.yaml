@@ -1,10 +1,24 @@
 packages:
   - .
-resolver: nightly-2026-09-29
+resolver: nightly-2026-10-10
 # Nightly still uses GHC 9.12; test the latest released GHC.
 compiler: ghc-9.14.1
 compiler-check: match-exact
 extra-deps:
   - aeson-2.3.0.0
-  - crypton-2.1.2
+  - crypton-2.2.0
+  - crypton-x509-1.10.0
+  - crypton-x509-store-1.10.0
+  - crypton-x509-system-1.10.0
+  - crypton-x509-validation-1.10.0
+  - hpke-0.3.0
+  - tls-2.4.11
+  - tagged-0.8.11
   - text-iso8601-0.2.0.0
+# crypton-connection still requires the crypton-x509 1.9 series.
+allow-newer: true
+allow-newer-deps:
+  - crypton-connection
+  # These snapshot packages have not widened their GHC 9.14 boot-package bounds.
+  - cborg
+  - serialise
