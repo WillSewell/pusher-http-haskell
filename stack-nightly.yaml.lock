@@ -5,78 +5,57 @@
 
 packages:
 - completed:
-    hackage: aeson-2.3.0.0@sha256:cf239fd16964d3aede1c626dc276c86369b1849a4bb18c73d61dcd045938daee,6601
+    hackage: crypton-2.3.0@sha256:a45cde4867558d02fcb22b337e54fe52a9fe6fa2bd100dbef61b3fb70897de11,43769
     pantry-tree:
-      sha256: 10f87edba228a0d01561480f31416df3a956d72f4e6453a520393628f93df724
-      size: 83440
+      sha256: 99b0ba61bedaf35d4ced87053e6a16ecd5120b74bf3fe67c81adafd49a5cbe14
+      size: 63887
   original:
-    hackage: aeson-2.3.0.0
+    hackage: crypton-2.3.0
 - completed:
-    hackage: crypton-2.2.0@sha256:8eba39a8d5dff7f63b56ccee8a5db0f9e117335d545f06b6b5df9090ab7adae7,42063
+    hackage: crypton-x509-1.11.0@sha256:d91f6472f95342c4cc3e734358ac406f04550383debfaeb86e25043a6c8a5d6f,2134
     pantry-tree:
-      sha256: cd831a0c07d7fea41ba81ec86f672e554b0d70ba3b45ee86dd7215464fcfcaf1
-      size: 62595
+      sha256: e4765bac79d27d37b21df7f304ba679a562d9b691e0cdccaf4efe60bb15d7980
+      size: 1255
   original:
-    hackage: crypton-2.2.0
+    hackage: crypton-x509-1.11.0
 - completed:
-    hackage: crypton-x509-1.10.0@sha256:5da3845a214c3780f4890308c8bc1205f37250685c9f3345a7321a3d684a88cc,2089
+    hackage: crypton-x509-store-1.10.2@sha256:1bc536e5f6b30aa37d56d69b0e8ba4d5ea6929179deea6cbad4ad3c870339f45,1827
     pantry-tree:
-      sha256: 3bada84c56fcc1f5eb07e5bf17a27ab83b3116723cb4f2936f50cdcd55882278
-      size: 1194
+      sha256: 542546325a813c7a1b8579b70c3e9d05a032ee4244ac32468a9042fabd2a4aae
+      size: 520
   original:
-    hackage: crypton-x509-1.10.0
+    hackage: crypton-x509-store-1.10.2
 - completed:
-    hackage: crypton-x509-store-1.10.0@sha256:6131cbcadd5cfd46d3a6606d11fa17fd4c19979a06fe1f69b9151c5d1e21779a,1699
+    hackage: crypton-x509-system-1.10.2@sha256:d35813a022b0b482b30b836ee71130897f90a3e780b7bf842116280397f9b05e,1538
     pantry-tree:
-      sha256: c887076e403c701dc5c43a04bec784c72722681f1742663086377a39bffd019b
-      size: 459
+      sha256: e9ecea7743e7f9f2d72396d6eea483f64093dce5407f50ccab587ffa0244d9ef
+      size: 620
   original:
-    hackage: crypton-x509-store-1.10.0
+    hackage: crypton-x509-system-1.10.2
 - completed:
-    hackage: crypton-x509-system-1.10.0@sha256:a5c8689c33634812ee4fe5b30ac08591667083a9b0ea25d3c8bc9c4decc7c64d,1538
+    hackage: crypton-x509-validation-1.11.0@sha256:f669b8d476c3db857f5c72204d6b44e019c8939dc6da16781e4c221cb45983e9,2092
     pantry-tree:
-      sha256: b0afcab4f5a4631b8efc9f21f76010a5e567ce061bf7927aa6e3844d1db96b73
-      size: 512
+      sha256: db0e96bdae975d6dee63a87219e005d61c7e67fed3eb6a9dc52d83c1305387f7
+      size: 766
   original:
-    hackage: crypton-x509-system-1.10.0
+    hackage: crypton-x509-validation-1.11.0
 - completed:
-    hackage: crypton-x509-validation-1.10.0@sha256:4ed88cc643fe167a0c353f75317b0eaf19533300d6f87064fd4587b426d67279,2030
+    hackage: hpke-0.4.0@sha256:cb67e334dc43ac548a7a537e49bd13ed12cf4574dd05e8bc946365e37e5638e7,2050
     pantry-tree:
-      sha256: ce1a5549bf42f0824a54c0e8b854a6e3aa58d5f1bf3450936385f7704e2483be
-      size: 691
-  original:
-    hackage: crypton-x509-validation-1.10.0
-- completed:
-    hackage: hpke-0.3.0@sha256:0559deefe454e45b4f9651856f3c0a553a285ec1ecdca13f336e0b165e408e83,1977
-    pantry-tree:
-      sha256: 63d725222862d9fe03abad39d9695eb872a2a1c703391639444b32312825fc31
+      sha256: 8921aa6d06f8f3452806008ab2fa48eff3183c6b16e2ee00d405f1980706649e
       size: 1560
   original:
-    hackage: hpke-0.3.0
+    hackage: hpke-0.4.0
 - completed:
-    hackage: tls-2.4.11@sha256:e3f177356baf96c9d7c56babcbcaa6a180f759a82343aa7ab4da2241d192e3b4,6552
+    hackage: tls-2.6.2@sha256:87ea6abe65c5e9304686163b4a0f3b1e179e1ce709a964f35da368d9cec0bf6d,6730
     pantry-tree:
-      sha256: 349210814eb0a77c0d24e82e5c7e9a5e63ef07e4efd6b4f500ed32a0686369a0
-      size: 7127
+      sha256: dd900ac4e3ad2a6d529709c6e34107d74320f80bbcb06e3730f31e3caad66c8e
+      size: 7253
   original:
-    hackage: tls-2.4.11
-- completed:
-    hackage: tagged-0.8.11@sha256:2ada8d2cc33dcc4ed5e2ebf1fc272793b04a9840d95e44cf556f248c0a3a894c,2129
-    pantry-tree:
-      sha256: 35146511589c3d934a5823036e4849c329121fdf4e6608077095915f995de480
-      size: 438
-  original:
-    hackage: tagged-0.8.11
-- completed:
-    hackage: text-iso8601-0.2.0.0@sha256:dfebe2e25cd4ee9390682c9209242c3928227040f8b4c7a7713d2fdb8c886e33,2495
-    pantry-tree:
-      sha256: c6cf2a7499cfcb6b804f6375473b15ecba607845c0194d10263390f6062660e5
-      size: 428
-  original:
-    hackage: text-iso8601-0.2.0.0
+    hackage: tls-2.6.2
 snapshots:
 - completed:
-    sha256: 5cfc7fe14f5fa07860103cd1843ae909ad7587182ff9c161fb36b53831ab539e
-    size: 776387
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/10/10.yaml
-  original: nightly-2026-10-10
+    sha256: b3dab2e7ce7ec12272d3b03da3e7bec87f20eaced9afc3a6633000eea700b50f
+    size: 782470
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/11/22.yaml
+  original: nightly-2026-11-22
