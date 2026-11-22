@@ -1,24 +1,20 @@
 packages:
   - "."
-resolver: lts-24.62
+resolver: lts-24.68
 # Remove these overrides once the LTS resolver includes crypton 2 and its
 # compatible dependency set.
 extra-deps:
-  - crypton-2.2.0
+  - crypton-2.3.0
   - crypton-asn1-encoding-0.10.0
   - crypton-asn1-parse-0.10.0
   - crypton-asn1-types-0.4.1
   - crypton-connection-0.4.6
-  - crypton-x509-1.10.0
-  - crypton-x509-store-1.10.0
-  - crypton-x509-system-1.10.0
-  - crypton-x509-validation-1.10.0
-  - hpke-0.3.0
+  - crypton-x509-1.11.0
+  - crypton-x509-store-1.10.2
+  - crypton-x509-system-1.10.2
+  - crypton-x509-validation-1.11.0
+  - hpke-0.4.0
   - http-client-tls-0.4.0
   - time-hourglass-0.3.0
   - ram-0.22.1
-  - tls-2.4.11
-# crypton-connection still requires the crypton-x509 1.9 series.
-allow-newer: true
-allow-newer-deps:
-  - crypton-connection
+  - tls-2.6.2
